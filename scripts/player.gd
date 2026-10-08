@@ -270,6 +270,7 @@ func _physics_process(delta: float) -> void:
     if visual_root != null:
         # Animation-safe visual brace, without changing the authoritative capsule.
         # Preserve feet height when lowering the silhouette. Imported Crouch (if any) owns the detailed pose.
+        visual_root.rotation.x = lerpf(visual_root.rotation.x, 0.0, minf(1.0, delta * 9.0))
         visual_root.scale.y = lerpf(visual_root.scale.y, 1.0 - cover_blend * 0.15, minf(1.0, delta * 12.0))
         visual_root.position.y = lerpf(visual_root.position.y, -0.13 * cover_blend, minf(1.0, delta * 12.0))
         var lean := -0.17 * cover_normal.x if in_cover and wants_to_fire() else -0.09 * cover_normal.x * cover_blend
@@ -418,6 +419,12 @@ func _advance_vault(delta: float) -> void:
     else:
         wanted = vault_to
         wanted.y = lerpf(vault_top_y, vault_start_height, smoothstep(0.73, 1.0, t))
+    # Visual action curve (not yet full-body IK). Does not alter the physical capsule.
+    if visual_root != null:
+        visual_root.scale.y = lerpf(visual_root.scale.y, 1.0, minf(1.0, delta * 16.0))
+        visual_root.position.y = lerpf(visual_root.position.y, 0.0, minf(1.0, delta * 16.0))
+        visual_root.rotation.z = lerpf(visual_root.rotation.z, 0.0, minf(1.0, delta * 16.0))
+        visual_root.rotation.x = -0.17 * sin(t * PI)
     # Native collision sweep, no transform teleportation through cover geometry.
     var collision := move_and_collide(wanted - global_position)
     if collision != null and t < 0.95:
@@ -458,6 +465,8 @@ func _movement_axis() -> Vector2:
     return axis.normalized()
 
 func wants_to_fire() -> bool:
+    if vault_active:
+        return false
     # Android emulates a mouse click for a touch on some builds. A screen touch
     # is never a shot. Only the explicit FIRE button controls mobile_firing.
     if mobile_input_mode:
