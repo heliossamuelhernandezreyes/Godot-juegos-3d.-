@@ -145,7 +145,7 @@ func _main_corridor() -> void:
 
 func _node_rooms() -> void:
     for side in [-1.0, 1.0]:
-        var x := side * 28.0
+        var x: float = float(side) * 28.0
         _box("Node A/B industrial pedestal", Vector3(x, 0.37, 4), Vector3(3.8, 0.62, 3.3), metal)
         for dz in [-2.0, 2.0]:
             _box("Node side coolant tower", Vector3(x + side * 4.0, 2.2, 4.0 + dz * 2.0),
