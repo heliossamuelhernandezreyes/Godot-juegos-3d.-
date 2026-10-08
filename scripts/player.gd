@@ -1,6 +1,7 @@
 extends CharacterBody3D
 ## Personaje sin dependencias de recursos externos. El origen está a ~1 m del suelo.
 signal health_changed(current: int, maximum: int)
+signal dash_started
 
 const WALK_SPEED := 9.0
 const DASH_SPEED := 24.0
@@ -105,6 +106,7 @@ func _physics_process(delta: float) -> void:
         dash_remaining = DASH_DURATION
         dash_cooldown = DASH_COOLDOWN
         invulnerability = DASH_DURATION + 0.12
+        dash_started.emit()
     dash_queued = false
 
     if dash_remaining > 0.0:
