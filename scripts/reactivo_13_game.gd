@@ -11,6 +11,7 @@ const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
 const ART_SCRIPT = preload("res://scripts/art_stage.gd")
 const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
+const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
 
 var contract: Dictionary = {}
 var map_data: Dictionary = {}
@@ -21,6 +22,7 @@ var player
 var camera: Camera3D
 var stage: Node3D
 var audio_fx: Node
+var combat_fx: Node3D
 var mission_label: Label
 var health_label: Label
 var prompt_label: Label
@@ -73,6 +75,9 @@ func _ready() -> void:
     audio_fx = Node.new()
     audio_fx.set_script(AUDIO_SCRIPT)
     add_child(audio_fx)
+    combat_fx = Node3D.new()
+    combat_fx.set_script(EFFECT_SCRIPT)
+    add_child(combat_fx)
     player.dash_started.connect(func() -> void: audio_fx.trigger("dash"))
     director.initialize(contract)
     _refresh_hud()
@@ -428,6 +433,9 @@ func _fire() -> void:
                 collider.call("take_hit_from", 23, origin)
             elif collider.has_method("take_hit"):
                 collider.call("take_hit", 23)
+    if combat_fx != null:
+        combat_fx.muzzle(origin, player.aim_direction)
+        combat_fx.tracer(origin, destination)
     register_hit_feedback(destination)
 
 func _available_target() -> String:
@@ -537,6 +545,8 @@ func register_kill() -> void:
     kills += 1
 
 func register_hit_feedback(at: Vector3) -> void:
+    if combat_fx != null:
+        combat_fx.hit(at)
     var spark := MeshInstance3D.new()
     spark.name = "REACTIVO | projectile impact"
     var ball := SphereMesh.new()
@@ -559,7 +569,13 @@ func register_damage_feedback() -> void:
     if audio_fx != null:
         audio_fx.trigger("damage")
 
+func register_enemy_telegraph(start: Vector3, target: Vector3, duration: float) -> void:
+    if combat_fx != null:
+        combat_fx.enemy_charge(start, target, duration)
+
 func register_enemy_laser(start: Vector3, target: Vector3) -> void:
+    if combat_fx != null:
+        combat_fx.hostile_beam(start, target)
     var part := MeshInstance3D.new()
     var beam := CylinderMesh.new()
     beam.top_radius = 0.06
