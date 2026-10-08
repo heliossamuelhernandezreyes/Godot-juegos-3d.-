@@ -94,6 +94,7 @@ func _emission(tint: Color, energy: float) -> StandardMaterial3D:
 func _beam(label: String, pos: Vector3, size: Vector3, mat: Material, cast_shadow: bool = false) -> MeshInstance3D:
     var item := MeshInstance3D.new()
     item.name = label
+    item.set_meta("art_role", label)
     var mesh := BoxMesh.new()
     mesh.size = size
     item.mesh = mesh
