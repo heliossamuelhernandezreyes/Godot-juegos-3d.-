@@ -3,6 +3,9 @@ extends CharacterBody3D
 ## ARCONT principle: Skeleton3D/AnimationPlayer are visual, CharacterBody3D remains authoritative.
 signal health_changed(current: int, maximum: int)
 signal dash_started
+signal cover_entered
+signal vault_started
+signal vault_landed
 
 const WALK_SPEED := 9.0
 const DASH_SPEED := 24.0
@@ -334,6 +337,7 @@ func request_cover_toggle() -> bool:
     cover_id = str(nearby["id"])
     cover_normal = nearby["normal"]
     cover_guide = nearby["guide"]
+    cover_entered.emit()
     return true
 
 func _leave_cover() -> void:
@@ -398,6 +402,7 @@ func request_vault() -> bool:
     vault_start_height = global_position.y
     vault_elapsed = 0.0
     vault_active = true
+    vault_started.emit()
     velocity = Vector3.ZERO
     animation_lock = 0.0
     selected_clip = ""
@@ -434,6 +439,7 @@ func _advance_vault(delta: float) -> void:
     if vault_elapsed >= VAULT_TIME:
         vault_active = false
         vault_completed += 1
+        vault_landed.emit()
         velocity = Vector3.ZERO
 
 func _validate_cover() -> void:
