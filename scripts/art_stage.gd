@@ -6,6 +6,8 @@ const PILLAR = preload("res://assets/models/sentinel_pillar.obj")
 const CRATE = preload("res://assets/models/armored_crate.obj")
 const GATE = preload("res://assets/models/extraction_gate.obj")
 const REACTOR = preload("res://assets/models/reactor_altar.obj")
+const POLY_BARREL = preload("res://assets/vendor/polyhaven/barrel_03/barrel_03_1k.gltf")
+const POLY_LAMP = preload("res://assets/vendor/polyhaven/industrial_wall_lamp/industrial_wall_lamp_1k.gltf")
 
 var mesh_count := 0
 var mesh_instances := 0
@@ -25,6 +27,7 @@ func build(map_data: Dictionary, anchors: Dictionary) -> void:
     _static_prop("Cobertura E1", CRATE, Vector3(4, 0, 10), Vector3(1.3, 1.3, 1.3))
     _static_prop("Reactor", REACTOR, Vector3(0, 0, 0), Vector3(1.8, 2.0, 1.8))
     _display_asset("Portico", GATE, anchors["exit_portal"], 0.0)
+    _place_polyhaven_props()
     _lighting()
     _set_wall_detail()
     print("ART STAGE READY models=%d instances=%d lights=%d" % [mesh_count, mesh_instances, point_lights])
@@ -78,6 +81,24 @@ func _floor_tiles(map_data: Dictionary) -> void:
     add_child(batch)
     mesh_count += 1
     mesh_instances += index
+
+func _place_polyhaven_props() -> void:
+    # Actual PBR glTF assets acquired from Poly Haven official CC0 API,
+    # pinned with asset manifests; no live dependency during gameplay.
+    for point in [Vector3(-16, 0, 1), Vector3(16, 0, -3), Vector3(-10, 0, 15),
+                  Vector3(10, 0, -15), Vector3(-8, 0, -17)]:
+        _vendor_instance("Barril PBR Poly Haven", POLY_BARREL, point, 1.0)
+    for point in [Vector3(-20.9, 2.5, -13), Vector3(-20.9, 2.5, 6),
+                  Vector3(20.9, 2.5, -10), Vector3(20.9, 2.5, 10)]:
+        _vendor_instance("Luz PBR industrial", POLY_LAMP, point, 2.3)
+
+func _vendor_instance(label: String, packed: PackedScene, pos: Vector3, scale_factor: float) -> void:
+    var instance: Node3D = packed.instantiate()
+    instance.name = label
+    instance.position = pos
+    instance.scale = Vector3.ONE * scale_factor
+    add_child(instance)
+    mesh_count += 1
 
 func _lighting() -> void:
     _spot("Recorte cian", Vector3(-12, 7.5, -8), Color("#16b9dc"), 8.5, 27.0)
