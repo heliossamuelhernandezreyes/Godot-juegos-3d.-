@@ -107,6 +107,10 @@ func _attach_rifle_to_hand() -> void:
             bone_id = i
             break
     if bone_id < 0:
+        var bone_names: Array[String] = []
+        for index in range(humanoid_skeleton.get_bone_count()):
+            bone_names.append(str(humanoid_skeleton.get_bone_name(index)))
+        print("ARCONT VANGUARD BONE NAMES ", bone_names)
         print("VANGUARD: no compatible right-hand attachment bone; intrinsic gun animation retained")
         return
     var mount := BoneAttachment3D.new()
@@ -162,6 +166,11 @@ func _update_visual_state(delta: float) -> void:
         _play_clip("Run_Shoot", 0.10)
         return
     var local_movement := global_basis.inverse() * movement.normalized()
+    # Use native forward Run unless aiming; avoid false strafing from camera rotations.
+    var aiming := mobile_firing or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+    if not aiming:
+        _play_clip("Run")
+        return
     # Directional clips remove backward/sideways moonwalking.
     if local_movement.z > 0.42:
         _play_clip("Run_Back")
