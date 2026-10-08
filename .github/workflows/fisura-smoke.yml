@@ -52,6 +52,12 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 120 > godot-smoke.log 2>&1
           cat godot-smoke.log
           ! grep -E "SCRIPT ERROR|Parse Error|Invalid call|ERROR:" godot-smoke.log
+      - name: Audit all authored OBJ geometry imports
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/asset_audit.gd > asset-integrity.log 2>&1
+          cat asset-integrity.log
+          grep -q "ASSET INTEGRITY PASS" asset-integrity.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" asset-integrity.log
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
@@ -67,4 +73,5 @@ jobs:
             godot-import.log
             godot-smoke.log
             godot-playthrough.log
+            asset-integrity.log
           if-no-files-found: ignore
