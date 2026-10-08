@@ -5,7 +5,6 @@ const ENEMY_SCRIPT = preload("res://scripts/enemy.gd")
 const MAP_PATH := "res://maps/crisol_01.json"
 const CORE_GOAL := 3
 const MAX_ENEMIES := 12
-const ARENA_RADIUS := 21.0
 const SHOCK_PERIOD := 12.0
 
 var map_data: Dictionary = {}
@@ -22,6 +21,8 @@ var elapsed := 0.0
 var spawn_timer := 1.0
 var fire_timer := 0.0
 var shock_clock := 0.0
+var hazard_center := Vector3.ZERO
+var hazard_radius := 6.0
 var last_shock_phase := 0.0
 var collected := 0
 var kills := 0
@@ -54,6 +55,10 @@ func _read_map() -> bool:
         push_error("Contrato JSON invalido")
         return false
     map_data = parsed
+    for region in map_data.get("regions", []):
+        if region.get("kind", "") == "hazard":
+            hazard_center = _vec3(region.get("center", [0, 0, 0]))
+            hazard_radius = float(region.get("radius", 6.0))
     for item in map_data.get("anchors", []):
         anchors[item.get("id", "")] = _vec3(item.get("position", [0, 0, 0]))
         if item.get("kind", "") == "spawn" and item.get("team", "") == "enemy":
@@ -87,7 +92,9 @@ func _build_environment() -> void:
     add_child(sun)
 
 func _build_arena() -> void:
-    _box("Piso del Crisol", Vector3(0, -0.50, 0), Vector3(44, 1, 44), Color("#202b3b"))
+    var width := float(map_data["bounds"]["width"])
+    var depth := float(map_data["bounds"]["depth"])
+    _box("Piso del Crisol", Vector3(0, -0.50, 0), Vector3(width, 1, depth), Color("#202b3b"))
     var wall := Color("#3b4158")
     _box("Muralla norte", Vector3(0, 1.4, -22.5), Vector3(45, 2.8, 1), wall)
     _box("Muralla sur", Vector3(0, 1.4, 22.5), Vector3(45, 2.8, 1), wall)
@@ -104,11 +111,11 @@ func _build_arena() -> void:
     hazard_disk = MeshInstance3D.new()
     hazard_disk.name = "Alerta de pulso"
     var disk := CylinderMesh.new()
-    disk.top_radius = 6.0
-    disk.bottom_radius = 6.0
+    disk.top_radius = hazard_radius
+    disk.bottom_radius = hazard_radius
     disk.height = 0.035
     hazard_disk.mesh = disk
-    hazard_disk.position = Vector3(0, 0.08, 0)
+    hazard_disk.position = hazard_center + Vector3(0, 0.08, 0)
     var danger := StandardMaterial3D.new()
     danger.albedo_color = Color("#8e372b")
     danger.emission_enabled = true
@@ -234,6 +241,8 @@ func _create_hud() -> void:
     var restart := _mobile_button(root, "REINICIAR", -170, -20, -70, -10)
     restart.anchor_top = 0.0
     restart.anchor_bottom = 0.0
+    restart.offset_top = 14.0
+    restart.offset_bottom = 70.0
     restart.visible = false
     result_label.visibility_changed.connect(func() -> void: restart.visible = result_label.visible)
     restart.pressed.connect(func() -> void: get_tree().reload_current_scene())
@@ -404,8 +413,8 @@ func _update_hazard(delta: float) -> void:
     var phase := fmod(shock_clock, SHOCK_PERIOD)
     hazard_disk.visible = phase >= 9.3
     if phase < last_shock_phase:
-        var gap := Vector2(player.global_position.x, player.global_position.z).length()
-        if gap < 6.0:
+        var gap := Vector2(player.global_position.x - hazard_center.x, player.global_position.z - hazard_center.z).length()
+        if gap < hazard_radius:
             player.take_damage(20)
     last_shock_phase = phase
     if player.health <= 0:
