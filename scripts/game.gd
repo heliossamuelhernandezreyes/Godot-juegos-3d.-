@@ -183,11 +183,20 @@ func _create_player() -> void:
     player.position = anchors["player_start"] + Vector3(0, 1, 0)
     add_child(player)
 
+func _camera_safe_position() -> Vector3:
+    # Enclosed industrial environment: never put the camera behind a tall wall.
+    var desired: Vector3 = player.global_position + Vector3(0, 15.0, 13.0)
+    var half_width := float(map_data["bounds"]["width"]) * 0.5
+    var half_depth := float(map_data["bounds"]["depth"]) * 0.5
+    desired.x = clampf(desired.x, -half_width + 2.8, half_width - 2.8)
+    desired.z = clampf(desired.z, -half_depth + 2.8, half_depth - 2.8)
+    return desired
+
 func _create_camera() -> void:
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_PERSPECTIVE
     camera.fov = 51.0
-    camera.position = player.global_position + Vector3(0, 15, 13)
+    camera.position = _camera_safe_position()
     add_child(camera)
     camera.current = true
     camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
@@ -347,7 +356,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null:
         return
-    camera.position = camera.position.lerp(player.global_position + Vector3(0, 15, 13), minf(1.0, delta * 6.0))
+    camera.position = camera.position.lerp(_camera_safe_position(), minf(1.0, delta * 6.0))
     camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
     if finished:
         if Input.is_key_pressed(KEY_R):
