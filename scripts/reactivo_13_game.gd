@@ -592,21 +592,6 @@ func register_enemy_telegraph(start: Vector3, target: Vector3, duration: float) 
         combat_fx.enemy_charge(start, target, duration)
 
 func register_enemy_laser(start: Vector3, target: Vector3) -> void:
+    # One visually bounded emitter. The old beam called Node3D.look_at before entering tree.
     if combat_fx != null:
         combat_fx.hostile_beam(start, target)
-    var part := MeshInstance3D.new()
-    var beam := CylinderMesh.new()
-    beam.top_radius = 0.06
-    beam.bottom_radius = 0.06
-    beam.height = maxf(0.12, start.distance_to(target))
-    part.mesh = beam
-    var mat := StandardMaterial3D.new()
-    mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    mat.albedo_color = Color("#ff5830")
-    part.material_override = mat
-    part.position = (start+target)*0.5
-    if start.distance_to(target)>0.2:
-        part.look_at(target, Vector3.UP)
-        part.rotate_object_local(Vector3.RIGHT, PI*0.5)
-    add_child(part)
-    get_tree().create_timer(0.18).timeout.connect(part.queue_free)
