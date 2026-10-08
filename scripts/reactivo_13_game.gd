@@ -37,6 +37,7 @@ var progress_bar: ColorRect
 var control_note: Label
 var tactical_reticle: Label
 var cover_label: Label
+var cover_button: Button
 var consoles: Dictionary = {}
 var objective_names: Dictionary = {}
 var gate_body: StaticBody3D
@@ -364,8 +365,8 @@ func _make_hud() -> void:
         var shoot := _mobile_button(root, "DISPARAR", -240, -20, -170, -110)
         shoot.button_down.connect(func() -> void: player.mobile_firing = true)
         shoot.button_up.connect(func() -> void: player.mobile_firing = false)
-        var cover := _mobile_button(root, "COBERTURA", -445, -270, -170, -110)
-        cover.pressed.connect(func() -> void: player.request_cover_toggle())
+        cover_button = _mobile_button(root, "COBERTURA", -445, -270, -170, -110)
+        cover_button.pressed.connect(func() -> void: player.request_cover_toggle())
         var shoulder := _mobile_button(root, "HOMBRO", -600, -450, -80, -20)
         shoulder.pressed.connect(_swap_shoulder)
         var dash := _mobile_button(root, "IMPULSO", -420, -270, -80, -20)
@@ -392,6 +393,7 @@ func _mobile_button(parent: Control, title: String, x0: int, x1: int, y0: int, y
     var btn := Button.new()
     btn.text = title
     btn.mouse_filter = Control.MOUSE_FILTER_STOP
+    btn.focus_mode = Control.FOCUS_NONE
     btn.anchor_left = 1
     btn.anchor_right = 1
     btn.anchor_top = 1
@@ -641,6 +643,9 @@ func _refresh_hud() -> void:
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     if cover_label != null:
         cover_label.text = "EN COBERTURA" if player.in_cover else ("CUBRIRSE" if player.can_take_cover() else "")
+    if cover_button != null:
+        cover_button.disabled = not player.in_cover and not player.can_take_cover()
+        cover_button.text = "SALIR" if player.in_cover else "COBERTURA"
     
     progress_bar.size.x = 0.0
     if not target.is_empty():
