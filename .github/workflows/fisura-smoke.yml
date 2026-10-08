@@ -22,6 +22,8 @@ jobs:
           path: _arcont_reference
       - name: Validate map with real ARCONT Map Forge validator
         run: python3 _arcont_reference/tools/map_forge_contract.py maps/crisol_01.json
+      - name: Validate live Reactivo-13 Map Forge level geometry
+        run: python3 _arcont_reference/tools/map_forge_contract.py maps/reactivo_13.json
       - name: Validate Reactivo-13 design mission with ARCONT cross-reference tool
         run: |
           python3 _arcont_reference/tools/vertical_slice_contract.py missions/reactivo_13.slice.json
@@ -117,6 +119,18 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/camera_bounds.gd > camera-bounds.log 2>&1 || { cat camera-bounds.log; exit 1; }
           cat camera-bounds.log
           grep -q "CAMERA OCCLUSION PASS" camera-bounds.log
+      - name: Check Reactivo-13 static waypoint reachability in real Godot
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_navigation.gd > reactivo-nav.log 2>&1 || { cat reactivo-nav.log; exit 1; }
+          cat reactivo-nav.log
+          grep -q "REACTIVO NAV PASS" reactivo-nav.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-nav.log
+      - name: Test Reactivo-13 five-stage gameplay extraction
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_playthrough.gd > reactivo-playthrough.log 2>&1 || { cat reactivo-playthrough.log; exit 1; }
+          cat reactivo-playthrough.log
+          grep -q "REACTIVO PLAYTHROUGH PASS" reactivo-playthrough.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-playthrough.log
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
@@ -132,6 +146,18 @@ jobs:
           grep -q "RENDER PROOF PASS" render-capture.log
           test -s fisura-render-proof.png
           file fisura-render-proof.png
+      - name: Capture real Reactivo-13 gameplay render
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/capture_reactivo.gd > reactivo-render.log 2>&1 || { cat reactivo-render.log; exit 1; }
+          cat reactivo-render.log
+          grep -q "REACTIVO RENDER PASS" reactivo-render.log
+          test -s reactivo-13-render-proof.png
+      - name: Upload Reactivo-13 actual render proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: reactivo-13-actual-render
+          path: reactivo-13-render-proof.png
+          if-no-files-found: error
       - name: Upload gameplay render proof
         uses: actions/upload-artifact@v4
         with:
@@ -147,6 +173,9 @@ jobs:
             godot-import.log
             godot-smoke.log
             godot-playthrough.log
+            reactivo-nav.log
+            reactivo-playthrough.log
+            reactivo-render.log
             asset-integrity.log
             render-capture.log
             vendor-import.log
