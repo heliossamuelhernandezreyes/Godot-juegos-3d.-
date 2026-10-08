@@ -27,11 +27,11 @@ func _verify() -> void:
         return
     # Photo evidence caught a previous regression with the actor's legs off-screen.
     # Evaluate an open-lane camera projection, not merely FOV and 3D distance.
-    world.camera.look_at(world.player.global_position + Vector3(-0.1, 0.96, -1.15), Vector3.UP)
+    world.camera.look_at(world.player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
     var frame_height: float = root.get_visible_rect().size.y
     var foot: Vector2 = world.camera.unproject_position(world.player.global_position + Vector3(0, -0.87, 0))
     var head: Vector2 = world.camera.unproject_position(world.player.global_position + Vector3(0, 0.93, 0))
-    if foot.y > frame_height * 0.95 or head.y < frame_height * 0.10:
+    if foot.y > frame_height * 0.93 or head.y < frame_height * 0.10:
         _fail("Player silhouette is cropped: head=" + str(head) + " feet=" + str(foot))
         return
     if foot.y - head.y < frame_height * 0.19:
