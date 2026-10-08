@@ -1,7 +1,7 @@
 extends CharacterBody3D
 ## Perseguidor básico: separación de navegación global y steering queda como prueba futura.
-var target: CharacterBody3D
-var director: Node3D
+var target
+var director
 var hit_points := 42
 var speed := 3.7
 var contact_cooldown := 0.0
