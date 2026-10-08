@@ -21,6 +21,8 @@ const LOCOMOTION := ["Idle_Gun", "Run", "Run_Back", "Run_Left", "Run_Right", "Wa
 var max_health := 100
 var health := 100
 var touch_axis := Vector2.ZERO
+var camera_yaw := 0.0
+var mobile_input_mode := OS.has_feature("mobile")
 var aim_direction := Vector3.FORWARD
 var mobile_firing := false
 var dash_queued := false
@@ -31,6 +33,7 @@ var cover_zones: Array = []
 var in_cover := false
 var cover_id := ""
 var cover_normal := Vector3.ZERO
+var cover_guide: Dictionary = {}
 var cover_requests := 0
 var invulnerability := 0.0
 var visual_root: Node3D
@@ -189,10 +192,13 @@ func _physics_process(delta: float) -> void:
     invulnerability = maxf(0.0, invulnerability - delta)
     _validate_cover()
     var motion := _movement_axis()
-    var direction := Vector3(motion.x, 0.0, motion.y).normalized()
+    var direction := (Basis(Vector3.UP, camera_yaw) * Vector3(motion.x, 0.0, motion.y)).normalized()
     if in_cover and direction.length_squared() > 0.001:
-        # Tangential traversal; do not drive the actor through its collider.
-        direction = (direction - cover_normal * direction.dot(cover_normal)).normalized()
+        if direction.dot(cover_normal) > 0.72:
+            _leave_cover() # deliberately push away from a wall to disengage
+        else:
+            # Follow the measured wall tangent and correct into the cover slot.
+            direction = (direction - cover_normal * direction.dot(cover_normal)).normalized()
     if direction.length_squared() > 0.01:
         dash_vector = direction
     elif aim_direction.length_squared() > 0.01:
@@ -214,6 +220,9 @@ func _physics_process(delta: float) -> void:
     else:
         var target_speed := WALK_SPEED * (0.56 if in_cover else 1.0)
         var target_velocity := direction * target_speed
+        if in_cover:
+            var correction := (_cover_snap_point() - global_position).dot(cover_normal)
+            target_velocity += cover_normal * clampf(correction * 10.0, -4.0, 4.0)
         var planar := Vector3(velocity.x, 0.0, velocity.z)
         var acceleration := MOVE_ACCELERATION if direction.length_squared() > 0.01 else MOVE_BRAKING
         planar = planar.move_toward(target_velocity, acceleration * delta)
@@ -228,15 +237,23 @@ func _physics_process(delta: float) -> void:
         look_at(global_position + aim_direction, Vector3.UP)
     if visual_root != null:
         # Animation-safe visual brace, without changing the authoritative capsule.
-        visual_root.position.y = lerpf(visual_root.position.y, -0.10 if in_cover else 0.0, minf(1.0, delta * 9.0))
-        visual_root.rotation.z = lerpf(visual_root.rotation.z, -0.07 * cover_normal.x if in_cover else 0.0, minf(1.0, delta * 8.0))
+        visual_root.position.y = lerpf(visual_root.position.y, -0.32 if in_cover else 0.0, minf(1.0, delta * 9.0))
+        visual_root.rotation.z = lerpf(visual_root.rotation.z, -0.09 * cover_normal.x if in_cover else 0.0, minf(1.0, delta * 8.0))
     _update_visual_state(delta)
 
-func configure_cover_zones(guides: Array) -> void:
+func configure_cover_zones(guides: Array, props: Array = []) -> void:
     cover_zones.clear()
     for guide in guides:
         if typeof(guide) == TYPE_DICTIONARY and str(guide.get("kind", "")) == "cover":
             cover_zones.append(guide)
+    # Crates already carry StaticBody3D / BoxShape3D in art_stage.gd.
+    # A decorative mesh without a physics collider never becomes cover.
+    for prop in props:
+        if typeof(prop) == TYPE_DICTIONARY and str(prop.get("kind", "")) == "crate":
+            cover_zones.append({
+                "id": prop["id"], "position": prop["position"],
+                "size": prop["collider_size"], "kind": "cover"
+            })
     _leave_cover()
 
 func _nearest_cover() -> Dictionary:
@@ -259,7 +276,7 @@ func _nearest_cover() -> Dictionary:
             normal.x = 1.0 if ox >= 0.0 else -1.0
         else:
             normal.z = 1.0 if oz >= 0.0 else -1.0
-        best = {"id":str(guide["id"]),"normal":normal,"gap":gap}
+        best = {"id":str(guide["id"]),"normal":normal,"gap":gap,"guide":guide}
         best_gap = gap
     return best
 
@@ -280,12 +297,30 @@ func request_cover_toggle() -> bool:
     in_cover = true
     cover_id = str(nearby["id"])
     cover_normal = nearby["normal"]
+    cover_guide = nearby["guide"]
     return true
 
 func _leave_cover() -> void:
     in_cover = false
     cover_id = ""
     cover_normal = Vector3.ZERO
+    cover_guide = {}
+
+func _cover_snap_point() -> Vector3:
+    if cover_guide.is_empty():
+        return global_position
+    var raw_pos: Array = cover_guide["position"]
+    var raw_size: Array = cover_guide["size"]
+    var p := Vector3(float(raw_pos[0]), global_position.y, float(raw_pos[2]))
+    if absf(cover_normal.x) > 0.5:
+        p.x += cover_normal.x * (float(raw_size[0]) * 0.5 + 0.60)
+        p.z = clampf(global_position.z, float(raw_pos[2]) - float(raw_size[2]) * 0.5 + 0.30,
+            float(raw_pos[2]) + float(raw_size[2]) * 0.5 - 0.30)
+    else:
+        p.z += cover_normal.z * (float(raw_size[2]) * 0.5 + 0.60)
+        p.x = clampf(global_position.x, float(raw_pos[0]) - float(raw_size[0]) * 0.5 + 0.30,
+            float(raw_pos[0]) + float(raw_size[0]) * 0.5 - 0.30)
+    return p
 
 func _validate_cover() -> void:
     if not in_cover:
@@ -313,6 +348,10 @@ func _movement_axis() -> Vector2:
     return axis.normalized()
 
 func wants_to_fire() -> bool:
+    # Android emulates a mouse click for a touch on some builds. A screen touch
+    # is never a shot. Only the explicit FIRE button controls mobile_firing.
+    if mobile_input_mode:
+        return mobile_firing
     return mobile_firing or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_key_pressed(KEY_SPACE)
 
 func request_dash() -> void:
