@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "id": "fisura_crisol_01",
+  "display_name": "El Crisol",
+  "bounds": {
+    "width": 44,
+    "depth": 44
+  },
+  "anchors": [
+    {
+      "id": "player_start",
+      "kind": "spawn",
+      "team": "player",
+      "position": [
+        0,
+        0,
+        15
+      ],
+      "radius": 2
+    },
+    {
+      "id": "core_alpha",
+      "kind": "objective",
+      "position": [
+        -13,
+        0,
+        -9
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "core_beta",
+      "kind": "objective",
+      "position": [
+        13,
+        0,
+        -8
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "core_gamma",
+      "kind": "objective",
+      "position": [
+        0,
+        0,
+        1
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "exit_portal",
+      "kind": "extraction",
+      "position": [
+        0,
+        0,
+        -17
+      ],
+      "radius": 2.2
+    },
+    {
+      "id": "enemy_n",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        -15,
+        0,
+        -16
+      ],
+      "radius": 2
+    },
+    {
+      "id": "enemy_ne",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        17,
+        0,
+        -13
+      ],
+      "radius": 2
+    },
+    {
+      "id": "enemy_e",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        18,
+        0,
+        5
+      ],
+      "radius": 2
+    },
+    {
+      "id": "enemy_s",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        12,
+        0,
+        16
+      ],
+      "radius": 2
+    },
+    {
+      "id": "enemy_sw",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        -17,
+        0,
+        13
+      ],
+      "radius": 2
+    },
+    {
+      "id": "enemy_w",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        -18,
+        0,
+        -3
+      ],
+      "radius": 2
+    }
+  ],
+  "routes": [
+    {
+      "id": "extraction_lane",
+      "kind": "primary",
+      "width": 7,
+      "points": [
+        [
+          0,
+          0,
+          15
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -17
+        ]
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "id": "inner_hazard",
+      "kind": "hazard",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        12,
+        0,
+        12
+      ],
+      "radius": 6
+    },
+    {
+      "id": "battle_arena",
+      "kind": "encounter",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        42,
+        0,
+        42
+      ]
+    }
+  ],
+  "authoring": {
+    "terrain": {
+      "provider_role": "terrain",
+      "region_size": 64
+    },
+    "navigation": {
+      "agent_radius": 0.5,
+      "agent_height": 1.8,
+      "agent_max_climb": 0.3,
+      "agent_max_slope": 45,
+      "cell_size": 0.25,
+      "cell_height": 0.25
+    },
+    "providers": {
+      "terrain": null,
+      "structures": null,
+      "scatter": null,
+      "import": null,
+      "navigation": null
+    },
+    "structure_guides": [
+      {
+        "id": "cover_l",
+        "kind": "cover",
+        "position": [
+          -7,
+          1,
+          -2
+        ],
+        "size": [
+          2,
+          2,
+          5
+        ]
+      },
+      {
+        "id": "cover_r",
+        "kind": "cover",
+        "position": [
+          7,
+          1,
+          1
+        ],
+        "size": [
+          2,
+          2,
+          5
+        ]
+      }
+    ]
+  }
+}
