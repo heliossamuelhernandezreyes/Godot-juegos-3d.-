@@ -58,10 +58,10 @@ func _shield_visual() -> void:
     add_child(shield_mesh)
     var signal_material := StandardMaterial3D.new()
     signal_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    signal.albedo_color = Color("#f3b568")
-    signal.emission_enabled = true
-    signal.emission = Color("#d87c3e")
-    signal.emission_energy_multiplier = 2.4
+    signal_material.albedo_color = Color("#f3b568")
+    signal_material.emission_enabled = true
+    signal_material.emission = Color("#d87c3e")
+    signal_material.emission_energy_multiplier = 2.4
     for side in [-1.0,1.0]:
         var rail := MeshInstance3D.new()
         rail.name = "BULWARK | shield charge bar"
