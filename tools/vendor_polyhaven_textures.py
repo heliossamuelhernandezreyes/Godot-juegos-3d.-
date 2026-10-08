@@ -36,10 +36,22 @@ for slug in SLUGS:
     files = json.loads(fetch(file_url))
     if info.get("type") != 1:
         raise ValueError("Not a verified texture: " + slug)
-    variants = files.get("1k", {}).get("jpg", {})
-    print("TEXTURE CHANNELS", slug, list(variants), flush=True)
-    if "diff" not in variants:
-        raise ValueError("Missing diffuse 1K jpg for "+slug)
+    print("TEXTURE ROOT",slug,list(files.keys()),flush=True)
+    def channel_record(code):
+        names = {"diff": ("Diffuse","diff","diffuse"),"nor_gl": ("nor_gl","NormalGL","nor"),"arm": ("arm","ARM")}[code]
+        for name in names:
+            if name in files:
+                layer = files[name].get("1k",{})
+                for fmt in ("jpg","png"):
+                    candidate=layer.get(fmt)
+                    if isinstance(candidate, dict) and candidate.get("url"):
+                        return candidate,fmt
+        legacy=files.get("1k",{}).get("jpg",{}).get(code)
+        if isinstance(legacy,dict) and legacy.get("url"):
+            return legacy,"jpg"
+        return None,None
+    if channel_record("diff")[0] is None:
+        raise ValueError("Missing 1K diffuse map for "+slug)
     folder = ROOT/slug
     folder.mkdir(parents=True, exist_ok=True)
     manifest = {
@@ -49,12 +61,12 @@ for slug in SLUGS:
         "api_files_hash": info.get("files_hash"), "files": []
     }
     for channel in ("diff", "nor_gl", "arm"):
-        entry = variants.get(channel)
+        entry,fmt = channel_record(channel)
         if not isinstance(entry, dict) or not entry.get("url"):
             continue
         remote = entry["url"]
         data = fetch(remote)
-        filename = channel + ".jpg"
+        filename = channel + "." + fmt
         (folder/filename).write_bytes(data)
         manifest["files"].append({
             "name": filename, "source": remote,
