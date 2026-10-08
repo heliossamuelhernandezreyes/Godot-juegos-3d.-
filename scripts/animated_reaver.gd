@@ -8,7 +8,7 @@ var rig: Node3D
 var animation_player: AnimationPlayer
 var selected_clip := ""
 var action_time := 0.0
-var was_attack_ready := true
+var ranged_timer := 1.7
 
 func _ready() -> void:
     super._ready()
@@ -42,6 +42,9 @@ func _change_animation(clip: String) -> void:
     var available := animation_player.get_animation_list()
     if not available.has(clip):
         return
+    var sequence: Animation = animation_player.get_animation(clip)
+    if sequence != null and clip in ["Idle", "Run", "Walk", "Look", "Charging"]:
+        sequence.loop_mode = Animation.LOOP_LINEAR
     selected_clip = clip
     animation_player.play(clip, 0.12)
 
@@ -51,6 +54,9 @@ func _physics_process(delta: float) -> void:
     if rig == null or not is_instance_valid(rig):
         return
     action_time = maxf(0.0, action_time - delta)
+    if asset_kind == "eye":
+        ranged_timer = maxf(0.0, ranged_timer - delta)
+        _try_ranged_attack()
     if before <= 0.0 and contact_cooldown > 0.8:
         action_time = 0.30
         _change_animation("Attack")
@@ -64,6 +70,24 @@ func _physics_process(delta: float) -> void:
             _change_animation("Idle")
     if asset_kind == "eye":
         rig.position.y = -0.58 + sin(motion_time * 3.5) * 0.17
+
+func _try_ranged_attack() -> void:
+    if target == null or not is_instance_valid(target) or target.health <= 0:
+        return
+    if ranged_timer > 0.0 or action_time > 0.0:
+        return
+    var range_to_player: float = global_position.distance_to(target.global_position)
+    if range_to_player < 2.4 or range_to_player > 15.0 or not _has_direct_sight():
+        return
+    ranged_timer = 2.3
+    action_time = 0.28
+    _change_animation("Attack")
+    var previous_health: int = target.health
+    target.take_damage(9)
+    if director != null and director.has_method("register_enemy_laser"):
+        director.register_enemy_laser(global_position + Vector3(0, 0.25, 0),target.global_position + Vector3(0, 0.2, 0))
+    if target.health < previous_health and director != null:
+        director.register_damage_feedback()
 
 func take_hit(damage: int) -> void:
     action_time = 0.18
