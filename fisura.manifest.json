@@ -21,15 +21,16 @@
       "tactical-navigation-grid",
       "asset-license-source-provenance",
       "procedural-environment",
-      "runtime-smoke"
+      "runtime-smoke",
+      "skeletal-asset-provenance-godot-runtime"
     ]
   },
   "prototype": {
-    "stage": "vertical-slice-0.3-industrial-combat",
+    "stage": "vertical-slice-0.4-rigged-sci-fi",
     "map": "maps/crisol_01.json",
     "runtime_tested": true,
     "android_export_tested": false,
-    "runtime_test_scope": "GitHub Actions Linux Godot 4.7.2 headless; exact scoped functionality: import, 120 frames, deterministic extraction, tactical navigation and actual frame render"
+    "runtime_test_scope": "GitHub Actions Linux Godot 4.7.2 headless; exact scoped functionality: import, 120 frames, deterministic extraction, tactical navigation and actual frame render; Godot 4.7.2 imported Quaternius rigged enemies and deterministic AI animation and ranged LOS tests."
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
   "asset_sources": [
@@ -37,6 +38,7 @@
     "assets/vendor/polyhaven/industrial_wall_lamp/PROVENANCE.json",
     "assets/vendor/polyhaven_materials/concrete_wall_007/PROVENANCE.json",
     "assets/vendor/polyhaven_materials/concrete_floor_worn_02/PROVENANCE.json",
-    "assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json"
+    "assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json",
+    "assets/vendor/quaternius/scifi_essentials/PROVENANCE.json"
   ]
 }
