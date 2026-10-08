@@ -11,7 +11,18 @@ func _test() -> void:
     if soldier.humanoid_skeleton == null or soldier.rig_animation == null or not soldier.visual_ready:
         _fail("No active Vanguard human rig")
         return
-    if soldier.selected_clip != "Idle_Gun":
+    var grip: int = soldier.humanoid_skeleton.find_bone("Wrist.R")
+    if grip < 0:
+        _fail("Source rig lost its right-hand wrist bone")
+        return
+    var weapon_attached := false
+    for bone_child in soldier.humanoid_skeleton.get_children():
+        if bone_child is BoneAttachment3D and bone_child.bone_idx == grip:
+            weapon_attached = bone_child.get_child_count() >= 1
+    if not weapon_attached:
+        _fail("Gun_Rifle.gltf is not attached to the source-audited right wrist")
+        return
+    if soldier.selected_clip != "Idle_Gun_Pointing":
         _fail("Idle is not the initial animation")
         return
     soldier.touch_axis = Vector2(0,-1)

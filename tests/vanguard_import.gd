@@ -1,7 +1,7 @@
 extends SceneTree
 ## ARCONT provenance + executable skeletal source-audit for Vanguard.
 const MODEL = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
-const REQUIRED = ["Idle_Gun", "Run", "Run_Back", "Run_Left", "Run_Right", "Gun_Shoot", "Roll", "HitRecieve", "Run_Shoot"]
+const REQUIRED = ["Idle_Gun", "Idle_Gun_Pointing", "Run", "Run_Back", "Run_Left", "Run_Right", "Gun_Shoot", "Roll", "HitRecieve", "Run_Shoot"]
 
 func _initialize() -> void:
     call_deferred("_audit")
@@ -27,6 +27,16 @@ func _audit() -> void:
         return
     print("VANGUARD IMPORT PASS", totals, "anim_count=",anim.get_animation_list().size())
     print("VANGUARD CLIPS",anim.get_animation_list())
+    print("VANGUARD RIG bone name audit:")
+    var pending: Array[Node] = [actor]
+    while not pending.is_empty():
+        var node: Node = pending.pop_back()
+        if node is Skeleton3D:
+            var skeleton := node as Skeleton3D
+            for i in range(skeleton.get_bone_count()):
+                print("VANGUARD BONE ",i," ",skeleton.get_bone_name(i))
+        for child in node.get_children():
+            pending.append(child)
     anim.play("Run")
     for i in range(3):
         await process_frame

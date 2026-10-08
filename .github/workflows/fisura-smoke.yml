@@ -159,6 +159,24 @@ jobs:
           cat reactivo-cover.log
           grep -q "REACTIVO COVER MOTION PASS" reactivo-cover.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-cover.log
+      - name: ARCONT touch regression - no accidental fire and shoulder camera
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_input_camera_regression.gd > input-camera.log 2>&1 || { cat input-camera.log; exit 1; }
+          cat input-camera.log
+          grep -q "REACTIVO MOBILE CAMERA PASS" input-camera.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" input-camera.log
+      - name: ARCONT inspect multitouch button hitboxes and signal wiring (headless)
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_touch_buttons.gd > touch-buttons.log 2>&1 || { cat touch-buttons.log; exit 1; }
+          cat touch-buttons.log
+          grep -q "REACTIVO TOUCH BUTTONS PASS" touch-buttons.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" touch-buttons.log
+      - name: ARCONT inspect procedural sound PCM and voice budget
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_audio_budget.gd > audio-budget.log 2>&1 || { cat audio-budget.log; exit 1; }
+          cat audio-budget.log
+          grep -q "REACTIVO AUDIO BUDGET PASS" audio-budget.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" audio-budget.log
       - name: Test Bulwark frontal armor and counterplay
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_bulwark.gd > reactivo-bulwark.log 2>&1 || { cat reactivo-bulwark.log; exit 1; }
@@ -249,6 +267,9 @@ jobs:
             reactivo-render.log
             reactivo-bulwark.log
             reactivo-cover.log
+            input-camera.log
+            audio-budget.log
+            touch-buttons.log
             reactivo-warning.log
             reactivo-art-budget.log
             visual-composition.log
