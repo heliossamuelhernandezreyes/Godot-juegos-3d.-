@@ -24,7 +24,7 @@ func _check() -> void:
     # the camera at the two mission terminals (regression from screenshot review).
     var processors := 0
     for node in art.get_children():
-        if not (node is MeshInstance3D) or node.name != "Cryo processor vessel":
+        if not (node is MeshInstance3D) or not str(node.name).begins_with("Cryo processor vessel"):
             continue
         processors += 1
         var processor_box: BoxMesh = node.mesh as BoxMesh
