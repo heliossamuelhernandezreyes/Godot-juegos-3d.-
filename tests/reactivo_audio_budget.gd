@@ -1,42 +1,56 @@
 extends SceneTree
-## PCM integrity and conservative peak checks; this is NOT a listening test.
+## ARCONT source-traced CC0 OGG QA. Engine import + immutable source bytes.
+## Exact file license/provenance and conservative voice budget, not mastering.
 const AUDIO = preload("res://scripts/audio_fx.gd")
+const ROOT := "res://assets/vendor/kenney_sfx/"
+
 func _initialize() -> void:
     call_deferred("_verify")
 
 func _verify() -> void:
-    var source = AUDIO.new()
-    root.add_child(source)
-    if source.voices.size() > 6 or source.voices.size() < 2:
-        _fail("Android audio pool is unbounded")
+    var provenance: Variant = JSON.parse_string(FileAccess.get_file_as_string(ROOT + "PROVENANCE.json"))
+    if typeof(provenance) != TYPE_DICTIONARY or provenance.get("license") != "CC0-1.0":
+        _fail("No verified CC0 source manifest")
         return
-    for kind in ["fire", "hit", "dash", "damage", "pickup", "victory"]:
-        if not source.streams.has(kind):
-            _fail("Missing sample: " + kind)
+    var assets: Array = provenance.get("assets", [])
+    if assets.size() != 7:
+        _fail("Incomplete Kenney source audio set")
+        return
+    var seen := {}
+    for receipt in assets:
+        var file: String = str(receipt["file"])
+        var path: String = ROOT + file
+        if seen.has(file) or not FileAccess.file_exists(path):
+            _fail("Duplicate/missing source audio " + file)
             return
-        var wav: AudioStreamWAV = source.streams[kind]
-        if wav.mix_rate != 24000 or wav.format != AudioStreamWAV.FORMAT_16_BITS:
-            _fail("Unexpected PCM format " + kind)
+        seen[file] = true
+        if FileAccess.get_sha256(path) != str(receipt["sha256"]):
+            _fail("Original CC0 audio bytes drifted for " + file)
             return
-        var pcm: PackedByteArray = wav.data
-        if pcm.size() < 480 or pcm.size() > 45000:
-            _fail("Invalid SFX size: " + kind)
+        if int(receipt["bytes"]) < 1000 or float(receipt["duration_seconds"]) <= 0.03:
+            _fail("Invalid Kenney clip metadata for " + file)
             return
-        var peak := 0
-        var sum_abs := 0.0
-        for i in range(0, pcm.size(), 2):
-            var x := absi(pcm.decode_s16(i))
-            peak = maxi(peak, x)
-            sum_abs += float(x)
-        var mean := sum_abs / float(pcm.size() / 2)
-        if peak > 28000 or mean < 140.0:
-            _fail("Clipped/inaudible SFX " + kind + " peak=" + str(peak) + " mean=" + str(mean))
+        var stream: AudioStream = load(path) as AudioStream
+        if stream == null:
+            _fail("Godot could not decode OGG file " + file)
             return
-    source.trigger("fire")
-    source.trigger("dash")
-    print("REACTIVO AUDIO BUDGET PASS voices=",source.voices.size()," pcm=16-bit 24kHz unclipped")
+    var audio = AUDIO.new()
+    root.add_child(audio)
+    if audio.voices.size() != audio.POOL_SIZE or audio.voices.size() > 8:
+        _fail("Audio voice cap was exceeded")
+        return
+    for kind in ["fire", "mechanical", "hit", "damage", "dash", "pickup", "cover", "victory", "explosion"]:
+        if not audio.streams.has(kind):
+            _fail("Unmapped event " + kind)
+            return
+    audio.trigger("fire")
+    audio.trigger("cover")
+    audio.trigger("vault")
+    audio.trigger("land")
+    print("REACTIVO AUDIO BUDGET PASS kenney_cc0_ogg=",assets.size(),
+        " source_hashes=true voices=",audio.voices.size()," fire_layered=true")
     quit(0)
 
-func _fail(reason: String) -> void:
-    printerr("REACTIVO AUDIO BUDGET FAIL: " + reason)
+func _fail(message: String) -> void:
+    printerr("REACTIVO AUDIO BUDGET FAIL: " + message)
     quit(1)
