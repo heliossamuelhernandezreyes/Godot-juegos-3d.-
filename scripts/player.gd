@@ -9,6 +9,10 @@ const DASH_SPEED := 24.0
 const DASH_DURATION := 0.19
 const DASH_COOLDOWN := 1.6
 const GRAVITY := 24.0
+const MOVE_ACCELERATION := 64.0
+const MOVE_BRAKING := 78.0
+const COVER_ENTER_GAP := 1.40
+const COVER_EXIT_GAP := 1.75
 const VANGUARD_SCENE = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
 const RIFLE_SCENE = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
 const AIM_MODIFIER = preload("res://scripts/vanguard_aim_modifier.gd")
@@ -23,6 +27,11 @@ var dash_queued := false
 var dash_remaining := 0.0
 var dash_cooldown := 0.0
 var dash_vector := Vector3.FORWARD
+var cover_zones: Array = []
+var in_cover := false
+var cover_id := ""
+var cover_normal := Vector3.ZERO
+var cover_requests := 0
 var invulnerability := 0.0
 var visual_root: Node3D
 var humanoid: Node3D
@@ -156,7 +165,10 @@ func _update_visual_state(delta: float) -> void:
         return
     var movement := Vector3(velocity.x, 0.0, velocity.z)
     if movement.length_squared() < 0.30:
-        _play_clip("Gun_Shoot" if weapon_active > 0.0 else "Idle_Gun")
+        if in_cover and rig_animation.has_animation("Crouch"):
+            _play_clip("Crouch")
+        else:
+            _play_clip("Gun_Shoot" if weapon_active > 0.0 else "Idle_Gun")
         return
     if weapon_active > 0.0:
         _play_clip("Run_Shoot", 0.10)
@@ -175,13 +187,18 @@ func _update_visual_state(delta: float) -> void:
 func _physics_process(delta: float) -> void:
     dash_cooldown = maxf(0.0, dash_cooldown - delta)
     invulnerability = maxf(0.0, invulnerability - delta)
+    _validate_cover()
     var motion := _movement_axis()
     var direction := Vector3(motion.x, 0.0, motion.y).normalized()
+    if in_cover and direction.length_squared() > 0.001:
+        # Tangential traversal; do not drive the actor through its collider.
+        direction = (direction - cover_normal * direction.dot(cover_normal)).normalized()
     if direction.length_squared() > 0.01:
         dash_vector = direction
     elif aim_direction.length_squared() > 0.01:
         dash_vector = aim_direction.normalized()
     if (dash_queued or Input.is_key_pressed(KEY_SHIFT)) and dash_cooldown <= 0.0:
+        _leave_cover()
         dash_remaining = DASH_DURATION
         dash_cooldown = DASH_COOLDOWN
         invulnerability = DASH_DURATION + 0.12
@@ -195,8 +212,13 @@ func _physics_process(delta: float) -> void:
         velocity.z = dash_vector.z * DASH_SPEED
         dash_remaining -= delta
     else:
-        velocity.x = direction.x * WALK_SPEED
-        velocity.z = direction.z * WALK_SPEED
+        var target_speed := WALK_SPEED * (0.56 if in_cover else 1.0)
+        var target_velocity := direction * target_speed
+        var planar := Vector3(velocity.x, 0.0, velocity.z)
+        var acceleration := MOVE_ACCELERATION if direction.length_squared() > 0.01 else MOVE_BRAKING
+        planar = planar.move_toward(target_velocity, acceleration * delta)
+        velocity.x = planar.x
+        velocity.z = planar.z
     if not is_on_floor():
         velocity.y -= GRAVITY * delta
     else:
@@ -204,7 +226,77 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
     if aim_direction.length_squared() > 0.001:
         look_at(global_position + aim_direction, Vector3.UP)
+    if visual_root != null:
+        # Animation-safe visual brace, without changing the authoritative capsule.
+        visual_root.position.y = lerpf(visual_root.position.y, -0.10 if in_cover else 0.0, minf(1.0, delta * 9.0))
+        visual_root.rotation.z = lerpf(visual_root.rotation.z, -0.07 * cover_normal.x if in_cover else 0.0, minf(1.0, delta * 8.0))
     _update_visual_state(delta)
+
+func configure_cover_zones(guides: Array) -> void:
+    cover_zones.clear()
+    for guide in guides:
+        if typeof(guide) == TYPE_DICTIONARY and str(guide.get("kind", "")) == "cover":
+            cover_zones.append(guide)
+    _leave_cover()
+
+func _nearest_cover() -> Dictionary:
+    var best: Dictionary = {}
+    var best_gap := INF
+    for guide in cover_zones:
+        var raw_pos: Array = guide["position"]
+        var raw_size: Array = guide["size"]
+        var ox: float = global_position.x - float(raw_pos[0])
+        var oz: float = global_position.z - float(raw_pos[2])
+        var edge_x: float = absf(ox) - float(raw_size[0]) * 0.5
+        var edge_z: float = absf(oz) - float(raw_size[2]) * 0.5
+        var gap_x := maxf(edge_x, 0.0)
+        var gap_z := maxf(edge_z, 0.0)
+        var gap := Vector2(gap_x, gap_z).length()
+        if gap < 0.42 or gap > COVER_EXIT_GAP or gap >= best_gap:
+            continue
+        var normal := Vector3.ZERO
+        if gap_x > gap_z:
+            normal.x = 1.0 if ox >= 0.0 else -1.0
+        else:
+            normal.z = 1.0 if oz >= 0.0 else -1.0
+        best = {"id":str(guide["id"]),"normal":normal,"gap":gap}
+        best_gap = gap
+    return best
+
+func can_take_cover() -> bool:
+    if health <= 0 or dash_remaining > 0.0:
+        return false
+    var nearby := _nearest_cover()
+    return not nearby.is_empty() and float(nearby["gap"]) <= COVER_ENTER_GAP
+
+func request_cover_toggle() -> bool:
+    cover_requests += 1
+    if in_cover:
+        _leave_cover()
+        return false
+    if not can_take_cover():
+        return false
+    var nearby := _nearest_cover()
+    in_cover = true
+    cover_id = str(nearby["id"])
+    cover_normal = nearby["normal"]
+    return true
+
+func _leave_cover() -> void:
+    in_cover = false
+    cover_id = ""
+    cover_normal = Vector3.ZERO
+
+func _validate_cover() -> void:
+    if not in_cover:
+        return
+    var nearby := _nearest_cover()
+    if nearby.is_empty() or str(nearby["id"]) != cover_id:
+        _leave_cover()
+
+func _unhandled_input(event: InputEvent) -> void:
+    if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_Q:
+        request_cover_toggle()
 
 func _movement_axis() -> Vector2:
     if touch_axis.length_squared() > 0.02:

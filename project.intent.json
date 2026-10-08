@@ -1,0 +1,52 @@
+{
+  "protocol": "arcont-project-intent",
+  "version": 1,
+  "project_id": "fisura",
+  "title": "FISURA — Reactivo-13",
+  "genre": "third-person sci-fi tactical action shooter",
+  "targets": [
+    "Android",
+    "Windows"
+  ],
+  "visual_style": "Industrial science-fiction, PBR materials, readable over-shoulder framing and low-noise objective HUD",
+  "references": [
+    "COD Mobile: responsive mobile movement and aim (design reference)",
+    "Gears of War: authored cover entry, cover strafing and contextual movement (design reference)"
+  ],
+  "goals": [
+    "Playable five-stage Reactivo-13 mission with consistent combat/cover and extraction",
+    "Mobile-first shoulder camera, legible tactical UI, independent multitouch movement/aim",
+    "Reproducible Godot 4.7.2 scenes and signed Android ARM64 debug APK"
+  ],
+  "priorities": [
+    "responsive locomotion and directional dash",
+    "contextual cover with explicit physical colliders",
+    "readable HUD and mobile touch controls",
+    "visual evidence and source-traced assets",
+    "measured phone performance"
+  ],
+  "scope": "FISURA's production game remains in this repository. ARCONT is a separate reference/validator; do not embed the game into ARCONT.",
+  "performance": {
+    "target_fps": 60,
+    "resolution": "1280x720 design baseline; adaptive device scaling requires measured evidence",
+    "platform_notes": "60 fps is an aspirational target; Android device frame pacing and thermal performance are not yet measured."
+  },
+  "asset_policy": {
+    "user_assets": true,
+    "public_assets": true,
+    "commercial_use_required": true,
+    "allow_network_discovery": false,
+    "allowed_licenses": [
+      "CC0",
+      "CC0-1.0"
+    ]
+  },
+  "constraints": [
+    "Preserve Godot 4.7.2-stable and source-locked asset provenance",
+    "Never replace collision/navigation semantics with render-only assets",
+    "Do not claim AAA presentation or Android optimization without evidence",
+    "Stage changes on GitHub branches and run Godot/mission/Android CI before merge",
+    "Do not enable network asset acquisition or ARCONT project-write automatically"
+  ],
+  "notes": "Arcont 1.1 project-intent contract for external Godot authoring, sessions and MCP. The runtime still belongs to FISURA and CI remains authoritative."
+}

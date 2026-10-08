@@ -27,6 +27,20 @@ func _shoot() -> void:
             quit(1)
             return
         print("REACTIVO VIEW CAPTURE",shot["label"], shot["file"])
+    # Screenshot evidence of the actual collision-backed cover gameplay state.
+    world.player.global_position = Vector3(-20.82, 1.0, 0.0)
+    world.player.velocity = Vector3.ZERO
+    if not world.player.request_cover_toggle():
+        printerr("REACTIVO RENDER FAIL cannot engage authored Node A cover")
+        quit(1)
+        return
+    for i in range(40):
+        await process_frame
+    if not _save_frame("reactivo-13-cover.png"):
+        quit(1)
+        return
+    print("REACTIVO VIEW CAPTURE cover reactivo-13-cover.png")
+    world.player.request_cover_toggle()
     var guard := CharacterBody3D.new()
     guard.set_script(BULWARK)
     guard.target = world.player
@@ -40,7 +54,7 @@ func _shoot() -> void:
     if not _save_frame("reactivo-13-bulwark.png"):
         quit(1)
         return
-    print("REACTIVO RENDER PASS viewport series=4")
+    print("REACTIVO RENDER PASS viewport series=5")
     quit(0)
 
 func _save_frame(filename: String) -> bool:
