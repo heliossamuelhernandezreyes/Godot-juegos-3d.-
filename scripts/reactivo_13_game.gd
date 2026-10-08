@@ -497,8 +497,18 @@ func _physics_process(delta: float) -> void:
 func _fire() -> void:
     player.on_weapon_fired()
     audio_fx.trigger("fire")
-    var origin: Vector3 = player.global_position + Vector3(0, 0.18, 0)
-    var destination: Vector3 = origin + player.aim_direction.normalized() * 35.0
+    # Reconcile crosshair/camera ray with the actual muzzle ray: no invisible
+    # enemy auto-targeting, and no shots through close cover obstacles.
+    var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
+    var view_origin: Vector3 = camera.project_ray_origin(pointer)
+    var view_end: Vector3 = view_origin + camera.project_ray_normal(pointer) * 80.0
+    var view_query := PhysicsRayQueryParameters3D.create(view_origin, view_end)
+    view_query.exclude = [player.get_rid()]
+    var sight: Dictionary = get_world_3d().direct_space_state.intersect_ray(view_query)
+    var aim_point: Vector3 = sight["position"] if not sight.is_empty() else view_end
+    var origin: Vector3 = player.global_position + Vector3(0, 0.32, 0)
+    var forward: Vector3 = (aim_point - origin).normalized()
+    var destination := origin + forward * 80.0
     var query := PhysicsRayQueryParameters3D.create(origin, destination)
     query.exclude = [player.get_rid()]
     var result: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
@@ -511,7 +521,7 @@ func _fire() -> void:
             elif collider.has_method("take_hit"):
                 collider.call("take_hit", 23)
     if combat_fx != null:
-        combat_fx.muzzle(origin, player.aim_direction)
+        combat_fx.muzzle(origin, forward)
         combat_fx.tracer(origin, destination)
     register_hit_feedback(destination)
 
