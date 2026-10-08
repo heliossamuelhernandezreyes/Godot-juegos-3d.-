@@ -8,6 +8,13 @@
 - **Nueva IA:** Bulwark provisional con blindaje frontal. Los antiguos QuadShell y EyeDrone continúan.
 - **QA:** Arcont Map Forge, validador de misión, **puente misión/mapa**, navegación y pruebas de secuencia Godot más una captura auténtica 1280×720; la escena anterior `scenes/main.tscn` permanece para regresión.
 
+## Android 0.8 — exportación y prueba pendiente en el teléfono
+
+- El preset Android exporta los contratos JSON de **`maps/*.json` y `missions/*.json`**, necesarios porque Reactivo-13 lee ambos mediante `FileAccess` en tiempo de ejecución. El APK anterior de 0.8 no garantiza que el segundo estuviera incluido; **no se debe distribuir como versión validada**.
+- El workflow [FISURA Android ARM64 debug APK](.github/workflows/fisura-android.yml) se ejecuta al cambiar recursos de juego en `main` o en un pull request. Comprueba la lista de inclusión, formato JSON, arquitectura ARM64, firma del APK y checksum.
+- Para obtener una compilación, abre **Actions → FISURA Android ARM64 debug APK → ejecución verde → Artifacts → FISURA-v0.8-Android-ARM64-debug**. El ZIP contiene `fisura-v08-debug.apk` y `SHA256SUMS.txt`.
+- **Los gates son estáticos y de empaquetado.** Aún se necesita instalar el APK en Android, entrar en Reactivo-13, confirmar que carga la misión, jugar las cinco fases y registrar FPS/frametime, controles y temperatura. No se ha hecho esa prueba aquí.
+
 ---
 
 ## Mejora 0.8 — pase industrial, combate y QA visual
@@ -41,7 +48,7 @@ Prototipo 3D de **acción y extracción** para Godot 4.7.2, en revisión industr
 
 Clic/R y botón REINICIAR al terminar.
 
-> **Importante:** La compatibilidad Android es un objetivo de diseño, **todavía no está validada en un APK ni en un teléfono físico**.
+> **Nota histórica del Crisol 0.6:** esta advertencia describe el prototipo antiguo. Reactivo-13 0.8 tiene APK de depuración compiladas en CI, pero todavía carece de validación en teléfono físico.
 
 ## Ejecutar
 

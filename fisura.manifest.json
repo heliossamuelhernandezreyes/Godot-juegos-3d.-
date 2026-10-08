@@ -82,6 +82,25 @@
       "android_real_device": false,
       "visual_verdict": "Meaningful prototype improvement; does not meet AAA art quality",
       "render_run": 37738881224
+    },
+    "android_packaging_contract": {
+      "required_runtime_json": [
+        "maps/reactivo_13.json",
+        "missions/reactivo_13.slice.json"
+      ],
+      "include_filter_patterns": [
+        "maps/*.json",
+        "missions/*.json"
+      ],
+      "ci_gates": [
+        "valid JSON + inclusion patterns (static)",
+        "Android arm64 native libs",
+        "APK debug signature",
+        "APK SHA-256 checksum"
+      ],
+      "packed_json_verified_by_runtime": false,
+      "physical_android_gameplay_tested": false,
+      "note": "APK export PASS does not prove missions JSON is loadable in installed Android runtime. Install and run all five Reactivo-13 phases before declaring playable on device."
     }
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
