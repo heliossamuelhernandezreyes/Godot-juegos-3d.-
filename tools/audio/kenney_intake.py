@@ -4,7 +4,6 @@ Never executes downloaded code. Fails closed on changed Git blob, size or codec.
 """
 import hashlib
 import json
-import subprocess
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -38,12 +37,23 @@ for target, (source, expected_blob, pack, original) in SOUNDS.items():
     assert git_blob == expected_blob, f"Source blob mismatch for {source}: {git_blob}"
     target_path = DEST / target
     target_path.write_bytes(data)
-    probe = subprocess.run(["ffprobe","-v","error","-show_entries","stream=codec_name:format=duration","-of","json",str(target_path)],
-                           text=True,capture_output=True,check=True)
-    props = json.loads(probe.stdout)
-    assert props["streams"][0]["codec_name"] == "vorbis", f"Unexpected codec: {target}"
-    duration = float(props["format"]["duration"])
-    assert 0.02 < duration < 8.0, f"Unreasonable duration: {target}"
+    # Parse Ogg page boundaries with the standard library: runners do not
+    # guarantee ffprobe. Also verify the Vorbis identification packet.
+    marker = data.find(b"\\x01vorbis")
+    assert 0 <= marker < 150, f"Missing Vorbis identification header: {target}"
+    rate = int.from_bytes(data[marker + 12:marker + 16], "little")
+    assert 8000 <= rate <= 192000, f"Invalid Vorbis sample rate: {target}"
+    at = 0
+    granule = 0
+    while at < len(data):
+        assert data[at:at + 4] == b"OggS", f"Bad Ogg page boundary: {target}"
+        segs = data[at + 26]
+        page_size = 27 + segs + sum(data[at + 27:at + 27 + segs])
+        granule = int.from_bytes(data[at + 6:at + 14], "little")
+        assert page_size > 27 and at + page_size <= len(data)
+        at += page_size
+    duration = granule / rate
+    assert 0.02 < duration < 8.0, f"Unreasonable Vorbis duration: {target}"
     out.append({
         "file":target,"sha256":hashlib.sha256(data).hexdigest(),"bytes":len(data),
         "duration_seconds":round(duration,4),
@@ -55,7 +65,7 @@ manifest = {
     "license":"CC0-1.0","producer":"Kenney","vendor_intermediary_repository":REPO,
     "vendor_intermediary_revision":REF,
     "license_provenance":"https://kenney.nl/support",
-    "note":"Original Kenney CC0 pack sounds, redistributed in a third-party game with file-level credits. OGG binaries copied unchanged, verified with the Git blob SHA and decoded through ffprobe. Not a FISURA subjective sound quality approval.",
+    "note":"Original Kenney CC0 pack sounds, redistributed in a third-party game with file-level credits. OGG binaries copied unchanged, verified with the Git blob SHA and an independent Ogg/Vorbis header and duration parser. Not a FISURA subjective sound quality approval.",
     "assets":out
 }
 (DEST/"PROVENANCE.json").write_text(json.dumps(manifest, indent=2) + "\n",encoding="utf-8")
