@@ -70,6 +70,33 @@ func _build_mech_visual() -> void:
     visual_root.add_child(right_arm)
     _piece(right_arm, ARM_MESH, "Malla brazo derecho", Vector3.ZERO)
     _piece(right_arm, RIFLE_MESH, "Rifle de asalto", Vector3(-0.12, -0.43, -0.30))
+    _add_back_lighting()
+
+func _add_back_lighting() -> void:
+    # Readable hero silhouette when seen from the isometric chase camera.
+    var material := StandardMaterial3D.new()
+    material.albedo_color = Color("#69f6fb")
+    material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    material.emission_enabled = true
+    material.emission = Color("#18c7ed")
+    material.emission_energy_multiplier = 3.2
+    for px in [-0.25, 0.25]:
+        var mesh := MeshInstance3D.new()
+        mesh.name = "VANGUARD - escape lights"
+        var strip := BoxMesh.new()
+        strip.size = Vector3(0.09, 0.38, 0.05)
+        mesh.mesh = strip
+        mesh.material_override = material
+        mesh.position = Vector3(px, 0.24, 0.335)
+        visual_root.add_child(mesh)
+    var spine := MeshInstance3D.new()
+    spine.name = "VANGUARD - reactor spine"
+    var spine_box := BoxMesh.new()
+    spine_box.size = Vector3(0.22, 0.13, 0.055)
+    spine.mesh = spine_box
+    spine.material_override = material
+    spine.position = Vector3(0, -0.12, 0.34)
+    visual_root.add_child(spine)
 
 func _piece(parent: Node3D, asset: Mesh, label: String, at: Vector3) -> void:
     var instance := MeshInstance3D.new()
