@@ -2,6 +2,7 @@ extends Node3D
 ## FISURA: vertical slice 0.1. El mundo y sus objetivos vienen de un contrato ARCONT.
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ENEMY_SCRIPT = preload("res://scripts/enemy.gd")
+const ART_STAGE_SCRIPT = preload("res://scripts/art_stage.gd")
 const MAP_PATH := "res://maps/crisol_01.json"
 const CORE_GOAL := 3
 const MAX_ENEMIES := 12
@@ -11,6 +12,7 @@ var map_data: Dictionary = {}
 var anchors: Dictionary = {}
 var player
 var camera: Camera3D
+var stage: Node3D
 var portal: MeshInstance3D
 var portal_material: StandardMaterial3D
 var hazard_disk: MeshInstance3D
@@ -40,6 +42,7 @@ func _ready() -> void:
         return
     _build_environment()
     _build_arena()
+    _create_art_stage()
     _create_player()
     _create_camera()
     _create_objectives()
@@ -88,7 +91,7 @@ func _build_environment() -> void:
     sun.rotation_degrees = Vector3(-58.0, -29.0, 0.0)
     sun.light_color = Color("#a6c5dc")
     sun.light_energy = 1.15
-    sun.shadow_enabled = false
+    sun.shadow_enabled = true
     add_child(sun)
 
 func _build_arena() -> void:
@@ -102,11 +105,6 @@ func _build_arena() -> void:
     _box("Muralla este", Vector3(22.5, 1.4, 0), Vector3(1, 2.8, 45), wall)
     for guide in map_data.get("authoring", {}).get("structure_guides", []):
         _box(str(guide.get("id", "cover")), _vec3(guide["position"]), _vec3(guide["size"]), Color("#566176"))
-    for x in [-17.0, 17.0]:
-        for z in [-17.0, 17.0]:
-            _box("Pilastron", Vector3(x, 2.0, z), Vector3(1.6, 4.0, 1.6), Color("#677184"))
-    for i in range(-4, 5):
-        _box("Guia luminosa %d" % i, Vector3(float(i) * 4.0, 0.025, 0.0), Vector3(0.11, 0.05, 35), Color("#0b7484"), false)
     _box("Umbral", Vector3(0, 0.05, -17), Vector3(5.0, 0.1, 1.3), Color("#8ccfdd"), false)
     hazard_disk = MeshInstance3D.new()
     hazard_disk.name = "Alerta de pulso"
@@ -155,6 +153,12 @@ func _box(label: String, pos: Vector3, size: Vector3, color: Color, solid: bool 
     visual.material_override = material
     root.add_child(visual)
 
+func _create_art_stage() -> void:
+    stage = Node3D.new()
+    stage.set_script(ART_STAGE_SCRIPT)
+    add_child(stage)
+    stage.build(map_data, anchors)
+
 func _create_player() -> void:
     player = CharacterBody3D.new()
     player.set_script(PLAYER_SCRIPT)
@@ -163,9 +167,9 @@ func _create_player() -> void:
 
 func _create_camera() -> void:
     camera = Camera3D.new()
-    camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-    camera.size = 31.0
-    camera.position = player.global_position + Vector3(0, 26, 20)
+    camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+    camera.fov = 55.0
+    camera.position = player.global_position + Vector3(0, 28, 24)
     add_child(camera)
     camera.current = true
     camera.look_at(player.global_position, Vector3.UP)
@@ -291,7 +295,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null:
         return
-    camera.position = camera.position.lerp(player.global_position + Vector3(0, 26, 20), minf(1.0, delta * 6.0))
+    camera.position = camera.position.lerp(player.global_position + Vector3(0, 28, 24), minf(1.0, delta * 6.0))
     camera.look_at(player.global_position, Vector3.UP)
     if finished:
         if Input.is_key_pressed(KEY_R):
