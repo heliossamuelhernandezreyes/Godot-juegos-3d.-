@@ -28,6 +28,7 @@ def grab(url: str) -> bytes:
     parsed=urllib.parse.urlparse(url)
     if parsed.scheme!="https" or parsed.hostname not in ("api.polyhaven.com","dl.polyhaven.org"):
         raise ValueError("Untrusted asset URL: "+url)
+    print("VENDOR GET",url,flush=True)
     request=urllib.request.Request(url,headers=HEADER)
     with urllib.request.urlopen(request,timeout=65) as resp:
         if resp.status != 200:
