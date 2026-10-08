@@ -110,3 +110,14 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 - Revisión detallada: [docs/ARCONT_ANIMATION_MOBILE_V06.md](docs/ARCONT_ANIMATION_MOBILE_V06.md).
 
 El APK, si se genera, **no queda validado en dispositivo** hasta instalarlo y medir FPS/latencia, temperatura y controles.
+
+## Próxima misión: REACTIVO-13 (FISURA 0.7, diseño)
+
+**Estado: diseño solamente, no jugable todavía.** El juego principal de este repositorio sigue siendo la extracción del Crisol de 0.6; no se han sustituido ni el mapa ni los scripts actuales.
+
+- [GDD — Reactivo-13](docs/production/REACTIVO_13_GDD.md): cinco fases, circulación del mapa, roles, reglas y criterios de aceptación.
+- [Contrato de misión](missions/reactivo_13.slice.json): IDs, encuentros, objetivos, gates y estados machine-readable.
+- [Auditoría de capacidades Arcont](docs/production/ARCONT_GAP_AUDIT_07.md): qué ya tenemos, qué es solo documental y qué debemos validar por gameplay.
+- El CI usa un SHA **fijado** del validador neutral de Arcont, independiente de `map_forge_contract.py`. Un PASS solo comprueba diseño; no desbloquea la palabra «jugable».
+
+**Próximo trabajo de código:** implementar director de estados 0.7, crear mapa nuevo (sin romper `crisol_01.json`), añadir nodos A/B y tests de interacciones, después Bulwark y QA móvil.
