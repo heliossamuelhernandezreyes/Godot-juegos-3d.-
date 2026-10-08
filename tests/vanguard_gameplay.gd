@@ -22,7 +22,7 @@ func _test() -> void:
     if not weapon_attached:
         _fail("Gun_Rifle.gltf is not attached to the source-audited right wrist")
         return
-    if soldier.selected_clip != "Idle_Gun":
+    if soldier.selected_clip != "Idle_Gun_Pointing":
         _fail("Idle is not the initial animation")
         return
     soldier.touch_axis = Vector2(0,-1)

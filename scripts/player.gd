@@ -83,7 +83,7 @@ func _build_skeletal_vanguard() -> void:
         if rig_animation.has_animation(clip):
             var motion: Animation = rig_animation.get_animation(clip)
             motion.loop_mode = Animation.LOOP_LINEAR
-    _play_clip("Idle_Gun")
+    _play_clip("Idle_Gun_Pointing")
     # Separate gun mesh is attached only if a matching right-hand bone is present.
     _attach_rifle_to_hand()
     aim_modifier = AIM_MODIFIER.new()
@@ -178,7 +178,7 @@ func _update_visual_state(delta: float) -> void:
         if in_cover and rig_animation.has_animation("Crouch"):
             _play_clip("Crouch")
         else:
-            _play_clip("Gun_Shoot" if weapon_active > 0.0 else "Idle_Gun")
+            _play_clip("Gun_Shoot" if weapon_active > 0.0 else "Idle_Gun_Pointing")
         return
     if weapon_active > 0.0:
         _play_clip("Run_Shoot", 0.10)

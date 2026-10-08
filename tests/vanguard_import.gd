@@ -1,7 +1,7 @@
 extends SceneTree
 ## ARCONT provenance + executable skeletal source-audit for Vanguard.
 const MODEL = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
-const REQUIRED = ["Idle_Gun", "Run", "Run_Back", "Run_Left", "Run_Right", "Gun_Shoot", "Roll", "HitRecieve", "Run_Shoot"]
+const REQUIRED = ["Idle_Gun", "Idle_Gun_Pointing", "Run", "Run_Back", "Run_Left", "Run_Right", "Gun_Shoot", "Roll", "HitRecieve", "Run_Shoot"]
 
 func _initialize() -> void:
     call_deferred("_audit")
