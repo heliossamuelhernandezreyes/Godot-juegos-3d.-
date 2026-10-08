@@ -41,6 +41,7 @@ func build(map_data: Dictionary, anchors: Dictionary) -> void:
     _perimeter(float(map_data["bounds"]["width"]), float(map_data["bounds"]["depth"]))
     _halls()
     _walkway_overheads()
+    _roof_canopy()
     _coolant_system()
     _reactor(anchors["reactor_altar"])
     _dock(anchors["extraction_pad"])
@@ -204,6 +205,17 @@ func _walkway_overheads() -> void:
             _tube("Cable tower suspension",Vector3(x,11.2,z),Vector3(x,14.5,z),0.085,metal)
     for z in [-30.0,0.0,30.0]:
         _beam("Ceiling air truss",Vector3(0,14.9,z),Vector3(68,0.35,1.1),metal)
+
+func _roof_canopy() -> void:
+    # Segmented industrial canopy, intentionally non-shadow-casting to preserve
+    # mobile-friendly sunlight; central skylight keeps the reactor in focus.
+    for side in [-1.0, 1.0]:
+        _beam("Segmented enclosed factory roof",Vector3(side*23.1,16.7,0),Vector3(36.0,0.33,63.0),dark)
+        _beam("Ceiling brass conduit",Vector3(side*5.2,16.45,0),Vector3(0.28,0.20,62.0),brass)
+        for z in range(-27,28,9):
+            _beam("Cyan ceiling runway",Vector3(side*13.5,16.40,float(z)),Vector3(16.0,0.10,0.18),cyan)
+            _beam("Canopy trestle",Vector3(side*23.1,16.08,float(z)),Vector3(36.0,0.38,0.47),metal)
+    _beam("Reactor skylight header",Vector3(0,16.2,-13),Vector3(9.8,0.40,1.1),brass)
 
 func _coolant_system() -> void:
     # Thick coolant conduits frame the reactor without obscuring the approach camera.
