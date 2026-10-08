@@ -50,7 +50,15 @@ func _verify() -> void:
     if actor.can_take_cover():
         _fail("Cover retained outside authored guide")
         return
-    print("REACTIVO COVER MOTION PASS guides=7 near-geometry=true wall-tangent=true dash-break=true")
+    actor.global_position = Vector3(0, 1, 19)
+    world.shoulder_side = 1.0
+    var right_shoulder: Vector3 = world._camera_position()
+    world._swap_shoulder()
+    var left_shoulder: Vector3 = world._camera_position()
+    if right_shoulder.x < 0.8 or left_shoulder.x > -0.8:
+        _fail("Shoulder switching lost the over-shoulder sides: " + str(right_shoulder) + " / " + str(left_shoulder))
+        return
+    print("REACTIVO COVER MOTION PASS guides=7 near-geometry=true wall-tangent=true dash-break=true shoulder-swap=true")
     quit(0)
 
 func _fail(why: String) -> void:
