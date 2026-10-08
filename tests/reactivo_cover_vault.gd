@@ -23,7 +23,7 @@ func _run() -> void:
     if actor.cover_id != "workshop_crate_-1" or not actor.can_vault():
         _fail("Only collision-backed low obstacles can vault: "+actor.cover_id)
         return
-    var entry := actor.global_position
+    var entry: Vector3 = actor.global_position
     if not actor.request_vault() or not actor.vault_active or actor.in_cover:
         _fail("Vault must leave cover and start a true transition")
         return
