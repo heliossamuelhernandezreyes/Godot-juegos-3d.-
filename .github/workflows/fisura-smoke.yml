@@ -84,6 +84,12 @@ jobs:
           cat animated-combat.log
           grep -q "ANIMATED COMBAT PASS" animated-combat.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" animated-combat.log
+      - name: Verify animated eye drone attacks obey cover and ranged cooldown
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/ranged_drone.gd > drone-ranged.log 2>&1 || { cat drone-ranged.log; exit 1; }
+          cat drone-ranged.log
+          grep -q "DRONE RANGED PASS" drone-ranged.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" drone-ranged.log
       - name: Validate camera inside tall industrial walls
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/camera_bounds.gd > camera-bounds.log 2>&1 || { cat camera-bounds.log; exit 1; }
@@ -126,4 +132,5 @@ jobs:
             camera-bounds.log
             quaternius-import.log
             animated-combat.log
+            drone-ranged.log
           if-no-files-found: ignore
