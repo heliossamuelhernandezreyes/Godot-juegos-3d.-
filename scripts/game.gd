@@ -185,7 +185,7 @@ func _create_player() -> void:
 
 func _camera_safe_position() -> Vector3:
     # Enclosed industrial environment: never put the camera behind a tall wall.
-    var desired: Vector3 = player.global_position + Vector3(0, 15.0, 13.0)
+    var desired: Vector3 = player.global_position + Vector3(0, 11.0, 10.0)
     var half_width := float(map_data["bounds"]["width"]) * 0.5
     var half_depth := float(map_data["bounds"]["depth"]) * 0.5
     desired.x = clampf(desired.x, -half_width + 2.8, half_width - 2.8)
@@ -195,11 +195,11 @@ func _camera_safe_position() -> Vector3:
 func _create_camera() -> void:
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-    camera.fov = 51.0
+    camera.fov = 54.0
     camera.position = _camera_safe_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0, -1.4), Vector3.UP)
 
 func _create_objectives() -> void:
     for anchor_id in ["core_alpha", "core_beta", "core_gamma"]:
