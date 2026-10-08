@@ -103,14 +103,10 @@ func _attach_rifle_to_hand() -> void:
     var bone_id := -1
     for i in range(humanoid_skeleton.get_bone_count()):
         var name = humanoid_skeleton.get_bone_name(i).to_lower()
-        if (name.contains("hand") and (name.contains("right") or name.contains(".r") or name.ends_with("_r"))) or name == "r_hand":
+        if (name.contains("hand") and (name.contains("right") or name.contains(".r") or name.ends_with("_r"))) or name == "r_hand" or name == "wrist.r" or name == "rightwrist":
             bone_id = i
             break
     if bone_id < 0:
-        var bone_names: Array[String] = []
-        for index in range(humanoid_skeleton.get_bone_count()):
-            bone_names.append(str(humanoid_skeleton.get_bone_name(index)))
-        print("ARCONT VANGUARD BONE NAMES ", bone_names)
         print("VANGUARD: no compatible right-hand attachment bone; intrinsic gun animation retained")
         return
     var mount := BoneAttachment3D.new()
