@@ -11,7 +11,7 @@
 
 ## ARCONT evidence gates
 - `tests/reactivo_input_camera_regression.gd`: two simulated fingers, right-drag yaw/pitch, mobile ignoring incidental left-mouse, independent movement and explicit fire.
-- `tests/reactivo_touch_buttons.gd`: native actual `TouchScreenButton` dual-finger press path. This verifies engine event dispatch on Linux CI, not physical handset behavior.
+- `tests/reactivo_touch_buttons.gd`: native `TouchScreenButton` class, exact hitbox geometry and manually emitted signal wiring. Linux headless cannot prove OS delivery of simultaneous real finger presses; the user must test this on a phone.
 - `tests/reactivo_cover_movement.gd`: 11 world-authoritative physics-backed guides/crates, capsule snapping clearance, constrained tangent travel, dash disengage.
 - `tests/reactivo_visual_composition.gd`: safe 3rd-person camera offsets, actor head/foot projected into screen.
 - `tests/reactivo_audio_budget.gd`: voice/sample/mix/peak bounds; *not* subjective fidelity.
@@ -22,3 +22,5 @@ Install test APK, start a mission at full HP, and hold one finger to move while 
 
 ## Next phase beyond this hotfix
 Replace provisional synthetic SFX with a provenance-tracked, engine-tested CC0 audio pack; implement full-body animation clips for cover entry/exit/vault, camera damping against walls and animation/contact tests. Do not extrapolate correctness of those future features from these tests.
+
+Source-rig audit confirmed 24 native clips without Crouch and bone #34 `Wrist.R`, now used for rifle attachment; a proper skeletal crouch/peeking animation remains pending.

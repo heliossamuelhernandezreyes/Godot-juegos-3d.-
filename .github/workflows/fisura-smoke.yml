@@ -165,7 +165,7 @@ jobs:
           cat input-camera.log
           grep -q "REACTIVO MOBILE CAMERA PASS" input-camera.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" input-camera.log
-      - name: ARCONT verify native two-finger gameplay buttons
+      - name: ARCONT inspect multitouch button hitboxes and signal wiring (headless)
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_touch_buttons.gd > touch-buttons.log 2>&1 || { cat touch-buttons.log; exit 1; }
           cat touch-buttons.log

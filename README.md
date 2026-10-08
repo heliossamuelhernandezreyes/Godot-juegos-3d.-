@@ -1,4 +1,16 @@
-# FISURA — Reactivo-13 (0.8, vertical slice en desarrollo)
+# FISURA — Reactivo-13 (0.9.1, candidato Android en desarrollo)
+
+## FISURA 0.9.1 — correcciones tras pruebas en Android
+
+Un jugador probó **0.9 en un teléfono real** y encontró disparos involuntarios, cámara cenital, personajes mal orientados, cobertura poco usable y audio molesto. El [informe reproducible](docs/production/FISURA_V091_ANDROID_FEEDBACK_2026-10-08.md) describe la solución candidata, los nuevos tests y lo que **todavía debe comprobarse físicamente**.
+
+- El gatillo Android ya no se activa por toques que Godot interpreta como clic: sólo **DISPARAR**. Los controles de combate usan `TouchScreenButton` para gestos independientes; el test headless sólo comprueba forma/señales, **no reproduce dedos físicos**.
+- Cámara al hombro más baja, rotación táctil, movimiento relativo a ella, modelo Vanguard orientado hacia adelante, rifle acoplado a su hueso real `Wrist.R`.
+- Cobertura sobre los siete obstáculos originales y cuatro cajas físicas adicionales, con acercamiento al muro sin atravesarlo.
+- Sonido temporal con transitorios de menor volumen; **aún faltan efectos grabados/mezcla final**.
+- El pipeline del PR publica un APK de depuración llamado `FISURA-v0.9.1-Android-ARM64-debug` (`fisura-v091-debug.apk`). No distribuir como versión estable ni afirmar compatibilidad de controles hasta el nuevo ensayo en el teléfono.
+
+---
 
 ## FISURA 0.9 — movilidad táctica y ARCONT 1.1
 

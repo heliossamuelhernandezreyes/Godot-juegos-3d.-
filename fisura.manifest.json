@@ -129,10 +129,21 @@
         "touch/mobile performance not measured on physical device"
       ],
       "ci_test": "tests/reactivo_cover_movement.gd",
-      "ci_capture": "tests/capture_reactivo.gd + reactivo-13-cover.png"
+      "ci_capture": "tests/capture_reactivo.gd + reactivo-13-cover.png",
+      "additional_physics_crates": 4
     },
-    "release_label": "0.9.0-development",
-    "android_release_artifact": "FISURA-v0.9-Android-ARM64-debug"
+    "release_label": "0.9.1-android-review-candidate",
+    "android_release_artifact": "FISURA-v0.9.1-Android-ARM64-debug",
+    "mobile_controls_091": {
+      "firing": "explicit touch-fire button only, emulated mouse guarded by mobile_input_mode",
+      "touch_buttons": "TouchScreenButton independent per finger; verified structurally in Linux",
+      "actual_device_input_tested": false,
+      "camera": "low shoulder yaw/pitch, camera-relative movement",
+      "source_rig_forward_axis_conversion": true,
+      "rifle_mount": "Wrist.R",
+      "sound": "reduced-volume synthesized placeholder; recorded samples still pending",
+      "issue_report": "docs/production/FISURA_V091_ANDROID_FEEDBACK_2026-10-08.md"
+    }
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
   "asset_sources": [
