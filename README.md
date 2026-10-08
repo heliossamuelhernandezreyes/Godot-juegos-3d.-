@@ -1,5 +1,14 @@
 # FISURA — Reactivo-13 (0.8, vertical slice en desarrollo)
 
+## FISURA 0.9 — movilidad táctica y ARCONT 1.1
+
+- Reactivo-13 ahora permite cobertura junto a los siete colliders autorizados del mapa, desplazamiento paralelo, salida con impulso y cambio de hombro (V en escritorio, HOMBRO en Android).
+- [Contrato del proyecto para ARCONT 1.1](project.intent.json) y [evidencia de movilidad 0.9](docs/production/FISURA_V09_TACTICAL_MOBILITY.md).
+- [GitHub Actions Android](.github/workflows/fisura-android.yml): el artefacto `FISURA-v0.9-Android-ARM64-debug` contiene `fisura-v09-debug.apk`. La compilación está firmada para depuración, **no** constituye una versión de tienda.
+- El pipeline captura cinco imágenes reales, incluida una de cobertura. Animaciones completas estilo Gears, sensación táctil, rendimiento sostenido y temperaturas de Android **siguen pendientes de validación en dispositivo**.
+
+---
+
 **Escena principal: `scenes/reactivo_13.tscn`** (Godot 4.7.2). Incluye una misión de cinco fases con nodos de energía A/B, reactor, defensa de 75 segundos y extracción. **No es todavía una vertical slice AAA pulida ni está validada físicamente en Android.**
 
 - [GDD de Reactivo-13](docs/production/REACTIVO_13_GDD.md) · [Contrato de misión](missions/reactivo_13.slice.json) · [Auditoría de Arcont](docs/production/ARCONT_GAP_AUDIT_07.md) · [Evidencia de implementación](docs/production/REACTIVO_13_IMPLEMENTATION_07.md).

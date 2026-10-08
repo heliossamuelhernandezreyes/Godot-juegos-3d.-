@@ -47,7 +47,7 @@
     "integration_status": "contract + CI validator pinned, MCP gateway not connected in this workflow"
   },
   "prototype": {
-    "stage": "vertical-slice-0.8-cinematic-industrial-combat",
+    "stage": "vertical-slice-0.9-tactical-cover-mobile-controls",
     "map": "maps/reactivo_13.json",
     "runtime_tested": true,
     "android_export_tested": true,
@@ -80,7 +80,7 @@
     },
     "visual_pass": {
       "gdd": "docs/production/REACTIVO_13_VISUAL_QA_08.md",
-      "capture_count": 4,
+      "capture_count": 5,
       "godot_render_source": "GitHub Actions Linux 1280x720",
       "visual_quality_assessed_by_human": false,
       "validated_behaviors": [
@@ -90,7 +90,7 @@
         "limited-cost shot FX"
       ],
       "android_real_device": false,
-      "visual_verdict": "New source-art/framing update is being reviewed using in-engine four-shot evidence; no AAA/mobile performance certification",
+      "visual_verdict": "Five in-engine 1280x720 views, including a live cover stance, passed CI image-integrity gates; artistic quality and physical Android remain unverified.",
       "render_run": 37738881224,
       "art_source_upgrade": "two independently sourced Poly Haven PBR industrial models and Quaternius Enemy_Trilobite skeletal model with nine native animation clips"
     },
@@ -120,15 +120,19 @@
         "cover toggled by Q or mobile button near authored physics-backed cover",
         "slower tangent-only strafing while in cover",
         "dash exits cover with original cooldown",
-        "accelerated normal locomotion"
+        "accelerated normal locomotion",
+        "switch left/right camera shoulder via desktop V or Android HOMBRO button"
       ],
       "limitations": [
         "cover transition is not a unique motion-captured animation",
         "no vault/climb animation or cover-chain transfers yet",
         "touch/mobile performance not measured on physical device"
       ],
-      "ci_test": "tests/reactivo_cover_movement.gd"
-    }
+      "ci_test": "tests/reactivo_cover_movement.gd",
+      "ci_capture": "tests/capture_reactivo.gd + reactivo-13-cover.png"
+    },
+    "release_label": "0.9.0-development",
+    "android_release_artifact": "FISURA-v0.9-Android-ARM64-debug"
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
   "asset_sources": [
