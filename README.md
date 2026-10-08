@@ -143,3 +143,15 @@ El APK, si se genera, **no queda validado en dispositivo** hasta instalarlo y me
 - El CI usa un SHA **fijado** del validador neutral de Arcont, independiente de `map_forge_contract.py`. Un PASS solo comprueba diseño; no desbloquea la palabra «jugable».
 
 **Próximo trabajo de código:** implementar director de estados 0.7, crear mapa nuevo (sin romper `crisol_01.json`), añadir nodos A/B y tests de interacciones, después Bulwark y QA móvil.
+
+
+## FISURA 0.8 — reconciliación de arte CC0 de alta definición
+
+Esta ampliación se aplica **sobre el último FISURA 0.8 ya integrado** (incluye EyeDrone con aviso de ataque, FX y 4 perspectivas de captura): no reemplaza esos sistemas.
+
+- Dos glTF industriales reales Poly Haven 1K CC0: `industrial_storage_cart`, `industrial_pastic_container`, con procedencia y SHA-256 completos, importados a Godot y colocados cerca del perímetro sin interponerse en los objetivos.
+- Bulwark adopta el rig CC0 `Enemy_Trilobite` de Quaternius, con 9 clips nativos, diferente del QuadShell usado por los enemigos corrientes. Se conservan la coraza direccional, las advertencias de ataque y el comportamiento de la versión principal.
+- `tests/reactivo_cinematic_vendor_audit.gd` exige que ambos modelos y sus texturas se importen en Godot. Las demás pruebas de Reactivo-13, captura de cuatro vistas, Map Forge y APK siguen vigentes.
+- El registro de ingeniería [Arcont FISURA 0.8](https://github.com/heliossamuelhernandezreyes/Arcont/blob/main/docs/knowledge/observations/FISURA_V08_VISUAL_SHOT_OCCLUSION_2026-10-08.md) recoge las carencias de encuadre de meshes sin colisión.
+
+**Ninguno de estos archivos equivale a calidad AAA terminada.** Quedan rig/animaciones de calidad de estudio, materiales y contraste coherentes, efectos de audio y luz de producción, y medidas reales sobre Android.
