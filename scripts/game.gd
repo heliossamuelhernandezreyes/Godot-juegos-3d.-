@@ -43,6 +43,10 @@ var result_label: Label
 var health_bar: ColorRect
 var move_touch_id := -1
 var move_touch_start := Vector2.ZERO
+var aim_touch_id := -1
+var aim_screen := Vector2.ZERO
+var manual_aim_active := false
+var crosshair: Control
 
 func _ready() -> void:
     rng.randomize()
@@ -242,6 +246,19 @@ func _create_objectives() -> void:
     portal.material_override = portal_material
     add_child(portal)
 
+func _create_reticle(parent: Control) -> void:
+    crosshair = Control.new()
+    crosshair.name = "ARCONT screen-space aim indicator"
+    crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    parent.add_child(crosshair)
+    for pos in [Vector2(-16, -1), Vector2(9, -1), Vector2(-1, -16), Vector2(-1, 9)]:
+        var line := ColorRect.new()
+        line.position = pos
+        line.size = Vector2(7, 2) if absf(pos.x) > 5 else Vector2(2, 7)
+        line.color = Color("#64f4fa")
+        line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        crosshair.add_child(line)
+
 func _create_hud() -> void:
     var overlay := CanvasLayer.new()
     add_child(overlay)
@@ -254,6 +271,7 @@ func _create_hud() -> void:
     hit_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
     hit_overlay.color = Color(0.88, 0.1, 0.06, 0.0)
     root.add_child(hit_overlay)
+    _create_reticle(root)
     var banner := Panel.new()
     banner.name = "HUD - telemetria tactica"
     banner.position = Vector2(12, 10)
@@ -344,22 +362,33 @@ func _input(event: InputEvent) -> void:
     if player == null or finished:
         return
     if event is InputEventScreenTouch:
-        if event.pressed and move_touch_id == -1:
-            var screen := get_viewport().get_visible_rect().size
-            if event.position.x < screen.x * 0.48 and event.position.y > screen.y * 0.34:
+        var rect := get_viewport().get_visible_rect().size
+        if event.pressed:
+            if move_touch_id == -1 and event.position.x < rect.x * 0.48 and event.position.y > rect.y * 0.34:
                 move_touch_id = event.index
                 move_touch_start = event.position
-        elif not event.pressed and event.index == move_touch_id:
-            move_touch_id = -1
-            player.touch_axis = Vector2.ZERO
-    elif event is InputEventScreenDrag and event.index == move_touch_id:
-        player.touch_axis = ((event.position - move_touch_start) / 78.0).limit_length(1.0)
+            elif aim_touch_id == -1 and event.position.x > rect.x * 0.52 and event.position.y < rect.y * 0.72:
+                aim_touch_id = event.index
+                aim_screen = event.position
+                manual_aim_active = true
+        else:
+            if event.index == move_touch_id:
+                move_touch_id = -1
+                player.touch_axis = Vector2.ZERO
+            if event.index == aim_touch_id:
+                aim_touch_id = -1
+    elif event is InputEventScreenDrag:
+        if event.index == move_touch_id:
+            player.touch_axis = ((event.position - move_touch_start) / 78.0).limit_length(1.0)
+        elif event.index == aim_touch_id:
+            aim_screen = event.position
+            manual_aim_active = true
 
 func _process(delta: float) -> void:
     if player == null:
         return
     camera.position = camera.position.lerp(_camera_safe_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0.75, -2.0), Vector3.UP)
     if finished:
         if Input.is_key_pressed(KEY_R):
             get_tree().reload_current_scene()
