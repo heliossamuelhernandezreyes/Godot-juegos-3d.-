@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "name": "barrel_03",
+  "catalog_ref": "heliossamuelhernandezreyes/Arcont",
+  "asset_page": "https://polyhaven.com/a/barrel_03",
+  "license": "CC0-1.0",
+  "license_page": "https://polyhaven.com/license",
+  "source_api": "https://api.polyhaven.com/info/barrel_03",
+  "files_api": "https://api.polyhaven.com/files/barrel_03",
+  "files_hash": "c57f576af2df8ce2cfefe1190365213b5cb4f1ea",
+  "files": [
+    {
+      "file": "barrel_03_1k.gltf",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/barrel_03/barrel_03_1k.gltf",
+      "size_bytes": 1535,
+      "sha256": "7f4d9c2e5dba7c4ba7901dd42f35068572d00f89e2cec6944a28dacb436e6047"
+    },
+    {
+      "file": "buffers_0.bin",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/barrel_03/barrel_03.bin",
+      "size_bytes": 44872,
+      "sha256": "10f3202e9ac9acf8dd896f1562c64db58311ffef89efb402d8433e03ad486427"
+    },
+    {
+      "file": "images_0.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/barrel_03/barrel_03_nor_gl_1k.jpg",
+      "size_bytes": 126707,
+      "sha256": "ade97c52985047858a4f38226a9b8a888e3a766ba0434700b4618fb25424c4b6"
+    },
+    {
+      "file": "images_1.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/barrel_03/barrel_03_diff_1k.jpg",
+      "size_bytes": 149997,
+      "sha256": "62feb27dfa9a0daf3f323fdc1ddc2d8e4a5996cf2c72fe50197b55c2b9cba7f3"
+    },
+    {
+      "file": "images_2.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/barrel_03/barrel_03_arm_1k.jpg",
+      "size_bytes": 249922,
+      "sha256": "2cec2338b36d7322bef55e6a1d0884b223c5ed383cf986a58bfa461478c64c7e"
+    }
+  ]
+}
