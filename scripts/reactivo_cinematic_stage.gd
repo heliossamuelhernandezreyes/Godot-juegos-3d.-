@@ -177,8 +177,8 @@ func _perimeter(width: float, depth: float) -> void:
 func _halls() -> void:
     # 2 symmetrical machinery banks keep a readable road through both mission nodes.
     for side in [-1.0,1.0]:
-        var cx: float = 27.0 * float(side)
-        for zz in [-11.0,15.0]:
+        var cx: float = 34.0 * float(side)
+        for zz in [-21.0,21.0]:
             _beam("Cryo processor plinth",Vector3(cx,0.50,zz),Vector3(6.0,1,3.0),dark)
             _beam("Cryo processor vessel",Vector3(cx,2.55,zz),Vector3(4.5,3.15,2.45),metal)
             _beam("Cryo processor header",Vector3(cx,4.12,zz),Vector3(5.2,0.4,2.85),brass)
