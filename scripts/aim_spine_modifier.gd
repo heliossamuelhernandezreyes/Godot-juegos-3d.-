@@ -18,7 +18,7 @@ func _ready() -> void:
         return
     for i in range(skeleton.get_bone_count()):
         var lower := skeleton.get_bone_name(i).to_lower()
-        if lower.contains("spine"):
+        if lower.contains("spine") or lower == "torso":
             if spine_id < 0:
                 spine_id = i
             chest_id = i
