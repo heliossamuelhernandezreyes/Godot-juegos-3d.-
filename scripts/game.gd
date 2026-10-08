@@ -548,3 +548,25 @@ func register_damage_feedback() -> void:
     hit_overlay.color = Color(0.92, 0.14, 0.06, 0.34)
     var fade := create_tween()
     fade.tween_property(hit_overlay, "color:a", 0.0, 0.32)
+
+func register_enemy_laser(start: Vector3, destination: Vector3) -> void:
+    # Gameplay-sourced enemy beam; bounded effect lifetime and zero physics impact.
+    var beam := MeshInstance3D.new()
+    beam.name = "EyeDrone hostile energy bolt"
+    var line := BoxMesh.new()
+    line.size = Vector3(0.085, 0.085, maxf(0.1, start.distance_to(destination)))
+    beam.mesh = line
+    var energy := StandardMaterial3D.new()
+    energy.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    energy.albedo_color = Color("#fc925f")
+    energy.emission_enabled = true
+    energy.emission = Color("#ff532a")
+    energy.emission_energy_multiplier = 2.4
+    beam.material_override = energy
+    add_child(beam)
+    beam.global_position = (start + destination) * 0.5
+    if start.distance_to(destination) > 0.3:
+        beam.look_at(destination, Vector3.UP)
+    var tween := create_tween()
+    tween.tween_property(beam, "scale", Vector3(0.01, 0.01, 1), 0.20)
+    tween.finished.connect(beam.queue_free)
