@@ -372,6 +372,8 @@ func _make_hud() -> void:
         cover_button = _touch_action(root, "COBERTURA", -445, -270, -170, -110)
         cover_face = root.get_node_or_null("TOUCH_UI_COBERTURA") as ColorRect
         cover_button.pressed.connect(func() -> void: player.request_cover_toggle())
+        var vault := _touch_action(root, "SALTAR", -610, -460, -170, -110)
+        vault.pressed.connect(func() -> void: player.request_vault())
         var shoulder := _touch_action(root, "HOMBRO", -600, -450, -80, -20)
         shoulder.pressed.connect(_swap_shoulder)
         var dash := _touch_action(root, "IMPULSO", -420, -270, -80, -20)
@@ -554,7 +556,10 @@ func _fire() -> void:
     view_query.exclude = [player.get_rid()]
     var sight: Dictionary = get_world_3d().direct_space_state.intersect_ray(view_query)
     var aim_point: Vector3 = sight["position"] if not sight.is_empty() else view_end
-    var origin: Vector3 = player.global_position + Vector3(0, 0.32, 0)
+    # The raised rifle must clear short cover only while a held trigger peeks.
+    # Tall walls still block the muzzle ray. Do not bypass collision for hit tests.
+    var muzzle_height := 0.98 if player.in_cover else 0.32
+    var origin: Vector3 = player.global_position + Vector3(0, muzzle_height, 0)
     var forward: Vector3 = (aim_point - origin).normalized()
     var destination := origin + forward * 80.0
     var query := PhysicsRayQueryParameters3D.create(origin, destination)
@@ -688,7 +693,9 @@ func _refresh_hud() -> void:
     var target := _available_target()
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     if cover_label != null:
-        cover_label.text = "EN COBERTURA" if player.in_cover else ("CUBRIRSE" if player.can_take_cover() else "")
+        cover_label.text = ("SALTAR [F] · ASOMAR [DISPARAR]" if player.can_vault() else
+            ("EN COBERTURA · ASOMAR [DISPARAR]" if player.in_cover else
+            ("CUBRIRSE" if player.can_take_cover() else "")))
     if cover_face != null:
         cover_face.color = Color(0.025, 0.24, 0.25, 0.82) if (player.in_cover or player.can_take_cover()) else Color(0.025, 0.07, 0.10, 0.38)
     
