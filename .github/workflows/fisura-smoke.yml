@@ -72,6 +72,12 @@ jobs:
           cat quaternius-import.log
           grep -q "SKELETAL ASSET PASS" quaternius-import.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" quaternius-import.log
+      - name: Godot skeletal Vanguard source and clip gate
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/vanguard_import.gd > vanguard-import.log 2>&1 || { cat vanguard-import.log; exit 1; }
+          cat vanguard-import.log
+          grep -q "VANGUARD SKELETAL PLAY PASS" vanguard-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" vanguard-import.log
       - name: ARCONT tactical route and collision regression
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/tactical_validation.gd > tactical-nav.log 2>&1 || { cat tactical-nav.log; exit 1; }
@@ -132,5 +138,6 @@ jobs:
             camera-bounds.log
             quaternius-import.log
             animated-combat.log
+            vanguard-import.log
             drone-ranged.log
           if-no-files-found: ignore
