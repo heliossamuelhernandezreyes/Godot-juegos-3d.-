@@ -170,16 +170,20 @@ func _node_rooms() -> void:
 func _detailed_factory_props() -> void:
     # ARCONT-vetted original Poly Haven photogrammetry, with complete glTF dependencies.
     # Keep these far from terminal consoles/character collision paths; art-only props.
+    var cart_index := 0
     for p in [Vector3(-35,0,-20),Vector3(35,0,20)]:
         var cart := PHOTO_CART.instantiate()
-        cart.name = "Poly Haven CC0 | photogrammetric industrial rolling cart"
+        cart.name = "Poly Haven CC0 | photogrammetric industrial rolling cart %d" % cart_index
+        cart_index += 1
         cart.position = p
         cart.rotation.y = PI * 0.5
         add_child(cart)
         draw_nodes += 1
+    var container_index := 0
     for p in [Vector3(-35,0,18),Vector3(35,0,-19),Vector3(-36,0,-23),Vector3(36,0,23)]:
         var tub := PHOTO_CONTAINER.instantiate()
-        tub.name = "Poly Haven CC0 | industrial plastic work container"
+        tub.name = "Poly Haven CC0 | industrial plastic work container %d" % container_index
+        container_index += 1
         tub.position = p
         add_child(tub)
         draw_nodes += 1
