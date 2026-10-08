@@ -3,7 +3,18 @@ name: FISURA Android ARM64 debug APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, feat/fisura-v08-visual-combat-pass]
+    branches: [main]
+    paths:
+      - 'export_presets.cfg'
+      - 'project.godot'
+      - 'scripts/**'
+      - 'scenes/**'
+      - 'maps/**'
+      - 'missions/**'
+      - 'assets/**'
+      - '.github/workflows/fisura-android.yml'
+
+  pull_request:
     paths:
       - 'export_presets.cfg'
       - 'project.godot'
@@ -74,6 +85,21 @@ jobs:
           p.write_text(settings)
           print('ANDROID CONFIG VERIFIED',p, sdk, java)
           PY
+      - name: Guard Reactivo mission data from exclusion in APK
+        run: |
+          python3 - <<'PY'
+          import configparser
+          import json
+          from pathlib import Path
+          p = configparser.ConfigParser(interpolation=None)
+          assert p.read('export_presets.cfg'), 'Missing Godot export presets'
+          include = {s.strip() for s in p['preset.0']['include_filter'].strip('"').split(',')}
+          for pattern in ('maps/*.json', 'missions/*.json'):
+              assert pattern in include, f'JSON excluded from export: {pattern}'
+          for filename in ('maps/reactivo_13.json', 'missions/reactivo_13.slice.json'):
+              json.loads(Path(filename).read_text(encoding='utf-8'))
+          print('ANDROID MISSION JSON EXPORT WHITELIST PASS (static gate)')
+          PY
       - name: Build actual signed debug APK
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --export-debug Android build/fisura-v08-debug.apk > android-export.log 2>&1 || { tail -150 android-export.log; exit 1; }
@@ -83,6 +109,21 @@ jobs:
           file build/fisura-v08-debug.apk
           sha256sum build/fisura-v08-debug.apk | tee build/SHA256SUMS.txt
           echo "ANDROID APK EXPORT PASS (not device-tested)"
+      - name: Verify APK signature and ARM64 binary payload
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile('build/fisura-v08-debug.apk') as apk:
+              files = apk.namelist()
+              assert any(f.startswith('lib/arm64-v8a/') and f.endswith('.so') for f in files), 'Missing ARM64 runtime library'
+              assert not any(f.startswith(('lib/armeabi-v7a/', 'lib/x86/', 'lib/x86_64/')) for f in files), 'Unexpected ABI bundled'
+          print('ANDROID ARM64 APK LIBRARY PASS')
+          PY
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          APKSIGNER="$(find "${SDK_ROOT}/build-tools" -type f -name apksigner | sort -V | tail -1)"
+          test -x "${APKSIGNER}"
+          "${APKSIGNER}" verify --verbose build/fisura-v08-debug.apk
+          echo "ANDROID APK SIGNATURE PASS (device runtime untested)"
       - name: Upload actual debug APK
         uses: actions/upload-artifact@v4
         with:
