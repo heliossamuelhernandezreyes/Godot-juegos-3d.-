@@ -99,3 +99,14 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 - Como antes, cada CI genera **una captura real de Godot**. Android no está probado.
 
 **No se afirma animación AAA:** son clips CC0 funcionales con transiciones sencillas, sin retargeting humanoide avanzado, IK de pies/manos, motion matching, cámara libre ni animaciones contextuales de cobertura.
+
+## FISURA 0.6 — combate, orientación táctil y exportación Android
+
+- Vanguard recibe una **capa de animación aditiva de torso** después de sus clips nativos, con retroceso moderado al disparar. **No es IK completo**.
+- Cámara con seguimiento y foco uniformes, retícula y prevención de obstrucción por escenario.
+- Los controles móviles admiten **dos dedos de movimiento y orientación independientes**, además de botones de disparo e impulso; la compatibilidad táctil se ha probado con eventos simulados, no físicamente.
+- `tests/vanguard_aim_mobile.gd` prueba el modificador esquelético y la independencia de entradas. Todos los tests anteriores siguen vigentes.
+- Nuevo preset `export_presets.cfg` y workflow `fisura-android.yml`: empaquetar un APK **ARM64 firmado para depuración** y publicarlo como artefacto de GitHub Actions una vez que el workflow supere las pruebas.
+- Revisión detallada: [docs/ARCONT_ANIMATION_MOBILE_V06.md](docs/ARCONT_ANIMATION_MOBILE_V06.md).
+
+El APK, si se genera, **no queda validado en dispositivo** hasta instalarlo y medir FPS/latencia, temperatura y controles.
