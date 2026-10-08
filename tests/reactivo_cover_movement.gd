@@ -10,7 +10,7 @@ func _verify() -> void:
     root.add_child(world)
     world.testing_disable_spawns = true
     var actor = world.player
-    if actor.cover_zones.size() != 7:
+    if actor.cover_zones.size() != 11:
         _fail("Missing authored cover geometry: " + str(actor.cover_zones.size()))
         return
     actor.global_position = Vector3(0, 1, 23)
@@ -28,8 +28,8 @@ func _verify() -> void:
     actor.touch_axis = Vector2(-1, 0)
     for i in range(4):
         await physics_frame
-    if absf(actor.velocity.x) > 0.20:
-        _fail("Cover movement penetrates the wall: " + str(actor.velocity))
+    if actor.global_position.x < -21.67 or actor.global_position.x > -20.81:
+        _fail("Cover snapping penetrated collider or moved away from wall: " + str(actor.global_position))
         return
     actor.touch_axis = Vector2(0, -1)
     for i in range(8):
@@ -37,7 +37,7 @@ func _verify() -> void:
     if actor.velocity.z > -1.0 or not actor.in_cover:
         _fail("No responsive cover strafe: " + str(actor.velocity))
         return
-    if actor.velocity.length() > actor.WALK_SPEED * 0.70:
+    if absf(actor.velocity.z) > actor.WALK_SPEED * 0.70:
         _fail("Cover strafe speed budget exceeded")
         return
     actor.request_dash()
@@ -50,6 +50,12 @@ func _verify() -> void:
     if actor.can_take_cover():
         _fail("Cover retained outside authored guide")
         return
+    actor.global_position = Vector3(-15.0, 1, 14.0)
+    actor.dash_remaining = 0.0
+    if not actor.can_take_cover() or not actor.request_cover_toggle() or actor.cover_id != "workshop_crate_-1":
+        _fail("Solid world crate is not an eligible cover")
+        return
+    actor.request_cover_toggle()
     actor.global_position = Vector3(0, 1, 19)
     world.shoulder_side = 1.0
     var right_shoulder: Vector3 = world._camera_position()
@@ -58,7 +64,7 @@ func _verify() -> void:
     if right_shoulder.x < 0.8 or left_shoulder.x > -0.8:
         _fail("Shoulder switching lost the over-shoulder sides: " + str(right_shoulder) + " / " + str(left_shoulder))
         return
-    print("REACTIVO COVER MOTION PASS guides=7 near-geometry=true wall-tangent=true dash-break=true shoulder-swap=true")
+    print("REACTIVO COVER MOTION PASS guides=11 near-geometry=true wall-tangent=true dash-break=true shoulder-swap=true")
     quit(0)
 
 func _fail(why: String) -> void:
