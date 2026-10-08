@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "name": "industrial_pastic_container",
+  "catalog_ref": "heliossamuelhernandezreyes/Arcont",
+  "asset_page": "https://polyhaven.com/a/industrial_pastic_container",
+  "license": "CC0-1.0",
+  "license_page": "https://polyhaven.com/license",
+  "source_api": "https://api.polyhaven.com/info/industrial_pastic_container",
+  "files_api": "https://api.polyhaven.com/files/industrial_pastic_container",
+  "files_hash": "77cda45559262d55ab7c128db322f028d56de412",
+  "files": [
+    {
+      "file": "industrial_pastic_container_1k.gltf",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/industrial_pastic_container/industrial_pastic_container_1k.gltf",
+      "size_bytes": 3617,
+      "sha256": "ab4f4d41c247eb3836ddc1315d991898f26cfde51b737d8cd846f12ab6f735d1"
+    },
+    {
+      "file": "buffers_0.bin",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/industrial_pastic_container/industrial_pastic_container.bin",
+      "size_bytes": 370100,
+      "sha256": "4ee471df26a3a386536109ee5a0c68300eced2706c0f667963a7a54ecb9343fd"
+    },
+    {
+      "file": "images_0.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_pastic_container/industrial_pastic_container_nor_gl_1k.jpg",
+      "size_bytes": 125304,
+      "sha256": "608ccf9fd66eed1cf4c41f30e104e3fc535513e4c67b4912a16d9c6903c72a84"
+    },
+    {
+      "file": "images_1.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_pastic_container/industrial_pastic_container_diff_1k.jpg",
+      "size_bytes": 184497,
+      "sha256": "dd4711467c6976f521983c56116dbcfa68f6ae8bdf02352212fa1468f73b81bc"
+    },
+    {
+      "file": "images_2.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_pastic_container/industrial_pastic_container_arm_1k.jpg",
+      "size_bytes": 881895,
+      "sha256": "41e9b8f374013fc5e552f48de06e3dbdb86cfd3e0ee24576c499e6b4689c363c"
+    }
+  ]
+}
