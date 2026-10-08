@@ -6,6 +6,9 @@ on:
     paths:
       - "export_presets.cfg"
       - "tools/configure_android_editor.gd"
+      - "project.godot"
+      - "scripts/**"
+      - "assets/vendor/**"
       - ".github/workflows/android-debug.yml"
   workflow_dispatch:
 
