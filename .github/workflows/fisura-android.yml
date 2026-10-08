@@ -27,8 +27,12 @@ jobs:
           java-version: '17'
       - name: Install supported Android platform SDK
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager --install 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "${SDK_ROOT}/cmdline-tools" -type f -name sdkmanager | sort | tail -1)"
+          test -x "${SDKMANAGER}"
+          echo "Using Android sdkmanager: ${SDKMANAGER}"
+          yes | "${SDKMANAGER}" --licenses > /dev/null || true
+          "${SDKMANAGER}" --install 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
           echo "ANDROID SDK: ${ANDROID_HOME:-unknown}"
       - name: Download matching Godot 4.7.2 editor
         run: |
