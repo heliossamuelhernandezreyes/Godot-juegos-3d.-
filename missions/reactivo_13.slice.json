@@ -3,10 +3,10 @@
   "id": "fisura_reactivo_13",
   "title": "FISURA // Reactivo-13",
   "project": "FISURA",
-  "implementation_status": "design_only",
+  "implementation_status": "in_development",
   "map": {
     "ref": "maps/reactivo_13.json",
-    "status": "planned",
+    "status": "implemented",
     "bounds": {
       "width": 84,
       "depth": 66
@@ -252,7 +252,7 @@
     },
     {
       "id": "bulwark",
-      "status": "planned",
+      "status": "in_development",
       "archetype": "front_shield",
       "telegraph_seconds": 1.4,
       "counterplay": [
@@ -601,27 +601,27 @@
     {
       "id": "G0",
       "name": "contract_integrity",
-      "status": "planned"
+      "status": "verified"
     },
     {
       "id": "G1",
       "name": "map_reachability",
-      "status": "planned"
+      "status": "verified"
     },
     {
       "id": "G2",
       "name": "mission_sequence_playthrough",
-      "status": "planned"
+      "status": "verified"
     },
     {
       "id": "G3",
       "name": "enemy_roles_and_fairness",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": "G4",
       "name": "visual_readability",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": "G5",
