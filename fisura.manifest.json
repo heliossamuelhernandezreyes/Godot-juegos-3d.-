@@ -10,7 +10,7 @@
   },
   "arcont": {
     "repository": "heliossamuelhernandezreyes/Arcont",
-    "commit": "b3912c960092377b5984d50320109c0cfdf75b6b",
+    "commit": "f9f9b3cfeef5f768257f21c4796b2a7653434b64",
     "dependency_kind": "design contract, pinned validation tool and knowledge",
     "embedded_project": false,
     "map_standard": "docs/knowledge/MAP_FORGE_STANDARD.md",
@@ -32,12 +32,19 @@
       "LOS-gated-attack-warning",
       "visual-shot-camera-framing-gate",
       "unique-source-asset-instance-names",
-      "camera-projected-actor-silhouette-check"
+      "camera-projected-actor-silhouette-check",
+      "arcont-1.1-project-intent-validated",
+      "authored-cover-wall-tangent-traversal",
+      "motion-acceleration-and-dash-release",
+      "mobile-contextual-cover-control"
     ],
     "mission_contract": "missions/reactivo_13.slice.json",
     "mission_validator": "_arcont_reference/tools/vertical_slice_contract.py",
     "mission_map_bridge": "_arcont_reference/tools/mission_map_bridge.py",
-    "viewport_evidence_gate": "_arcont_reference/tools/viewport_evidence_gate.py"
+    "viewport_evidence_gate": "_arcont_reference/tools/viewport_evidence_gate.py",
+    "project_intent": "project.intent.json",
+    "toolchain_version": "1.1.0",
+    "integration_status": "contract + CI validator pinned, MCP gateway not connected in this workflow"
   },
   "prototype": {
     "stage": "vertical-slice-0.8-cinematic-industrial-combat",
@@ -105,6 +112,22 @@
       "packed_json_verified_by_runtime": false,
       "physical_android_gameplay_tested": false,
       "note": "APK export PASS does not prove missions JSON is loadable in installed Android runtime. Install and run all five Reactivo-13 phases before declaring playable on device."
+    },
+    "tactical_mobility": {
+      "phase": "cover-v1",
+      "authored_guides": 7,
+      "mechanics": [
+        "cover toggled by Q or mobile button near authored physics-backed cover",
+        "slower tangent-only strafing while in cover",
+        "dash exits cover with original cooldown",
+        "accelerated normal locomotion"
+      ],
+      "limitations": [
+        "cover transition is not a unique motion-captured animation",
+        "no vault/climb animation or cover-chain transfers yet",
+        "touch/mobile performance not measured on physical device"
+      ],
+      "ci_test": "tests/reactivo_cover_movement.gd"
     }
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
