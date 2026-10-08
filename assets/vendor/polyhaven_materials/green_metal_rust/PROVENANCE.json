@@ -1,0 +1,28 @@
+{
+  "asset": "green_metal_rust",
+  "source_page": "https://polyhaven.com/a/green_metal_rust",
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "arcont_catalog": "heliossamuelhernandezreyes/Arcont",
+  "api_files_hash": "fd6cc162a0eb0eb8e0e2fb4d7f1b977dda4626b3",
+  "files": [
+    {
+      "name": "diff.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_diff_1k.jpg",
+      "size_bytes": 212088,
+      "sha256": "4509ab0cb1cf6bf9b9f970450a41f83ebd9bff178006deae568ff34b404856fc"
+    },
+    {
+      "name": "nor_gl.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_nor_gl_1k.jpg",
+      "size_bytes": 121379,
+      "sha256": "8ecb28b0ea4026b740ce492e3f606f61a76bdce1f78cb2e29287bf9a56c54a80"
+    },
+    {
+      "name": "arm.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_arm_1k.jpg",
+      "size_bytes": 108674,
+      "sha256": "c1a48da0c5bba8f490497bbedadf4cb21d5387de8b3d49988c065e4b16805434"
+    }
+  ]
+}

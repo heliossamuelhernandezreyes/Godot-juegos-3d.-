@@ -1,0 +1,28 @@
+{
+  "asset": "concrete_wall_007",
+  "source_page": "https://polyhaven.com/a/concrete_wall_007",
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "arcont_catalog": "heliossamuelhernandezreyes/Arcont",
+  "api_files_hash": "c5e1c8435799f08d174a94c5e73d43e955572a10",
+  "files": [
+    {
+      "name": "diff.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_007/concrete_wall_007_diff_1k.jpg",
+      "size_bytes": 654485,
+      "sha256": "1a5ff668a66e147d9fb795d8407ca67a144a1ca010779a5b8386137a4917a086"
+    },
+    {
+      "name": "nor_gl.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_007/concrete_wall_007_nor_gl_1k.jpg",
+      "size_bytes": 602349,
+      "sha256": "cccb1841908ced8b89b65b5de97c1926f717dab63a14559264703a99639c291f"
+    },
+    {
+      "name": "arm.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_007/concrete_wall_007_arm_1k.jpg",
+      "size_bytes": 657491,
+      "sha256": "b403affeb0eaac2386bd6d91d41acb99f7862e1b9101a14ab0af6da21fdf544f"
+    }
+  ]
+}

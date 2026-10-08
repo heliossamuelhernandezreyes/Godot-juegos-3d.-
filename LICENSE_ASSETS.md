@@ -21,3 +21,15 @@ Fuente de licencia oficial: https://polyhaven.com/license
 - **Assets Poly Haven:** CC0 permite uso comercial, modificación y redistribución. Las páginas del proveedor se conservan como referencia de procedencia.
 - **No se asume compatibilidad Android:** la importación de editor no es una medición GPU/termal del dispositivo.
 - **Materiales de terceros futuros:** solo integrar con manifest verificable, licencia exacta y prueba reproducible de importación.
+
+## Materiales PBR incorporados en FISURA 0.3
+
+Los siguientes activos vienen de Poly Haven y estaban clasificados CC0 en ARCONT Asset Vault. Los binarios fueron adquiridos desde URLs oficiales con manifiestos locales de fuente, licencia y SHA-256:
+
+| Material | Procedencia | Manifiesto |
+|---|---|---|
+| Concrete Wall 007 | https://polyhaven.com/a/concrete_wall_007 | `assets/vendor/polyhaven_materials/concrete_wall_007/PROVENANCE.json` |
+| Concrete Floor Worn 02 | https://polyhaven.com/a/concrete_floor_worn_02 | `assets/vendor/polyhaven_materials/concrete_floor_worn_02/PROVENANCE.json` |
+| Green Metal Rust | https://polyhaven.com/a/green_metal_rust | `assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json` |
+
+Archivos: diffuse 1K, OpenGL normal 1K y ARM 1K para cada superficie. Ningún archivo se descarga en runtime. Licencia original: https://polyhaven.com/license.

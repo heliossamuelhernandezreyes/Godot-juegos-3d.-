@@ -3,6 +3,8 @@ extends Node3D
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ENEMY_SCRIPT = preload("res://scripts/enemy.gd")
 const ART_STAGE_SCRIPT = preload("res://scripts/art_stage.gd")
+const NAV_SCRIPT = preload("res://scripts/tactical_grid.gd")
+const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
 const MAP_PATH := "res://maps/crisol_01.json"
 const CORE_GOAL := 3
 const MAX_ENEMIES := 12
@@ -13,6 +15,9 @@ var anchors: Dictionary = {}
 var player
 var camera: Camera3D
 var stage: Node3D
+var tactical_nav
+var audio_fx: Node
+var hit_overlay: ColorRect
 var portal: MeshInstance3D
 var portal_material: StandardMaterial3D
 var hazard_disk: MeshInstance3D
@@ -43,11 +48,13 @@ func _ready() -> void:
         return
     _build_environment()
     _build_arena()
+    _create_navigation()
     _create_art_stage()
     _create_player()
     _create_camera()
     _create_objectives()
     _create_hud()
+    _create_audio()
     _update_hud()
 
 func _read_map() -> bool:
@@ -154,6 +161,16 @@ func _box(label: String, pos: Vector3, size: Vector3, color: Color, solid: bool 
     visual.material_override = material
     root.add_child(visual)
 
+func _create_navigation() -> void:
+    tactical_nav = NAV_SCRIPT.new()
+    tactical_nav.build(map_data)
+
+func _create_audio() -> void:
+    audio_fx = Node.new()
+    audio_fx.set_script(AUDIO_SCRIPT)
+    add_child(audio_fx)
+    player.dash_started.connect(func() -> void: audio_fx.trigger("dash"))
+
 func _create_art_stage() -> void:
     stage = Node3D.new()
     stage.set_script(ART_STAGE_SCRIPT)
@@ -166,14 +183,23 @@ func _create_player() -> void:
     player.position = anchors["player_start"] + Vector3(0, 1, 0)
     add_child(player)
 
+func _camera_safe_position() -> Vector3:
+    # Enclosed industrial environment: never put the camera behind a tall wall.
+    var desired: Vector3 = player.global_position + Vector3(0, 11.0, 10.0)
+    var half_width := float(map_data["bounds"]["width"]) * 0.5
+    var half_depth := float(map_data["bounds"]["depth"]) * 0.5
+    desired.x = clampf(desired.x, -half_width + 2.8, half_width - 2.8)
+    desired.z = clampf(desired.z, -half_depth + 2.8, half_depth - 2.8)
+    return desired
+
 func _create_camera() -> void:
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-    camera.fov = 51.0
-    camera.position = player.global_position + Vector3(0, 15, 13)
+    camera.fov = 54.0
+    camera.position = _camera_safe_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0, -1.4), Vector3.UP)
 
 func _create_objectives() -> void:
     for anchor_id in ["core_alpha", "core_beta", "core_gamma"]:
@@ -221,6 +247,11 @@ func _create_hud() -> void:
     root.set_anchors_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_IGNORE
     overlay.add_child(root)
+    hit_overlay = ColorRect.new()
+    hit_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+    hit_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    hit_overlay.color = Color(0.88, 0.1, 0.06, 0.0)
+    root.add_child(hit_overlay)
     var banner := Panel.new()
     banner.name = "HUD - telemetria tactica"
     banner.position = Vector2(12, 10)
@@ -325,7 +356,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null:
         return
-    camera.position = camera.position.lerp(player.global_position + Vector3(0, 21, 17), minf(1.0, delta * 6.0))
+    camera.position = camera.position.lerp(_camera_safe_position(), minf(1.0, delta * 6.0))
     camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
     if finished:
         if Input.is_key_pressed(KEY_R):
@@ -379,6 +410,7 @@ func _target_nearest_enemy() -> Vector3:
     return best
 
 func _fire_rifle() -> void:
+    audio_fx.trigger("fire")
     var from: Vector3 = player.global_position + Vector3(0, 0.18, 0)
     var to: Vector3 = from + player.aim_direction * 34.0
     var query := PhysicsRayQueryParameters3D.create(from, to)
@@ -431,6 +463,7 @@ func _check_objectives() -> void:
             cores.erase(core)
             core.queue_free()
             collected += 1
+            audio_fx.trigger("pickup")
             if collected == CORE_GOAL:
                 portal_material.albedo_color = Color("#29eacb")
                 portal_material.emission = Color("#00eabc")
@@ -471,9 +504,42 @@ func _finish(won: bool) -> void:
     finished = true
     player.mobile_firing = false
     player.set_physics_process(false)
+    if won:
+        audio_fx.trigger("victory")
     get_tree().call_group("enemies", "set_physics_process", false)
     result_label.visible = true
     if won:
         result_label.text = "EXTRACCION COMPLETA\n%d bajas en %d s\nPulsa R o REINICIAR" % [kills, int(elapsed)]
     else:
         result_label.text = "MISIÓN FALLIDA\n%d nucleos recuperados\nPulsa R o REINICIAR" % collected
+
+func register_hit_feedback(at: Vector3) -> void:
+    if audio_fx != null:
+        audio_fx.trigger("hit")
+    var spark := MeshInstance3D.new()
+    spark.name = "Impacto de proyectil - flash"
+    var mesh := SphereMesh.new()
+    mesh.radius = 0.23
+    mesh.height = 0.46
+    spark.mesh = mesh
+    var material := StandardMaterial3D.new()
+    material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    material.albedo_color = Color("#ffdc95")
+    material.emission_enabled = true
+    material.emission = Color("#ff7c31")
+    material.emission_energy_multiplier = 3.0
+    spark.material_override = material
+    spark.position = at + Vector3(0, 0.25, 0)
+    add_child(spark)
+    var fade := create_tween()
+    fade.tween_property(spark, "scale", Vector3.ONE * 0.05, 0.17)
+    fade.finished.connect(spark.queue_free)
+
+func register_damage_feedback() -> void:
+    if audio_fx != null:
+        audio_fx.trigger("damage")
+    if hit_overlay == null:
+        return
+    hit_overlay.color = Color(0.92, 0.14, 0.06, 0.34)
+    var fade := create_tween()
+    fade.tween_property(hit_overlay, "color:a", 0.0, 0.32)
