@@ -28,6 +28,7 @@ var result_label: Label
 var progress_bar: ColorRect
 var control_note: Label
 var consoles: Dictionary = {}
+var objective_names: Dictionary = {}
 var gate_body: StaticBody3D
 var gate_shape: CollisionShape3D
 var gate_visual: MeshInstance3D
@@ -193,6 +194,23 @@ func _make_interactables() -> void:
         mesh.material_override = mat
         add_child(mesh)
         consoles[object_id] = mesh
+        var marker := Label3D.new()
+        marker.name = "REACTIVO objective marker | " + object_id
+        marker.text = str({
+            "node_a_console": "NODO A  //  ACTIVAR",
+            "node_b_console": "NODO B  //  ACTIVAR",
+            "reactor_altar": "REACTIVO-13  //  RECUPERAR",
+            "stabilizer": "ESTABILIZADOR  //  DEFENDER",
+            "extraction_pad": "SALIDA  //  EXTRAER"
+        }.get(object_id, "OBJETIVO"))
+        marker.font_size = 54
+        marker.pixel_size = 0.0037
+        marker.modulate = Color("#71f0ed")
+        marker.outline_modulate = Color("#071421")
+        marker.outline_size = 10
+        marker.position = positions[object_id] + Vector3(0, 3.5, 0)
+        add_child(marker)
+        objective_names[object_id] = marker
     gate_body = StaticBody3D.new()
     gate_body.name = "Access Gate | A+B interlock"
     gate_body.position = Vector3(0, 1.6, 8.0)
