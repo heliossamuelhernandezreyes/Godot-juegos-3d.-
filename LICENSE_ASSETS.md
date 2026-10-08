@@ -33,3 +33,13 @@ Los siguientes activos vienen de Poly Haven y estaban clasificados CC0 en ARCONT
 | Green Metal Rust | https://polyhaven.com/a/green_metal_rust | `assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json` |
 
 Archivos: diffuse 1K, OpenGL normal 1K y ARM 1K para cada superficie. Ningún archivo se descarga en runtime. Licencia original: https://polyhaven.com/license.
+
+## Quaternius Sci-Fi Essentials Kit Standard — CC0
+
+Autor: **Quaternius**. Kit original: https://quaternius.com/packs/scifiessentialskit.html  
+Licencia: CC0 1.0 (copia de `License_Standard.txt` en `assets/vendor/quaternius/scifi_essentials/SOURCE_LICENSE.txt`).  
+Repositorio de redistribución identificado: `agentkaerf/FreeModels`, commit **db3df04d1e4714298a09510b26fb6de6645138a2**.
+
+Se incorporaron únicamente las mallas y dependencias de **Enemy_QuadShell**, **Enemy_EyeDrone** y **Gun_Rifle** en glTF + BIN + PNG PBR. El archivo `PROVENANCE.json` conserva por cada componente: URL exacta fijada al commit, tamaño, SHA-256. Quaternius es el creador; el repositorio fuente de descarga es un espejo de terceros, no el alojamiento oficial.
+
+Comprobado: glTF importable en Godot 4.7.2, dos mallas skin con Skeleton3D y AnimationPlayer y rifle PBR. **No inferir** compatibilidad de FPS Android ni calidad comercial AAA por esos resultados.
