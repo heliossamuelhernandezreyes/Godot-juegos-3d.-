@@ -30,7 +30,7 @@ doc=json.loads((DIR/"Enemy_Trilobite.gltf").read_text())
 assert len(doc.get("skins",[]))>=1
 assert len(doc.get("animations",[]))>=8
 assert all((DIR / x["uri"]).is_file() for x in doc.get("images",[]))
-assert all((DIR[x["uri"]]).is_file() for x in doc.get("buffers",[]))
+assert all((DIR / x["uri"]).is_file() for x in doc.get("buffers",[]))
 record={"model":"Enemy_Trilobite","source_pack":"https://quaternius.com/packs/scifiessentialskit.html",
         "source_mirror_commit":REV,"license":"CC0-1.0",
         "license_file":"assets/vendor/quaternius/scifi_essentials/SOURCE_LICENSE.txt",
