@@ -68,6 +68,9 @@ func _build_skeletal_vanguard() -> void:
     add_child(visual_root)
     humanoid = VANGUARD_SCENE.instantiate()
     humanoid.name = "Spacesuit | skinned mesh"
+    # Quaternius mesh front uses +Z; gameplay CharacterBody3D forward uses -Z.
+    # Author this rest-space facing conversion once, before any native animations.
+    humanoid.rotation.y = PI
     # The source model has its feet at its own origin; CharacterBody3D origin is centered.
     humanoid.position = Vector3(0, -0.88, 0)
     visual_root.add_child(humanoid)
