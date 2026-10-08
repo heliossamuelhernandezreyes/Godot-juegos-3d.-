@@ -58,7 +58,11 @@ func _play_voice(key: String, pitch: float, volume: float) -> void:
     voice.stop()
     var asset: Variant = streams[key]
     if asset is String:
-        # Explicit headless event testing may request the clip on demand.
+        # In headless gameplay CI, validate event routing without opening a
+        # physical audio device or retaining imported Vorbis playback streams.
+        # A separate test imports and hashes all OGG files independently.
+        if DisplayServer.get_name() == "headless":
+            return
         asset = load(asset) as AudioStream
         if asset == null:
             return
