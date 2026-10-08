@@ -50,3 +50,11 @@ Comprobado: glTF importable en Godot 4.7.2, dos mallas skin con Skeleton3D y Ani
 - Modelo seleccionado: `Spacesuit.gltf`, con esqueleto y **24 clips nativos**. Descarga reproducible desde el espejo `agentkaerf/FreeModels` fijado al commit `db3df04d1e4714298a09510b26fb6de6645138a2`.
 - `PROVENANCE.json` conserva el URL exacto de origen, hash SHA-256, tamaño y evidencia de licencia. El juego no efectúa descargas al abrirse.
 - Resultado verificado exclusivamente en Godot 4.7.2 Linux mediante importación, activación de Run y transiciones de gameplay. No confundir con QA visual riguroso, certificación de rendimiento Android ni nivel AAA.
+
+## FISURA 0.8 — ampliación de arte industrial CC0 sobre `main`
+
+- **Poly Haven industrial_storage_cart**: https://polyhaven.com/a/industrial_storage_cart, modelo fotogramétrico 1K, `assets/vendor/polyhaven_cinematic/industrial_storage_cart/PROVENANCE.json`.
+- **Poly Haven industrial_pastic_container**: https://polyhaven.com/a/industrial_pastic_container (ortografía del identificador original), modelo PBR 1K, `assets/vendor/polyhaven_cinematic/industrial_pastic_container/PROVENANCE.json`.
+- **Quaternius Enemy_Trilobite**: personaje animado distinto del QuadShell, 9 clips nativos, del Sci-Fi Essentials Kit Standard CC0. Copia del paquete fijado al commit `agentkaerf/FreeModels@db3df04d1e4714298a09510b26fb6de6645138a2`. `assets/vendor/quaternius/scifi_essentials/BULWARK_PROVENANCE.json`.
+
+Todos los recursos se alojan únicamente en FISURA y cuentan con una cadena local de procedencia de binarios/texturas. Los modelos PBR se colocan como decoración sin modificar colisiones. La prueba de Godot exige su importación real, y la mecánica del Bulwark debe continuar superando el test del escudo frontal y la espalda.
