@@ -27,6 +27,14 @@ func build(map_data: Dictionary, anchors: Dictionary) -> void:
         _static_prop(str(item["id"]), resource_map[kind],
             Vector3(float(pos[0]), float(pos[1]), float(pos[2])),
             Vector3(float(dims[0]), float(dims[1]), float(dims[2])))
+    # Reactivo-13 owns a new moving reactor. Preserve the old collider but hide
+    # overlapping legacy Crisol reactor artwork to avoid Z-fighting and white glare.
+    if str(map_data.get("id", "")) == "fisura_reactivo_13_arena":
+        var old_reactor: Node = get_node_or_null("reactor colision")
+        if old_reactor != null:
+            for relic in old_reactor.get_children():
+                if relic is MeshInstance3D:
+                    relic.visible = false
     _display_asset("Portico", GATE, anchors["exit_portal"], 0.0)
     _place_polyhaven_props()
     _lighting()
@@ -81,7 +89,7 @@ func _floor_tiles(map_data: Dictionary) -> void:
     var batch := MultiMeshInstance3D.new()
     batch.name = "Suelo modular instanciado"
     batch.multimesh = multimesh
-    batch.material_override = _pbr_material("concrete_floor_worn_02", Color("#cddce2"), 0.7)
+    batch.material_override = _pbr_material("concrete_floor_worn_02", Color("#899da7"), 0.7)
     add_child(batch)
     mesh_count += 1
     mesh_instances += index

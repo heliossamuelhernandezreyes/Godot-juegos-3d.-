@@ -7,9 +7,12 @@ const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const GRID_SCRIPT = preload("res://scripts/tactical_grid.gd")
 const QUAD_SCRIPT = preload("res://scripts/animated_reaver.gd")
 const BULWARK_SCRIPT = preload("res://scripts/reactivo_bulwark.gd")
+const TELEGRAPH_DRONE_SCRIPT = preload("res://scripts/reactivo_eyedrone.gd")
 const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
 const ART_SCRIPT = preload("res://scripts/art_stage.gd")
+const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
+const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
 
 var contract: Dictionary = {}
 var map_data: Dictionary = {}
@@ -19,7 +22,9 @@ var tactical_nav
 var player
 var camera: Camera3D
 var stage: Node3D
+var cinematic_stage: Node3D
 var audio_fx: Node
+var combat_fx: Node3D
 var mission_label: Label
 var health_label: Label
 var prompt_label: Label
@@ -27,6 +32,7 @@ var result_label: Label
 var progress_bar: ColorRect
 var control_note: Label
 var consoles: Dictionary = {}
+var objective_names: Dictionary = {}
 var gate_body: StaticBody3D
 var gate_shape: CollisionShape3D
 var gate_visual: MeshInstance3D
@@ -71,6 +77,9 @@ func _ready() -> void:
     audio_fx = Node.new()
     audio_fx.set_script(AUDIO_SCRIPT)
     add_child(audio_fx)
+    combat_fx = Node3D.new()
+    combat_fx.set_script(EFFECT_SCRIPT)
+    add_child(combat_fx)
     player.dash_started.connect(func() -> void: audio_fx.trigger("dash"))
     director.initialize(contract)
     _refresh_hud()
@@ -108,14 +117,14 @@ func _build_world() -> void:
     environment.background_color = Color("#0a1422")
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color("#8197ac")
-    environment.ambient_light_energy = 0.85
+    environment.ambient_light_energy = 0.62
     var world_env := WorldEnvironment.new()
     world_env.environment = environment
     add_child(world_env)
     var key := DirectionalLight3D.new()
     key.rotation_degrees = Vector3(-60.0, -25.0, 0.0)
     key.light_color = Color("#b5d8f0")
-    key.light_energy = 1.4
+    key.light_energy = 1.03
     key.shadow_enabled = true
     add_child(key)
     var bounds: Dictionary = map_data["bounds"]
@@ -134,6 +143,9 @@ func _build_world() -> void:
     stage.set_script(ART_SCRIPT)
     add_child(stage)
     stage.build(map_data, positions)
+    cinematic_stage = Node3D.new()
+    cinematic_stage.set_script(CINEMATIC_SCRIPT)
+    add_child(cinematic_stage)
     # Distinct colored lanes anchor each combat/mission region.
     _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#2eaec9"), false)
     _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#dba04c"), false)
@@ -150,14 +162,14 @@ func _make_player() -> void:
 
 func _make_camera() -> void:
     camera = Camera3D.new()
-    camera.fov = 62.0
+    camera.fov = 59.0
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
     camera.look_at(player.global_position + Vector3(0, 0.85, -1.2), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(1.10, 3.85, 5.8)
+    var desired: Vector3 = player.global_position + Vector3(1.25, 2.95, 4.1)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -189,6 +201,23 @@ func _make_interactables() -> void:
         mesh.material_override = mat
         add_child(mesh)
         consoles[object_id] = mesh
+        var marker := Label3D.new()
+        marker.name = "REACTIVO objective marker | " + object_id
+        marker.text = str({
+            "node_a_console": "NODO A  //  ACTIVAR",
+            "node_b_console": "NODO B  //  ACTIVAR",
+            "reactor_altar": "REACTIVO-13  //  RECUPERAR",
+            "stabilizer": "ESTABILIZADOR  //  DEFENDER",
+            "extraction_pad": "SALIDA  //  EXTRAER"
+        }.get(object_id, "OBJETIVO"))
+        marker.font_size = 54
+        marker.pixel_size = 0.0037
+        marker.modulate = Color("#71f0ed")
+        marker.outline_modulate = Color("#071421")
+        marker.outline_size = 10
+        marker.position = positions[object_id] + Vector3(0, 3.5, 0)
+        add_child(marker)
+        objective_names[object_id] = marker
     gate_body = StaticBody3D.new()
     gate_body.name = "Access Gate | A+B interlock"
     gate_body.position = Vector3(0, 1.6, 8.0)
@@ -203,9 +232,31 @@ func _make_interactables() -> void:
     gate_mesh.size = Vector3(8.0, 3.2, 0.75)
     gate_visual.mesh = gate_mesh
     var gate_mat := StandardMaterial3D.new()
-    gate_mat.albedo_color = Color("#7e4c39")
+    gate_mat.albedo_color = Color("#788692")
+    gate_mat.albedo_texture = load("res://assets/vendor/polyhaven_materials/green_metal_rust/diff.jpg") as Texture2D
+    gate_mat.normal_enabled = true
+    gate_mat.normal_texture = load("res://assets/vendor/polyhaven_materials/green_metal_rust/nor_gl.jpg") as Texture2D
+    gate_mat.metallic = 0.77
+    gate_mat.roughness = 0.39
     gate_visual.material_override = gate_mat
     gate_body.add_child(gate_visual)
+    var blast_face := StandardMaterial3D.new()
+    blast_face.albedo_color = Color("#31414d")
+    blast_face.metallic = 0.80
+    blast_face.roughness = 0.42
+    var inset := StandardMaterial3D.new()
+    inset.albedo_color = Color("#152d38")
+    inset.metallic = 0.63
+    inset.roughness = 0.40
+    for panel_index in range(4):
+        var rib := MeshInstance3D.new()
+        rib.name = "Blast shield | recessed segmented plate %d" % panel_index
+        var rib_shape := BoxMesh.new()
+        rib_shape.size = Vector3(7.42, 0.57, 0.12)
+        rib.mesh = rib_shape
+        rib.position = Vector3(0, -1.11 + float(panel_index) * 0.72, 0.47)
+        rib.material_override = blast_face if panel_index % 2 == 0 else inset
+        gate_visual.add_child(rib)
     var brass := StandardMaterial3D.new()
     brass.albedo_color = Color("#d3a45b")
     brass.metallic = 0.7
@@ -217,7 +268,7 @@ func _make_interactables() -> void:
         stripe.mesh = bar
         stripe.position = Vector3(offset, 0, 0.45)
         stripe.material_override = brass
-        gate_body.add_child(stripe)
+        gate_visual.add_child(stripe)
     var lock_text := Label3D.new()
     lock_text.name = "Access gate | warning signage"
     lock_text.text = "REACTIVO-13   //   NODOS A + B"
@@ -225,7 +276,7 @@ func _make_interactables() -> void:
     lock_text.pixel_size = 0.0034
     lock_text.modulate = Color("#ffcf85")
     lock_text.position = Vector3(0, 0.45, 0.47)
-    gate_body.add_child(lock_text)
+    gate_visual.add_child(lock_text)
     add_child(gate_body)
 
 func _make_hud() -> void:
@@ -336,7 +387,7 @@ func _process(delta: float) -> void:
         return
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
     camera.look_at(player.global_position + Vector3(0, 0.7, -2.0), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 55.0 if player.wants_to_fire() else 62.0, minf(1.0, delta * 6.0))
+    camera.fov = lerpf(camera.fov, 51.0 if player.wants_to_fire() else 59.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta
@@ -406,6 +457,9 @@ func _fire() -> void:
                 collider.call("take_hit_from", 23, origin)
             elif collider.has_method("take_hit"):
                 collider.call("take_hit", 23)
+    if combat_fx != null:
+        combat_fx.muzzle(origin, player.aim_direction)
+        combat_fx.tracer(origin, destination)
     register_hit_feedback(destination)
 
 func _available_target() -> String:
@@ -442,6 +496,8 @@ func _phase_changed(next_phase: String) -> void:
     phase_time = 0.0
     interaction_progress = 0.0
     interaction_target = ""
+    if cinematic_stage != null:
+        cinematic_stage.set_reactor_alarm(next_phase == "defense")
     if next_phase == "core_chamber" and gate_shape != null:
         gate_shape.set_deferred("disabled", true)
         gate_visual.visible = false
@@ -467,9 +523,12 @@ func _spawn_role(role: String, at: Vector3) -> void:
     var body := CharacterBody3D.new()
     if role == "bulwark":
         body.set_script(BULWARK_SCRIPT)
+    elif role == "eyedrone":
+        body.set_script(TELEGRAPH_DRONE_SCRIPT)
+        body.asset_kind = "eye"
     else:
         body.set_script(QUAD_SCRIPT)
-        body.asset_kind = "eye" if role == "eyedrone" else "quad"
+        body.asset_kind = "quad"
     body.target = player
     body.director = self
     body.position = at
@@ -504,6 +563,17 @@ func _refresh_hud() -> void:
         mission_label.text += "   A:%s B:%s" % ["OK" if director.is_complete("power_a") else "--", "OK" if director.is_complete("power_b") else "--"]
     elif director.phase_id == "defense":
         mission_label.text += "   %d/75 s · %d enemigos" % [mini(75, int(director.defense_seconds)), get_tree().get_nodes_in_group("enemies").size()]
+    var names := {
+        "node_a_console":"power_a",
+        "node_b_console":"power_b",
+        "reactor_altar":"collect_reactor",
+        "stabilizer":"defense_hold",
+        "extraction_pad":"evacuate"
+    }
+    for visual_id in objective_names:
+        var objective_id: String = names[visual_id]
+        var marker: Label3D = objective_names[visual_id]
+        marker.visible = director.can_complete(objective_id)
     var target := _available_target()
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     progress_bar.size.x = 0.0
@@ -515,6 +585,8 @@ func register_kill() -> void:
     kills += 1
 
 func register_hit_feedback(at: Vector3) -> void:
+    if combat_fx != null:
+        combat_fx.hit(at)
     var spark := MeshInstance3D.new()
     spark.name = "REACTIVO | projectile impact"
     var ball := SphereMesh.new()
@@ -537,20 +609,11 @@ func register_damage_feedback() -> void:
     if audio_fx != null:
         audio_fx.trigger("damage")
 
+func register_enemy_telegraph(start: Vector3, target: Vector3, duration: float) -> void:
+    if combat_fx != null:
+        combat_fx.enemy_charge(start, target, duration)
+
 func register_enemy_laser(start: Vector3, target: Vector3) -> void:
-    var part := MeshInstance3D.new()
-    var beam := CylinderMesh.new()
-    beam.top_radius = 0.06
-    beam.bottom_radius = 0.06
-    beam.height = maxf(0.12, start.distance_to(target))
-    part.mesh = beam
-    var mat := StandardMaterial3D.new()
-    mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    mat.albedo_color = Color("#ff5830")
-    part.material_override = mat
-    part.position = (start+target)*0.5
-    if start.distance_to(target)>0.2:
-        part.look_at(target, Vector3.UP)
-        part.rotate_object_local(Vector3.RIGHT, PI*0.5)
-    add_child(part)
-    get_tree().create_timer(0.18).timeout.connect(part.queue_free)
+    # One visually bounded emitter. The old beam called Node3D.look_at before entering tree.
+    if combat_fx != null:
+        combat_fx.hostile_beam(start, target)

@@ -1,6 +1,9 @@
 extends SceneTree
-## Real viewport proof for new mission, not a fabricated AAA concept.
+## Real, unretouched Godot 4.7.2 viewport captures of four playable mission positions.
+## Visual evidence supplements tests; success is not an AAA quality certificate.
 const SCENE = preload("res://scenes/reactivo_13.tscn")
+const BULWARK = preload("res://scripts/reactivo_bulwark.gd")
+
 func _initialize() -> void:
     call_deferred("_shoot")
 
@@ -8,21 +11,46 @@ func _shoot() -> void:
     var world = SCENE.instantiate()
     root.add_child(world)
     world.testing_disable_spawns = true
-    world.player.global_position = Vector3(0, 1, 19)
     for e in get_nodes_in_group("enemies"):
         e.set_physics_process(false)
-    for i in range(30):
+    var shots := [
+        {"at":Vector3(0,1,19),"file":"reactivo-13-render-proof.png","label":"insertion"},
+        {"at":Vector3(-28,1,10),"file":"reactivo-13-node.png","label":"node A"},
+        {"at":Vector3(0,1,-2),"file":"reactivo-13-reactor.png","label":"reactor"}
+    ]
+    for shot in shots:
+        world.player.global_position = shot["at"]
+        world.player.velocity = Vector3.ZERO
+        for i in range(40):
+            await process_frame
+        if not _save_frame(str(shot["file"])):
+            quit(1)
+            return
+        print("REACTIVO VIEW CAPTURE",shot["label"], shot["file"])
+    var guard := CharacterBody3D.new()
+    guard.set_script(BULWARK)
+    guard.target = world.player
+    guard.director = world
+    guard.position = Vector3(2.5, 1.0, -9)
+    world.add_child(guard)
+    guard.set_physics_process(false)
+    guard.look_at(world.player.global_position,Vector3.UP)
+    for i in range(20):
         await process_frame
-    var image: Image = root.get_texture().get_image()
-    if image == null or image.is_empty():
-        printerr("REACTIVO RENDER FAIL empty framebuffer")
+    if not _save_frame("reactivo-13-bulwark.png"):
         quit(1)
         return
-    var path := "res://reactivo-13-render-proof.png"
-    var result: Error = image.save_png(path)
-    if result != OK:
-        printerr("REACTIVO RENDER FAIL cannot save image")
-        quit(1)
-        return
-    print("REACTIVO RENDER PASS %d x %d" % [image.get_width(), image.get_height()])
+    print("REACTIVO RENDER PASS viewport series=4")
     quit(0)
+
+func _save_frame(filename: String) -> bool:
+    var frame: Image = root.get_texture().get_image()
+    if frame == null or frame.is_empty() or frame.get_width() < 700:
+        printerr("REACTIVO RENDER FAIL empty or wrong framebuffer")
+        return false
+    var result: Error = frame.save_png("res://" + filename)
+    if result != OK:
+        printerr("REACTIVO RENDER FAIL unable to save "+filename)
+        return false
+    print("REACTIVO VIEW PASS", filename,frame.get_width(),"x",frame.get_height())
+    return true

@@ -1,4 +1,4 @@
-# FISURA — Reactivo-13 (0.7, prototipo jugable)
+# FISURA — Reactivo-13 (0.8, vertical slice en desarrollo)
 
 **Escena principal: `scenes/reactivo_13.tscn`** (Godot 4.7.2). Incluye una misión de cinco fases con nodos de energía A/B, reactor, defensa de 75 segundos y extracción. **No es todavía una vertical slice AAA pulida ni está validada físicamente en Android.**
 
@@ -9,6 +9,15 @@
 - **QA:** Arcont Map Forge, validador de misión, **puente misión/mapa**, navegación y pruebas de secuencia Godot más una captura auténtica 1280×720; la escena anterior `scenes/main.tscn` permanece para regresión.
 
 ---
+
+## Mejora 0.8 — pase industrial, combate y QA visual
+
+El juego ahora contiene una escena industrial ampliada y específica para el mapa 84×66, un reactor de contención animado, un Bulwark con chasis CC0 esquelético y coraza, EyeDrone con aviso de 0.72 segundos y nuevos efectos de disparo/impacto. Se ajustaron la cámara y la compuerta después de comparar capturas reales de Godot. Sigue **sin alcanzar calidad comercial AAA**.
+
+- [Auditoría y límites comprobados](docs/production/REACTIVO_13_VISUAL_QA_08.md)
+- Capturas auténticas: GitHub Actions `reactivo-13-actual-render` ahora ofrece **cuatro escenas**: inserción, nodo, reactor y Bulwark.
+- Arcont: `tools/viewport_evidence_gate.py` compara integridad/resolución y diferencia de los fotogramas; `reactivo_art_budget.gd` comprueba límites básicos de escenas render-only; `reactivo_attack_telegraph.gd` prueba el aviso y disparo retrasado.
+- Android: el nuevo export de depuración, si supera CI, sigue siendo **únicamente una compilación**, no un test real en un dispositivo físico.
 
 ## Escena anterior — El Crisol (0.6)
 
