@@ -1,9 +1,9 @@
 config_version=5
 
 [application]
-config/name="FISURA - Extraccion"
-run/main_scene="res://scenes/main.tscn"
-config/description="Arena 3D de extraccion. Prototipo de integracion ARCONT."
+config/name="FISURA - Reactivo-13"
+run/main_scene="res://scenes/reactivo_13.tscn"
+config/description="Reactivo-13: cinco fases, nodos de energia, defensa y extraccion ARCONT."
 
 [display]
 window/size/viewport_width=1280
