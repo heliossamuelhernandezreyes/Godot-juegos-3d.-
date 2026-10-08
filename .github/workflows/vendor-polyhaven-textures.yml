@@ -1,0 +1,29 @@
+name: Vendor Poly Haven PBR textures
+
+on:
+  push:
+    branches: [feat/fisura-v03-industrial-combat]
+    paths:
+      - 'tools/vendor_polyhaven_textures.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch_cc0_textures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire CC0 1K PBR textures with checksums
+        run: python3 tools/vendor_polyhaven_textures.py
+      - name: Save source-verified asset binaries on feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/vendor/polyhaven_materials
+          if ! git diff --cached --quiet; then
+            git commit -m 'assets: verified Poly Haven 1K PBR textures with provenance'
+            git push origin HEAD:feat/fisura-v03-industrial-combat
+          fi
