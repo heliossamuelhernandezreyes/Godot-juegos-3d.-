@@ -1,0 +1,552 @@
+{
+  "version": 1,
+  "id": "fisura_reactivo_13_arena",
+  "display_name": "FISURA // Reactivo-13",
+  "bounds": {
+    "width": 84,
+    "depth": 66
+  },
+  "anchors": [
+    {
+      "id": "vanguard_start",
+      "kind": "spawn",
+      "team": "player",
+      "position": [
+        0,
+        0,
+        29
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "access_gate",
+      "kind": "objective",
+      "position": [
+        0,
+        0,
+        16
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "node_a_console",
+      "kind": "objective",
+      "position": [
+        -28,
+        0,
+        4
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "node_b_console",
+      "kind": "objective",
+      "position": [
+        28,
+        0,
+        4
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "reactor_altar",
+      "kind": "objective",
+      "position": [
+        0,
+        0,
+        -11
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "stabilizer",
+      "kind": "objective",
+      "position": [
+        0,
+        0,
+        -15
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "extraction_pad",
+      "kind": "extraction",
+      "position": [
+        0,
+        0,
+        -29
+      ],
+      "radius": 2
+    },
+    {
+      "id": "enemy_entry",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        -10,
+        0,
+        26
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "enemy_west",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        -34,
+        0,
+        -3
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "enemy_east",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        34,
+        0,
+        -3
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "enemy_reactor_l",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        -14,
+        0,
+        -17
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "enemy_reactor_r",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        14,
+        0,
+        -17
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "enemy_exit",
+      "kind": "spawn",
+      "team": "enemy",
+      "position": [
+        12,
+        0,
+        -27
+      ],
+      "radius": 1.5
+    },
+    {
+      "id": "player_start",
+      "kind": "spawn",
+      "team": "player",
+      "position": [
+        0,
+        0,
+        29
+      ],
+      "radius": 2
+    },
+    {
+      "id": "exit_portal",
+      "kind": "extraction",
+      "position": [
+        0,
+        0,
+        -29
+      ],
+      "radius": 2.5
+    }
+  ],
+  "routes": [
+    {
+      "id": "insertion_to_reactor",
+      "kind": "primary",
+      "width": 5,
+      "points": [
+        [
+          0,
+          0,
+          29
+        ],
+        [
+          0,
+          0,
+          16
+        ],
+        [
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          -11
+        ],
+        [
+          0,
+          0,
+          -29
+        ]
+      ]
+    },
+    {
+      "id": "west_node_loop",
+      "kind": "flank",
+      "width": 4,
+      "points": [
+        [
+          0,
+          0,
+          16
+        ],
+        [
+          -18,
+          0,
+          12
+        ],
+        [
+          -28,
+          0,
+          4
+        ],
+        [
+          -17,
+          0,
+          -6
+        ],
+        [
+          0,
+          0,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": "east_node_loop",
+      "kind": "flank",
+      "width": 4,
+      "points": [
+        [
+          0,
+          0,
+          16
+        ],
+        [
+          18,
+          0,
+          12
+        ],
+        [
+          28,
+          0,
+          4
+        ],
+        [
+          17,
+          0,
+          -6
+        ],
+        [
+          0,
+          0,
+          -11
+        ]
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "id": "mission_arena",
+      "kind": "encounter",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        84,
+        0,
+        66
+      ]
+    },
+    {
+      "id": "reactor_pressure",
+      "kind": "hazard",
+      "center": [
+        0,
+        0,
+        -11
+      ],
+      "size": [
+        10,
+        0,
+        10
+      ],
+      "radius": 5
+    }
+  ],
+  "authoring": {
+    "terrain": {
+      "provider_role": "terrain",
+      "region_size": 96
+    },
+    "navigation": {
+      "agent_radius": 0.5,
+      "agent_height": 1.8,
+      "agent_max_climb": 0.3,
+      "agent_max_slope": 45,
+      "cell_size": 0.25,
+      "cell_height": 0.25
+    },
+    "providers": {
+      "terrain": null,
+      "structures": null,
+      "scatter": null,
+      "import": null,
+      "navigation": null
+    },
+    "structure_guides": [
+      {
+        "id": "node_a_cover",
+        "kind": "cover",
+        "position": [
+          -23,
+          1,
+          0
+        ],
+        "size": [
+          2,
+          2,
+          6
+        ]
+      },
+      {
+        "id": "node_b_cover",
+        "kind": "cover",
+        "position": [
+          23,
+          1,
+          0
+        ],
+        "size": [
+          2,
+          2,
+          6
+        ]
+      },
+      {
+        "id": "reactor_cover_w",
+        "kind": "cover",
+        "position": [
+          -10,
+          1,
+          -10
+        ],
+        "size": [
+          2,
+          2,
+          6
+        ]
+      },
+      {
+        "id": "reactor_cover_e",
+        "kind": "cover",
+        "position": [
+          10,
+          1,
+          -10
+        ],
+        "size": [
+          2,
+          2,
+          6
+        ]
+      },
+      {
+        "id": "access_cover_w",
+        "kind": "cover",
+        "position": [
+          -8,
+          1,
+          18
+        ],
+        "size": [
+          5,
+          2,
+          2
+        ]
+      },
+      {
+        "id": "access_cover_e",
+        "kind": "cover",
+        "position": [
+          8,
+          1,
+          18
+        ],
+        "size": [
+          5,
+          2,
+          2
+        ]
+      },
+      {
+        "id": "exit_cover",
+        "kind": "cover",
+        "position": [
+          8,
+          1,
+          -26
+        ],
+        "size": [
+          5,
+          2,
+          2
+        ]
+      }
+    ],
+    "world_props": [
+      {
+        "id": "reactor",
+        "kind": "reactor",
+        "position": [
+          0,
+          0,
+          -11
+        ],
+        "collider_size": [
+          2,
+          3,
+          2
+        ]
+      },
+      {
+        "id": "perimeter_-1_north",
+        "kind": "pillar",
+        "position": [
+          -34,
+          0,
+          -28
+        ],
+        "collider_size": [
+          1.6,
+          5,
+          1.6
+        ]
+      },
+      {
+        "id": "perimeter_-1_south",
+        "kind": "pillar",
+        "position": [
+          -34,
+          0,
+          28
+        ],
+        "collider_size": [
+          1.6,
+          5,
+          1.6
+        ]
+      },
+      {
+        "id": "workshop_crate_-1",
+        "kind": "crate",
+        "position": [
+          -17,
+          0,
+          14
+        ],
+        "collider_size": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      },
+      {
+        "id": "reactor_crate_-1",
+        "kind": "crate",
+        "position": [
+          -15,
+          0,
+          -7
+        ],
+        "collider_size": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      },
+      {
+        "id": "perimeter_1_north",
+        "kind": "pillar",
+        "position": [
+          34,
+          0,
+          -28
+        ],
+        "collider_size": [
+          1.6,
+          5,
+          1.6
+        ]
+      },
+      {
+        "id": "perimeter_1_south",
+        "kind": "pillar",
+        "position": [
+          34,
+          0,
+          28
+        ],
+        "collider_size": [
+          1.6,
+          5,
+          1.6
+        ]
+      },
+      {
+        "id": "workshop_crate_1",
+        "kind": "crate",
+        "position": [
+          17,
+          0,
+          14
+        ],
+        "collider_size": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      },
+      {
+        "id": "reactor_crate_1",
+        "kind": "crate",
+        "position": [
+          15,
+          0,
+          -7
+        ],
+        "collider_size": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      }
+    ],
+    "environment": {
+      "seed": 71307,
+      "theme": "industrial-cathedral-reactive",
+      "visual_only": true
+    }
+  }
+}
