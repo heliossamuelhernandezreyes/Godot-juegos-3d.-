@@ -105,3 +105,5 @@ for slug in SLUGS:
     (output/"PROVENANCE.json").write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     print("VENDOR PASS",slug,"components",len(manifest["files"]),"bytes",sum(x["size_bytes"] for x in manifest["files"]),"sha256",hashlib.sha256(encoded).hexdigest())
 print("VENDOR INTAKE COMPLETE bytes=%d" % total)
+
+# Each downloaded component is source-traced in PROVENANCE.json.
