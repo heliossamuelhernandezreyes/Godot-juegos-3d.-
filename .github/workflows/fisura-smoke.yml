@@ -135,6 +135,12 @@ jobs:
           cat reactivo-playthrough.log
           grep -q "REACTIVO PLAYTHROUGH PASS" reactivo-playthrough.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-playthrough.log
+      - name: Test Bulwark frontal armor and counterplay
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_bulwark.gd > reactivo-bulwark.log 2>&1 || { cat reactivo-bulwark.log; exit 1; }
+          cat reactivo-bulwark.log
+          grep -q "BULWARK SHIELD PASS" reactivo-bulwark.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-bulwark.log
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
@@ -181,6 +187,7 @@ jobs:
             reactivo-nav.log
             reactivo-playthrough.log
             reactivo-render.log
+            reactivo-bulwark.log
             asset-integrity.log
             render-capture.log
             vendor-import.log
