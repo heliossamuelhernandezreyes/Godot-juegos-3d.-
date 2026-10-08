@@ -16,7 +16,7 @@ func _test() -> void:
     if hero.aim_layer.spine_id < 0 or hero.aim_layer.chest_id < 0:
         _fail("Real source Torso and Chest not resolved")
         return
-    var mount := hero.humanoid_skeleton.get_node_or_null("Hand-held PBR rifle attachment")
+    var mount: Node = hero.humanoid_skeleton.get_node_or_null("Hand-held PBR rifle attachment")
     if mount == null or not mount is BoneAttachment3D or mount.get_child_count() == 0:
         _fail("Real Wrist.R rifle mount missing")
         return
