@@ -66,6 +66,12 @@ jobs:
           cat vendor-import.log
           grep -q "VENDOR IMPORT PASS count=2" vendor-import.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" vendor-import.log
+      - name: Audit source-traced Quaternius CC0 skeletal assets in Godot
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/quaternius_import.gd > quaternius-import.log 2>&1 || { cat quaternius-import.log; exit 1; }
+          cat quaternius-import.log
+          grep -q "SKELETAL ASSET PASS" quaternius-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" quaternius-import.log
       - name: ARCONT tactical route and collision regression
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/tactical_validation.gd > tactical-nav.log 2>&1 || { cat tactical-nav.log; exit 1; }
@@ -112,4 +118,5 @@ jobs:
             vendor-import.log
             tactical-nav.log
             camera-bounds.log
+            quaternius-import.log
           if-no-files-found: ignore
