@@ -80,6 +80,7 @@ func _floor_tiles(map_data: Dictionary) -> void:
     var batch := MultiMeshInstance3D.new()
     batch.name = "Suelo modular instanciado"
     batch.multimesh = multimesh
+    batch.material_override = _pbr_material("concrete_floor_worn_02", Color("#cddce2"), 0.7)
     add_child(batch)
     mesh_count += 1
     mesh_instances += index
@@ -132,7 +133,7 @@ func _set_wall_detail() -> void:
         _beam("Moldura oeste", Vector3(-21.95, 1.4, v), Vector3(0.22, 2.75, 0.18), metal)
         _beam("Moldura este", Vector3(21.95, 1.4, v), Vector3(0.22, 2.75, 0.18), metal)
 
-func _beam(label: String, pos: Vector3, size: Vector3, mat: StandardMaterial3D) -> void:
+func _beam(label: String, pos: Vector3, size: Vector3, mat: Material) -> void:
     var beam := MeshInstance3D.new()
     beam.name = label
     var mesh := BoxMesh.new()
@@ -148,9 +149,9 @@ func _industrial_architecture(contract: Dictionary) -> void:
     var seed_value := int(contract.get("authoring", {}).get("environment", {}).get("seed", 70421))
     var generator := RandomNumberGenerator.new()
     generator.seed = seed_value
-    var iron := _material(Color("#35414d"), 0.75, 0.46)
+    var iron := _pbr_material("green_metal_rust", Color("#91a4ae"), 0.28)
     var frame := _material(Color("#667986"), 0.72, 0.35)
-    var soot := _material(Color("#1b252e"), 0.22, 0.84)
+    var soot := _pbr_material("concrete_wall_007", Color("#8897a3"), 0.44)
     var copper := _material(Color("#694531"), 0.65, 0.49)
     var cyan := _material(Color("#4dd9ed"), 0.22, 0.28, 2.3)
     var orange := _material(Color("#ef7d38"), 0.25, 0.31, 2.0)
@@ -241,7 +242,7 @@ func _material(color: Color, metallic: float, roughness: float, glow: float = 0.
     return material
 
 func _pipe(label: String, pos: Vector3, radius: float, length: float,
-           mat: StandardMaterial3D, along_x: bool = false) -> void:
+           mat: Material, along_x: bool = false) -> void:
     var visual := MeshInstance3D.new()
     visual.name = label
     var tube := CylinderMesh.new()
@@ -254,3 +255,17 @@ func _pipe(label: String, pos: Vector3, radius: float, length: float,
     visual.position = pos
     visual.rotation = Vector3(0, 0, PI * 0.5) if along_x else Vector3(PI * 0.5, 0, 0)
     add_child(visual)
+
+func _pbr_material(slug: String, tint: Color, scale: float) -> ORMMaterial3D:
+    # Real Poly Haven 1K CC0: albedo + OpenGL normal + AO/Roughness/Metallic.
+    # Triplanar keeps proportions consistent on repeated procedural meshes.
+    var path := "res://assets/vendor/polyhaven_materials/" + slug + "/"
+    var mat := ORMMaterial3D.new()
+    mat.albedo_color = tint
+    mat.albedo_texture = load(path + "diff.jpg") as Texture2D
+    mat.orm_texture = load(path + "arm.jpg") as Texture2D
+    mat.normal_enabled = true
+    mat.normal_texture = load(path + "nor_gl.jpg") as Texture2D
+    mat.uv1_triplanar = true
+    mat.uv1_scale = Vector3.ONE * scale
+    return mat
