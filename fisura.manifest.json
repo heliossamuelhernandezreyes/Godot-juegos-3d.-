@@ -22,15 +22,16 @@
       "asset-license-source-provenance",
       "procedural-environment",
       "runtime-smoke",
-      "skeletal-asset-provenance-godot-runtime"
+      "skeletal-asset-provenance-godot-runtime",
+      "source-pinned-native-humanoid-animation-import"
     ]
   },
   "prototype": {
-    "stage": "vertical-slice-0.4-rigged-sci-fi",
+    "stage": "vertical-slice-0.5-humanoid-vanguard",
     "map": "maps/crisol_01.json",
     "runtime_tested": true,
     "android_export_tested": false,
-    "runtime_test_scope": "GitHub Actions Linux Godot 4.7.2 headless; exact scoped functionality: import, 120 frames, deterministic extraction, tactical navigation and actual frame render; Godot 4.7.2 imported Quaternius rigged enemies and deterministic AI animation and ranged LOS tests."
+    "runtime_test_scope": "GitHub Actions Linux Godot 4.7.2 headless; exact scoped functionality: import, 120 frames, deterministic extraction, tactical navigation and actual frame render; Godot 4.7.2 imported Quaternius rigged enemies and deterministic AI animation and ranged LOS tests.; Godot 4.7.2 native Quaternius Spacesuit Skeleton3D 24 clips and gameplay animation-state transitions/close shoulder camera."
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
   "asset_sources": [
@@ -39,6 +40,7 @@
     "assets/vendor/polyhaven_materials/concrete_wall_007/PROVENANCE.json",
     "assets/vendor/polyhaven_materials/concrete_floor_worn_02/PROVENANCE.json",
     "assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json",
-    "assets/vendor/quaternius/scifi_essentials/PROVENANCE.json"
+    "assets/vendor/quaternius/scifi_essentials/PROVENANCE.json",
+    "assets/vendor/quaternius/vanguard_spacesuit/PROVENANCE.json"
   ]
 }
