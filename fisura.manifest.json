@@ -29,7 +29,10 @@
       "android-export-packaging-gate",
       "multi-view-godot-frame-evidence-integrity",
       "source-traced-cinematic-stage-budget",
-      "LOS-gated-attack-warning"
+      "LOS-gated-attack-warning",
+      "visual-shot-camera-framing-gate",
+      "unique-source-asset-instance-names",
+      "camera-projected-actor-silhouette-check"
     ],
     "mission_contract": "missions/reactivo_13.slice.json",
     "mission_validator": "_arcont_reference/tools/vertical_slice_contract.py",
@@ -72,7 +75,7 @@
       "gdd": "docs/production/REACTIVO_13_VISUAL_QA_08.md",
       "capture_count": 4,
       "godot_render_source": "GitHub Actions Linux 1280x720",
-      "visual_quality_assessed_by_human": true,
+      "visual_quality_assessed_by_human": false,
       "validated_behaviors": [
         "dynamic reactor alert",
         "enemy shot warning 0.72s",
@@ -80,8 +83,9 @@
         "limited-cost shot FX"
       ],
       "android_real_device": false,
-      "visual_verdict": "Meaningful prototype improvement; does not meet AAA art quality",
-      "render_run": 37738881224
+      "visual_verdict": "New source-art/framing update is being reviewed using in-engine four-shot evidence; no AAA/mobile performance certification",
+      "render_run": 37738881224,
+      "art_source_upgrade": "two independently sourced Poly Haven PBR industrial models and Quaternius Enemy_Trilobite skeletal model with nine native animation clips"
     },
     "android_packaging_contract": {
       "required_runtime_json": [
@@ -111,6 +115,9 @@
     "assets/vendor/polyhaven_materials/concrete_floor_worn_02/PROVENANCE.json",
     "assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json",
     "assets/vendor/quaternius/scifi_essentials/PROVENANCE.json",
-    "assets/vendor/quaternius/vanguard_spacesuit/PROVENANCE.json"
+    "assets/vendor/quaternius/vanguard_spacesuit/PROVENANCE.json",
+    "assets/vendor/polyhaven_cinematic/industrial_storage_cart/PROVENANCE.json",
+    "assets/vendor/polyhaven_cinematic/industrial_pastic_container/PROVENANCE.json",
+    "assets/vendor/quaternius/scifi_essentials/BULWARK_PROVENANCE.json"
   ]
 }

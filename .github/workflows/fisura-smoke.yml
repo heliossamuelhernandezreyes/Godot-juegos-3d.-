@@ -147,6 +147,17 @@ jobs:
           cat reactivo-warning.log
           grep -q "REACTIVO TELEGRAPH PASS" reactivo-warning.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-warning.log
+      - name: Confirm detailed CC0 industrial photogrammetry imports in Godot
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_cinematic_vendor_audit.gd > cinematic-import.log 2>&1 || { cat cinematic-import.log; exit 1; }
+          cat cinematic-import.log
+          grep -q "CINEMATIC PBR IMPORT PASS" cinematic-import.log
+      - name: Verify ARCONT visual composition and real asset placement
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_visual_composition.gd > visual-composition.log 2>&1 || { cat visual-composition.log; exit 1; }
+          cat visual-composition.log
+          grep -q "REACTIVO VISUAL COMPOSITION PASS" visual-composition.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" visual-composition.log
       - name: Check cinematic stage geometry/light/collision budget
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_art_budget.gd > reactivo-art-budget.log 2>&1 || { cat reactivo-art-budget.log; exit 1; }
@@ -213,6 +224,8 @@ jobs:
             reactivo-bulwark.log
             reactivo-warning.log
             reactivo-art-budget.log
+            visual-composition.log
+            cinematic-import.log
             reactivo-visual-evidence.log
             asset-integrity.log
             render-capture.log

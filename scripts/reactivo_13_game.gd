@@ -31,6 +31,7 @@ var prompt_label: Label
 var result_label: Label
 var progress_bar: ColorRect
 var control_note: Label
+var tactical_reticle: Label
 var consoles: Dictionary = {}
 var objective_names: Dictionary = {}
 var gate_body: StaticBody3D
@@ -117,14 +118,14 @@ func _build_world() -> void:
     environment.background_color = Color("#0a1422")
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color("#8197ac")
-    environment.ambient_light_energy = 0.62
+    environment.ambient_light_energy = 0.46
     var world_env := WorldEnvironment.new()
     world_env.environment = environment
     add_child(world_env)
     var key := DirectionalLight3D.new()
     key.rotation_degrees = Vector3(-60.0, -25.0, 0.0)
     key.light_color = Color("#b5d8f0")
-    key.light_energy = 1.03
+    key.light_energy = 1.20
     key.shadow_enabled = true
     add_child(key)
     var bounds: Dictionary = map_data["bounds"]
@@ -147,9 +148,9 @@ func _build_world() -> void:
     cinematic_stage.set_script(CINEMATIC_SCRIPT)
     add_child(cinematic_stage)
     # Distinct colored lanes anchor each combat/mission region.
-    _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#2eaec9"), false)
-    _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#dba04c"), false)
-    _box("Reactor perimeter", Vector3(0, 0.09, -20), Vector3(25, 0.06, 0.35), Color("#df694e"), false)
+    _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#438ca7"), false)
+    _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#b58b50"), false)
+    _box("Reactor perimeter", Vector3(0, 0.09, -20), Vector3(25, 0.06, 0.16), Color("#df694e"), false)
 
 func _vec(a: Array) -> Vector3:
     return Vector3(float(a[0]), float(a[1]), float(a[2]))
@@ -162,14 +163,14 @@ func _make_player() -> void:
 
 func _make_camera() -> void:
     camera = Camera3D.new()
-    camera.fov = 59.0
+    camera.fov = 56.0
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(0, 0.85, -1.2), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(1.25, 2.95, 4.1)
+    var desired: Vector3 = player.global_position + Vector3(1.8, 2.75, 3.10)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -241,11 +242,11 @@ func _make_interactables() -> void:
     gate_visual.material_override = gate_mat
     gate_body.add_child(gate_visual)
     var blast_face := StandardMaterial3D.new()
-    blast_face.albedo_color = Color("#31414d")
+    blast_face.albedo_color = Color("#566875")
     blast_face.metallic = 0.80
     blast_face.roughness = 0.42
     var inset := StandardMaterial3D.new()
-    inset.albedo_color = Color("#152d38")
+    inset.albedo_color = Color("#283945")
     inset.metallic = 0.63
     inset.roughness = 0.40
     for panel_index in range(4):
@@ -258,7 +259,7 @@ func _make_interactables() -> void:
         rib.material_override = blast_face if panel_index % 2 == 0 else inset
         gate_visual.add_child(rib)
     var brass := StandardMaterial3D.new()
-    brass.albedo_color = Color("#d3a45b")
+    brass.albedo_color = Color("#fac475")
     brass.metallic = 0.7
     brass.roughness = 0.3
     for offset in [-3.0, 3.0]:
@@ -269,6 +270,20 @@ func _make_interactables() -> void:
         stripe.position = Vector3(offset, 0, 0.45)
         stripe.material_override = brass
         gate_visual.add_child(stripe)
+    var safety_rail := StandardMaterial3D.new()
+    safety_rail.albedo_color = Color("#6bcbd7")
+    safety_rail.emission_enabled = true
+    safety_rail.emission = Color("#27c2d8")
+    safety_rail.emission_energy_multiplier = 1.0
+    for stripe_y in [-1.36, 1.32]:
+        var outline := MeshInstance3D.new()
+        var outline_mesh := BoxMesh.new()
+        outline_mesh.size = Vector3(7.4, 0.075, 0.075)
+        outline.mesh = outline_mesh
+        outline.name = "Access lock | readable teal edge"
+        outline.position = Vector3(0, stripe_y, 0.50)
+        outline.material_override = safety_rail
+        gate_visual.add_child(outline)
     var lock_text := Label3D.new()
     lock_text.name = "Access gate | warning signage"
     lock_text.text = "REACTIVO-13   //   NODOS A + B"
@@ -288,25 +303,34 @@ func _make_hud() -> void:
     layer.add_child(root)
     var hud_panel := ColorRect.new()
     hud_panel.position = Vector2(10, 8)
-    hud_panel.size = Vector2(720, 160)
+    hud_panel.size = Vector2(596, 116)
     hud_panel.color = Color(0.015, 0.035, 0.055, 0.72)
     hud_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(hud_panel)
-    health_label = _label(root, Vector2(20, 16), 25)
-    mission_label = _label(root, Vector2(20, 54), 21)
-    prompt_label = _label(root, Vector2(20, 86), 18)
-    control_note = _label(root, Vector2(20, 115), 15)
+    health_label = _label(root, Vector2(20, 15), 21)
+    mission_label = _label(root, Vector2(20, 44), 17)
+    prompt_label = _label(root, Vector2(20, 73), 15)
+    control_note = _label(root, Vector2(20, 122), 12)
+    control_note.visible = OS.has_feature("mobile")
     control_note.text = "Mover WASD · Apuntar raton · Disparar clic/Espacio · E interactuar · Shift evasión"
     var bar_bg := ColorRect.new()
-    bar_bg.position = Vector2(20, 145)
-    bar_bg.size = Vector2(230, 8)
+    bar_bg.position = Vector2(20, 103)
+    bar_bg.size = Vector2(230, 5)
     bar_bg.color = Color("#334251")
     root.add_child(bar_bg)
     progress_bar = ColorRect.new()
     progress_bar.position = bar_bg.position
-    progress_bar.size = Vector2(0, 8)
+    progress_bar.size = Vector2(0, 5)
     progress_bar.color = Color("#40e0d0")
     root.add_child(progress_bar)
+    # Aim indication matches the actual mouse ray on desktop and the touch aim center on Android.
+    tactical_reticle = _label(root, Vector2.ZERO, 24)
+    tactical_reticle.name = "Arcont tactical aiming reticle"
+    tactical_reticle.text = "+"
+    tactical_reticle.add_theme_color_override("font_color", Color("#83edec"))
+    tactical_reticle.add_theme_color_override("font_shadow_color", Color(0.0, 0.07, 0.12, 0.9))
+    tactical_reticle.add_theme_constant_override("shadow_offset_x", 1)
+    tactical_reticle.add_theme_constant_override("shadow_offset_y", 1)
     result_label = _label(root, Vector2.ZERO, 39)
     result_label.set_anchors_preset(Control.PRESET_CENTER)
     result_label.offset_left = -350
@@ -385,9 +409,12 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null or director == null:
         return
+    if tactical_reticle != null:
+        var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
+        tactical_reticle.position = pointer - Vector2(7, 17)
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(0, 0.7, -2.0), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 51.0 if player.wants_to_fire() else 59.0, minf(1.0, delta * 6.0))
+    camera.look_at(player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
+    camera.fov = lerpf(camera.fov, 49.0 if player.wants_to_fire() else 56.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta

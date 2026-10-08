@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "name": "industrial_storage_cart",
+  "catalog_ref": "heliossamuelhernandezreyes/Arcont",
+  "asset_page": "https://polyhaven.com/a/industrial_storage_cart",
+  "license": "CC0-1.0",
+  "license_page": "https://polyhaven.com/license",
+  "source_api": "https://api.polyhaven.com/info/industrial_storage_cart",
+  "files_api": "https://api.polyhaven.com/files/industrial_storage_cart",
+  "files_hash": "1885782cd204ad6fed4d96111bd713aee14fd4bf",
+  "files": [
+    {
+      "file": "industrial_storage_cart_1k.gltf",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/industrial_storage_cart/industrial_storage_cart_1k.gltf",
+      "size_bytes": 1686,
+      "sha256": "18ad44fa299638a056adf1f12afcc479cd883c440c3cf43c97ce583703968893"
+    },
+    {
+      "file": "buffers_0.bin",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/industrial_storage_cart/industrial_storage_cart.bin",
+      "size_bytes": 664580,
+      "sha256": "ae46bc3aceda8234515054b3b4595db14e7eb72148100b5c2cafe1de7393410c"
+    },
+    {
+      "file": "images_0.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_storage_cart/industrial_storage_cart_nor_gl_1k.jpg",
+      "size_bytes": 567119,
+      "sha256": "a4fcd4309516e6005b5f3636399bd801df72fc75986831fad9cc5c31b737070a"
+    },
+    {
+      "file": "images_1.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_storage_cart/industrial_storage_cart_diff_1k.jpg",
+      "size_bytes": 553691,
+      "sha256": "7e779d7f7385307ebb332aec41bafff10c21972aaf92382f30cacb16957e7d37"
+    },
+    {
+      "file": "images_2.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_storage_cart/industrial_storage_cart_arm_1k.jpg",
+      "size_bytes": 849352,
+      "sha256": "956ee8d02021aba0b5fdbf393029b0aaabd7d29076caa3a5678e394f79adcca1"
+    }
+  ]
+}

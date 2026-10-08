@@ -2,7 +2,7 @@ extends "res://scripts/enemy.gd"
 ## Bulwark Mk II: a heavy skinned machine using *already licensed* Quaternius rig.
 ## Directional armor/collision are authoritative; render-only plates are independent.
 ## Distinct source mesh creation/retargeting remains a future production requirement.
-const RIGGED_CHASSIS = preload("res://assets/vendor/quaternius/scifi_essentials/Enemy_QuadShell.gltf")
+const RIGGED_CHASSIS = preload("res://assets/vendor/quaternius/scifi_essentials/Enemy_Trilobite.gltf")
 const ARMOR_MAP = preload("res://assets/vendor/polyhaven_materials/green_metal_rust/diff.jpg")
 var shield_mesh: MeshInstance3D
 var absorbed_hits := 0
@@ -23,7 +23,7 @@ func _ready() -> void:
         capsule.radius = 0.66
         capsule.height = 2.05
     heavy_rig = RIGGED_CHASSIS.instantiate()
-    heavy_rig.name = "Bulwark | animated Quaternius CC0 assault chassis"
+    heavy_rig.name = "Bulwark | unique CC0 Quaternius Trilobite nine-clip heavy chassis"
     heavy_rig.scale = Vector3.ONE * 1.26
     heavy_rig.position.y = -0.84
     add_child(heavy_rig)

@@ -19,6 +19,15 @@ func _check() -> void:
     world.add_child(guard)
     guard.set_physics_process(false)
     guard.rotation.y = 0.0
+    if guard.heavy_rig == null or guard.rig_anim == null:
+        _fail("Unique source-pinned Bulwark rig missing in live scene")
+        return
+    if guard.rig_anim.get_animation_list().size() < 9:
+        _fail("Unique Bulwark native animation pack not imported")
+        return
+    if guard.current_clip != "Idle":
+        _fail("Heavy enemy must begin in imported Idle state")
+        return
     var full_hp: int = guard.hit_points
     guard.take_hit_from(23, guard.global_position + Vector3(0, 0, -5))
     var front_loss: int = full_hp - guard.hit_points
