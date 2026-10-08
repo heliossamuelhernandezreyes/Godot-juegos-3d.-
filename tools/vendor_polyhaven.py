@@ -59,6 +59,19 @@ for slug in SLUGS:
     if not root_url.endswith(".gltf"):
         raise RuntimeError("Expected official 1K .gltf")
     gltf=json.loads(grab(root_url))
+    # Poly Haven's glTF URIs are package-local; texture files can live
+    # in a different CDN directory. Resolve by official files API basename.
+    published_urls=[]
+    def inspect(node):
+        if isinstance(node,dict):
+            if isinstance(node.get("url"),str):
+                published_urls.append(node["url"])
+            for value in node.values():
+                inspect(value)
+        elif isinstance(node,list):
+            for value in node:
+                inspect(value)
+    inspect(files)
     output=ROOT/slug
     output.mkdir(parents=True,exist_ok=True)
     manifest={"schema_version":1,"name":slug,"catalog_ref":"heliossamuelhernandezreyes/Arcont","asset_page":"https://polyhaven.com/a/"+slug,"license":"CC0-1.0","license_page":"https://polyhaven.com/license","source_api":info_url,"files_api":file_url,"files_hash":info.get("files_hash"),"files":[]}
@@ -67,7 +80,16 @@ for slug in SLUGS:
             old=object_.get("uri","")
             if not old or old.startswith("data:"):
                 continue
-            remote=urllib.parse.urljoin(root_url,old)
+            expected_name=pathlib.PurePosixPath(urllib.parse.urlparse(old).path).name
+            official=[url for url in published_urls if pathlib.PurePosixPath(urllib.parse.urlparse(url).path).name==expected_name]
+            official_1k=[url for url in official if "/1k/" in url]
+            if official_1k:
+                remote=official_1k[0]
+            elif official:
+                remote=official[0]
+            else:
+                remote=urllib.parse.urljoin(root_url,old)
+            print("VENDOR DEP",old,"->",remote,flush=True)
             suffix=pathlib.PurePosixPath(urllib.parse.urlparse(remote).path).suffix.lower()
             if suffix not in (".bin",".jpg",".jpeg",".png",".webp"):
                 raise ValueError("Unexpected binary asset extension: "+suffix)
