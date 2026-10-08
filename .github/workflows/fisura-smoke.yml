@@ -135,6 +135,11 @@ jobs:
           cat reactivo-playthrough.log
           grep -q "REACTIVO PLAYTHROUGH PASS" reactivo-playthrough.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-playthrough.log
+      - name: Audit two detailed Poly Haven industrial PBR 3D props
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_cinematic_vendor_audit.gd > reactivo-pbr-import.log 2>&1 || { cat reactivo-pbr-import.log; exit 1; }
+          cat reactivo-pbr-import.log
+          grep -q "CINEMATIC PBR IMPORT PASS" reactivo-pbr-import.log
       - name: Check industrial PBR scene budget and combat camera
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_art_qa.gd > reactivo-art-audit.log 2>&1 || { cat reactivo-art-audit.log; exit 1; }
@@ -208,6 +213,7 @@ jobs:
             reactivo-render.log
             reactivo-bulwark.log
             reactivo-art-audit.log
+            reactivo-pbr-import.log
             reactivo-visual-suite.log
             asset-integrity.log
             render-capture.log
