@@ -15,6 +15,7 @@ var dark: Material
 var glowing_core: MeshInstance3D
 var halo: MeshInstance3D
 var time_accum := 0.0
+var alarm_active := false
 var draw_nodes := 0
 var material_cache: Dictionary = {}
 var box_cache: Dictionary = {}
@@ -224,6 +225,13 @@ func _light_rig() -> void:
         lamp.omni_range = float(record[2])
         lamp.shadow_enabled = false
         add_child(lamp)
+
+func set_reactor_alarm(enabled: bool) -> void:
+    alarm_active = enabled
+    if glowing_core != null:
+        glowing_core.material_override = red if enabled else amber
+    if halo != null:
+        halo.material_override = red if enabled else cyan
 
 func _process(delta: float) -> void:
     time_accum += delta
