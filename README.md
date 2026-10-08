@@ -1,6 +1,6 @@
 # FISURA — El Crisol
 
-Prototipo 3D de **acción y extracción** para Godot 4.7.2, en revisión artística 0.2. Proyecto independiente concebido como una prueba real de **ARCONT**.
+Prototipo 3D de **acción y extracción** para Godot 4.7.2, en revisión industrial/táctica 0.3. Proyecto independiente concebido como una prueba real de **ARCONT**.
 
 ## El bucle de juego
 
@@ -63,3 +63,15 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 - Registro de licencias y hashes: [LICENSE_ASSETS.md](LICENSE_ASSETS.md).
 
 **Estado de madurez:** vertical slice experimental, todavía muy lejos de la calidad AAA de un producto terminado. Pendientes: personajes riggeados/animación avanzada, audio, VFX, navegación de IA, materiales completos para arquitectura, exportación y perfilado Android.
+
+
+## Actualización 0.3 — industrial, PBR, navegación y combate
+
+- Escenario industrial ampliado mediante un generador visual determinista: pasarelas, grandes paredes, vigas, canales de refrigeración, conducciones, máquinas y señalización luminosa.
+- **Tres materiales PBR 1K reales** seleccionados desde el catálogo CC0 de Arcont: hormigón de pared, suelo gastado y metal oxidado. Se incorporaron en `assets/vendor/polyhaven_materials/` con manifiestos de procedencia y SHA-256.
+- **IA con visión directa y rutas alternativas** a través de `scripts/tactical_grid.gd`, usando obstáculos definidos por el mapa canónico; también se evita daño de contacto a través de paredes.
+- Audiovisuales de combate: sonidos sintetizados de arma, impactos, impulso, salud y victoria; fogonazos al impacto y señalización de daño.
+- La cámara mantiene la misma distancia tanto al comenzar como durante el seguimiento.
+- Pruebas de navegación específicas en `tests/tactical_validation.gd`.
+
+**[Auditoría técnica 0.3](docs/ARCONT_FIELD_REPORT_V03.md):** expone qué capacidades de ARCONT se han validado y qué falta para lograr estándares visuales o jugables cercanos a AAA. Aún no es un producto AAA y su rendimiento Android es desconocido.
