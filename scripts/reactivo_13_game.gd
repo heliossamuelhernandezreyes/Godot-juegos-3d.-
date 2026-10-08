@@ -9,6 +9,7 @@ const QUAD_SCRIPT = preload("res://scripts/animated_reaver.gd")
 const BULWARK_SCRIPT = preload("res://scripts/reactivo_bulwark.gd")
 const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
 const ART_SCRIPT = preload("res://scripts/art_stage.gd")
+const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
 
 var contract: Dictionary = {}
@@ -134,6 +135,9 @@ func _build_world() -> void:
     stage.set_script(ART_SCRIPT)
     add_child(stage)
     stage.build(map_data, positions)
+    var visual_upgrade := Node3D.new()
+    visual_upgrade.set_script(CINEMATIC_SCRIPT)
+    add_child(visual_upgrade)
     # Distinct colored lanes anchor each combat/mission region.
     _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#2eaec9"), false)
     _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#dba04c"), false)
