@@ -11,6 +11,7 @@ Bridge responsive mobile shooter movement with explicit authored cover interacti
 - Cover cannot trigger from a remote position or while dashing; leaving the cover's neighborhood cancels the state.
 - If the imported rig contains an exact `Crouch` clip it plays at idle, otherwise the engine retains its safe default skeletal idle and applies a small visual brace, not a new crouch skeleton/animation.
 - HUD reports availability and engagement; no cover hint appears in empty space.
+- Press **V** (desktop) or **HOMBRO** (Android) to swap left/right shoulder camera; the collision-aware camera remains authoritative on both sides.
 
 ## ARCONT 1.1 integration
 - `project.intent.json` describes targets, aspirational frame rate, known quality limits, asset license policy, visual references and safety constraints. Schema: `schemas/project-intent.schema.json` from pinned ARCONT commit `f9f9b3cfeef5f768257f21c4796b2a7653434b64`.
