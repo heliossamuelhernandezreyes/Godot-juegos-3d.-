@@ -39,3 +39,5 @@ record={"model":"Enemy_Trilobite","source_pack":"https://quaternius.com/packs/sc
 print("BULWARK VENDOR PASS",len(records),"clips",len(doc["animations"]))
 
 # Additional binary dependencies are stored only in the game, not ARCONT.
+
+# Source identity pinned and source checksums recorded before game use.
