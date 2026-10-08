@@ -39,7 +39,7 @@ for target, (source, expected_blob, pack, original) in SOUNDS.items():
     target_path.write_bytes(data)
     # Parse Ogg page boundaries with the standard library: runners do not
     # guarantee ffprobe. Also verify the Vorbis identification packet.
-    marker = data.find(b"\\x01vorbis")
+    marker = data.find(b"\x01vorbis")
     assert 0 <= marker < 150, f"Missing Vorbis identification header: {target}"
     rate = int.from_bytes(data[marker + 12:marker + 16], "little")
     assert 8000 <= rate <= 192000, f"Invalid Vorbis sample rate: {target}"
