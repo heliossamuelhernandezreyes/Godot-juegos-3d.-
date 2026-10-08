@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "id": "fisura_reactivo_13",
+  "title": "FISURA // Reactivo-13",
+  "project": "FISURA",
+  "implementation_status": "design_only",
+  "map": {
+    "ref": "maps/reactivo_13.json",
+    "status": "planned",
+    "bounds": {
+      "width": 84,
+      "depth": 66
+    },
+    "coordinate_system": "godot_xz_y_up"
+  },
+  "duration_minutes": {
+    "min": 8,
+    "max": 12
+  },
+  "caps": {
+    "global_hostiles": 8,
+    "preferred_mobile_hostiles": 6,
+    "spawns_per_wave": 5
+  },
+  "zones": [
+    {
+      "id": "insertion",
+      "title": "Inserción",
+      "rect": {
+        "min_x": -16,
+        "max_x": 16,
+        "min_z": 22,
+        "max_z": 32
+      },
+      "visual_identity": "cian_frio",
+      "cover_targets": 3
+    },
+    {
+      "id": "access",
+      "title": "Taller y acceso",
+      "rect": {
+        "min_x": -21,
+        "max_x": 21,
+        "min_z": 10,
+        "max_z": 22
+      },
+      "visual_identity": "industrial_ambar",
+      "cover_targets": 4
+    },
+    {
+      "id": "node_a_zone",
+      "title": "Nodo A",
+      "rect": {
+        "min_x": -39,
+        "max_x": -18,
+        "min_z": -8,
+        "max_z": 11
+      },
+      "visual_identity": "cian_energia",
+      "cover_targets": 4
+    },
+    {
+      "id": "node_b_zone",
+      "title": "Nodo B",
+      "rect": {
+        "min_x": 18,
+        "max_x": 39,
+        "min_z": -8,
+        "max_z": 11
+      },
+      "visual_identity": "ambar_sistema",
+      "cover_targets": 4
+    },
+    {
+      "id": "reactor_chamber",
+      "title": "Cámara del núcleo",
+      "rect": {
+        "min_x": -19,
+        "max_x": 19,
+        "min_z": -22,
+        "max_z": 10
+      },
+      "visual_identity": "reactor_naranja",
+      "cover_targets": 5
+    },
+    {
+      "id": "extraction_lane",
+      "title": "Plataforma de extracción",
+      "rect": {
+        "min_x": -15,
+        "max_x": 15,
+        "min_z": -33,
+        "max_z": -22
+      },
+      "visual_identity": "verde_escapatoria",
+      "cover_targets": 2
+    }
+  ],
+  "anchors": [
+    {
+      "id": "vanguard_start",
+      "kind": "player_spawn",
+      "zone": "insertion",
+      "position": [
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "id": "access_gate",
+      "kind": "gate",
+      "zone": "access",
+      "position": [
+        0,
+        0,
+        16
+      ]
+    },
+    {
+      "id": "node_a_console",
+      "kind": "interact",
+      "zone": "node_a_zone",
+      "position": [
+        -28,
+        0,
+        4
+      ]
+    },
+    {
+      "id": "node_b_console",
+      "kind": "interact",
+      "zone": "node_b_zone",
+      "position": [
+        28,
+        0,
+        4
+      ]
+    },
+    {
+      "id": "reactor_altar",
+      "kind": "interact",
+      "zone": "reactor_chamber",
+      "position": [
+        0,
+        0,
+        -11
+      ]
+    },
+    {
+      "id": "stabilizer",
+      "kind": "defense",
+      "zone": "reactor_chamber",
+      "position": [
+        0,
+        0,
+        -15
+      ]
+    },
+    {
+      "id": "extraction_pad",
+      "kind": "extraction",
+      "zone": "extraction_lane",
+      "position": [
+        0,
+        0,
+        -29
+      ]
+    },
+    {
+      "id": "enemy_entry",
+      "kind": "enemy_spawn",
+      "zone": "insertion",
+      "position": [
+        -10,
+        0,
+        26
+      ]
+    },
+    {
+      "id": "enemy_west",
+      "kind": "enemy_spawn",
+      "zone": "node_a_zone",
+      "position": [
+        -34,
+        0,
+        -3
+      ]
+    },
+    {
+      "id": "enemy_east",
+      "kind": "enemy_spawn",
+      "zone": "node_b_zone",
+      "position": [
+        34,
+        0,
+        -3
+      ]
+    },
+    {
+      "id": "enemy_reactor_l",
+      "kind": "enemy_spawn",
+      "zone": "reactor_chamber",
+      "position": [
+        -14,
+        0,
+        -17
+      ]
+    },
+    {
+      "id": "enemy_reactor_r",
+      "kind": "enemy_spawn",
+      "zone": "reactor_chamber",
+      "position": [
+        14,
+        0,
+        -17
+      ]
+    },
+    {
+      "id": "enemy_exit",
+      "kind": "enemy_spawn",
+      "zone": "extraction_lane",
+      "position": [
+        12,
+        0,
+        -27
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "id": "quadshell",
+      "status": "existing",
+      "archetype": "melee_chaser",
+      "telegraph_seconds": 0.7,
+      "counterplay": [
+        "dash",
+        "cover",
+        "line_of_sight"
+      ]
+    },
+    {
+      "id": "eyedrone",
+      "status": "existing",
+      "archetype": "ranged_harasser",
+      "telegraph_seconds": 1,
+      "counterplay": [
+        "line_of_sight",
+        "prioritize_target"
+      ]
+    },
+    {
+      "id": "bulwark",
+      "status": "planned",
+      "archetype": "front_shield",
+      "telegraph_seconds": 1.4,
+      "counterplay": [
+        "flank",
+        "exposed_weakpoint"
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "reach_access",
+      "phase": "insertion",
+      "kind": "reach_zone",
+      "target": "access",
+      "duration_seconds": 0,
+      "required": true
+    },
+    {
+      "id": "power_a",
+      "phase": "penetration",
+      "kind": "interact",
+      "target": "node_a_console",
+      "duration_seconds": 1.5,
+      "required": true
+    },
+    {
+      "id": "power_b",
+      "phase": "penetration",
+      "kind": "interact",
+      "target": "node_b_console",
+      "duration_seconds": 1.5,
+      "required": true
+    },
+    {
+      "id": "collect_reactor",
+      "phase": "core_chamber",
+      "kind": "interact",
+      "target": "reactor_altar",
+      "duration_seconds": 2,
+      "required": true
+    },
+    {
+      "id": "defense_hold",
+      "phase": "defense",
+      "kind": "hold_and_clear",
+      "target": "stabilizer",
+      "duration_seconds": 75,
+      "required": true
+    },
+    {
+      "id": "evacuate",
+      "phase": "extraction",
+      "kind": "interact",
+      "target": "extraction_pad",
+      "duration_seconds": 2,
+      "required": true
+    }
+  ],
+  "phases": [
+    {
+      "id": "insertion",
+      "order": 1,
+      "zone": "insertion",
+      "objective_ids": [
+        "reach_access"
+      ],
+      "encounter_ids": [
+        "entry_reavers"
+      ],
+      "expected_seconds": {
+        "min": 45,
+        "max": 90
+      },
+      "entry_event": "mission_start"
+    },
+    {
+      "id": "penetration",
+      "order": 2,
+      "zone": "access",
+      "objective_ids": [
+        "power_a",
+        "power_b"
+      ],
+      "encounter_ids": [
+        "west_node",
+        "east_node"
+      ],
+      "expected_seconds": {
+        "min": 120,
+        "max": 195
+      },
+      "entry_event": "objective_completed"
+    },
+    {
+      "id": "core_chamber",
+      "order": 3,
+      "zone": "reactor_chamber",
+      "objective_ids": [
+        "collect_reactor"
+      ],
+      "encounter_ids": [
+        "reactor_guard"
+      ],
+      "expected_seconds": {
+        "min": 45,
+        "max": 100
+      },
+      "entry_event": "objective_set_completed"
+    },
+    {
+      "id": "defense",
+      "order": 4,
+      "zone": "reactor_chamber",
+      "objective_ids": [
+        "defense_hold"
+      ],
+      "encounter_ids": [
+        "stabilizer_assault"
+      ],
+      "expected_seconds": {
+        "min": 95,
+        "max": 165
+      },
+      "entry_event": "objective_completed"
+    },
+    {
+      "id": "extraction",
+      "order": 5,
+      "zone": "extraction_lane",
+      "objective_ids": [
+        "evacuate"
+      ],
+      "encounter_ids": [
+        "exit_pursuit"
+      ],
+      "expected_seconds": {
+        "min": 60,
+        "max": 150
+      },
+      "entry_event": "timer_and_clear"
+    }
+  ],
+  "encounters": [
+    {
+      "id": "entry_reavers",
+      "phase": "insertion",
+      "trigger": {
+        "event": "zone_enter",
+        "target": "insertion"
+      },
+      "spawn_anchor_ids": [
+        "enemy_entry"
+      ],
+      "units": [
+        {
+          "role": "quadshell",
+          "count": 2
+        }
+      ],
+      "max_concurrent": 2,
+      "telegraph_seconds": 1
+    },
+    {
+      "id": "west_node",
+      "phase": "penetration",
+      "trigger": {
+        "event": "objective_available",
+        "target": "power_a"
+      },
+      "spawn_anchor_ids": [
+        "enemy_west"
+      ],
+      "units": [
+        {
+          "role": "quadshell",
+          "count": 2
+        },
+        {
+          "role": "eyedrone",
+          "count": 1
+        }
+      ],
+      "max_concurrent": 3,
+      "telegraph_seconds": 1
+    },
+    {
+      "id": "east_node",
+      "phase": "penetration",
+      "trigger": {
+        "event": "objective_available",
+        "target": "power_b"
+      },
+      "spawn_anchor_ids": [
+        "enemy_east"
+      ],
+      "units": [
+        {
+          "role": "quadshell",
+          "count": 1
+        },
+        {
+          "role": "eyedrone",
+          "count": 2
+        }
+      ],
+      "max_concurrent": 3,
+      "telegraph_seconds": 1.2
+    },
+    {
+      "id": "reactor_guard",
+      "phase": "core_chamber",
+      "trigger": {
+        "event": "phase_enter",
+        "target": "core_chamber"
+      },
+      "spawn_anchor_ids": [
+        "enemy_reactor_l"
+      ],
+      "units": [
+        {
+          "role": "quadshell",
+          "count": 1
+        },
+        {
+          "role": "eyedrone",
+          "count": 1
+        }
+      ],
+      "max_concurrent": 2,
+      "telegraph_seconds": 1.3
+    },
+    {
+      "id": "stabilizer_assault",
+      "phase": "defense",
+      "trigger": {
+        "event": "objective_started",
+        "target": "defense_hold"
+      },
+      "spawn_anchor_ids": [
+        "enemy_reactor_l",
+        "enemy_reactor_r"
+      ],
+      "units": [
+        {
+          "role": "bulwark",
+          "count": 1
+        },
+        {
+          "role": "quadshell",
+          "count": 2
+        },
+        {
+          "role": "eyedrone",
+          "count": 2
+        }
+      ],
+      "max_concurrent": 5,
+      "telegraph_seconds": 1.5
+    },
+    {
+      "id": "exit_pursuit",
+      "phase": "extraction",
+      "trigger": {
+        "event": "phase_enter",
+        "target": "extraction"
+      },
+      "spawn_anchor_ids": [
+        "enemy_exit"
+      ],
+      "units": [
+        {
+          "role": "quadshell",
+          "count": 2
+        },
+        {
+          "role": "eyedrone",
+          "count": 1
+        }
+      ],
+      "max_concurrent": 3,
+      "telegraph_seconds": 1.2
+    }
+  ],
+  "transitions": [
+    {
+      "from": "insertion",
+      "to": "penetration",
+      "condition": {
+        "event": "objective_completed",
+        "objective_ids": [
+          "reach_access"
+        ]
+      }
+    },
+    {
+      "from": "penetration",
+      "to": "core_chamber",
+      "condition": {
+        "event": "objective_set_completed",
+        "objective_ids": [
+          "power_a",
+          "power_b"
+        ]
+      }
+    },
+    {
+      "from": "core_chamber",
+      "to": "defense",
+      "condition": {
+        "event": "objective_completed",
+        "objective_ids": [
+          "collect_reactor"
+        ]
+      }
+    },
+    {
+      "from": "defense",
+      "to": "extraction",
+      "condition": {
+        "event": "objective_completed",
+        "objective_ids": [
+          "defense_hold"
+        ]
+      }
+    },
+    {
+      "from": "extraction",
+      "to": "victory",
+      "condition": {
+        "event": "objective_completed",
+        "objective_ids": [
+          "evacuate"
+        ]
+      }
+    }
+  ],
+  "terminal_states": [
+    "victory",
+    "failed"
+  ],
+  "failure_conditions": [
+    "player_health_zero",
+    "reactor_evacuate_timer_expired"
+  ],
+  "qa_gates": [
+    {
+      "id": "G0",
+      "name": "contract_integrity",
+      "status": "planned"
+    },
+    {
+      "id": "G1",
+      "name": "map_reachability",
+      "status": "planned"
+    },
+    {
+      "id": "G2",
+      "name": "mission_sequence_playthrough",
+      "status": "planned"
+    },
+    {
+      "id": "G3",
+      "name": "enemy_roles_and_fairness",
+      "status": "planned"
+    },
+    {
+      "id": "G4",
+      "name": "visual_readability",
+      "status": "planned"
+    },
+    {
+      "id": "G5",
+      "name": "android_real_device",
+      "status": "planned"
+    },
+    {
+      "id": "G6",
+      "name": "user_playtest",
+      "status": "planned"
+    }
+  ]
+}

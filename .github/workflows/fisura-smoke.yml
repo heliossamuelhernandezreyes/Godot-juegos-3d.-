@@ -18,10 +18,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: heliossamuelhernandezreyes/Arcont
-          ref: 3dd31bd962999f36de264c5bb364f41624ca7f0b
+          ref: 77c8bff879a6adbec64613af0721548c5cca4323
           path: _arcont_reference
       - name: Validate map with real ARCONT Map Forge validator
         run: python3 _arcont_reference/tools/map_forge_contract.py maps/crisol_01.json
+      - name: Validate Reactivo-13 design mission with ARCONT cross-reference tool
+        run: |
+          python3 _arcont_reference/tools/vertical_slice_contract.py missions/reactivo_13.slice.json
+          echo "DESIGN CONTRACT PASS: Reactivo-13 (gameplay/runtime NOT implemented)"
       - name: Validate gameplay anchors
         run: |
           python3 - <<'PY'
