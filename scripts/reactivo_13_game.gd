@@ -39,6 +39,7 @@ var gate_body: StaticBody3D
 var gate_shape: CollisionShape3D
 var gate_visual: MeshInstance3D
 var interact_held := false
+var shoulder_side := 1.0
 var touch_move_id := -1
 var touch_look_id := -1
 var touch_move_origin := Vector2.ZERO
@@ -169,10 +170,10 @@ func _make_camera() -> void:
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(-0.1 * shoulder_side, 0.80, -0.85), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(1.8, 2.75, 3.10)
+    var desired: Vector3 = player.global_position + Vector3(1.8 * shoulder_side, 2.75, 3.10)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -354,6 +355,8 @@ func _make_hud() -> void:
         shoot.button_up.connect(func() -> void: player.mobile_firing = false)
         var cover := _mobile_button(root, "COBERTURA", -445, -270, -170, -110)
         cover.pressed.connect(func() -> void: player.request_cover_toggle())
+        var shoulder := _mobile_button(root, "HOMBRO", -600, -450, -80, -20)
+        shoulder.pressed.connect(_swap_shoulder)
         var dash := _mobile_button(root, "IMPULSO", -420, -270, -80, -20)
         dash.pressed.connect(func() -> void: player.request_dash())
     var restart := _mobile_button(root, "REINICIAR", -170, -20, -70, -10)
@@ -388,8 +391,14 @@ func _mobile_button(parent: Control, title: String, x0: int, x1: int, y0: int, y
     parent.add_child(btn)
     return btn
 
+func _swap_shoulder() -> void:
+    shoulder_side *= -1.0
+
 func _input(event: InputEvent) -> void:
     if player == null or director == null or director.terminated:
+        return
+    if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_V:
+        _swap_shoulder()
         return
     if event is InputEventScreenTouch:
         var size := get_viewport().get_visible_rect().size
@@ -420,7 +429,7 @@ func _process(delta: float) -> void:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(-0.1 * shoulder_side, 0.80, -0.85), Vector3.UP)
     camera.fov = lerpf(camera.fov, 49.0 if player.wants_to_fire() else 56.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
