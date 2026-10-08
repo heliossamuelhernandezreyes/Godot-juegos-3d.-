@@ -2,6 +2,7 @@ extends Node3D
 ## FISURA: vertical slice 0.1. El mundo y sus objetivos vienen de un contrato ARCONT.
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ENEMY_SCRIPT = preload("res://scripts/enemy.gd")
+const ANIMATED_REAVER_SCRIPT = preload("res://scripts/animated_reaver.gd")
 const ART_STAGE_SCRIPT = preload("res://scripts/art_stage.gd")
 const NAV_SCRIPT = preload("res://scripts/tactical_grid.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
@@ -33,6 +34,7 @@ var hazard_radius := 6.0
 var last_shock_phase := 0.0
 var collected := 0
 var kills := 0
+var enemy_serial := 0
 var finished := false
 var hp_label: Label
 var mission_label: Label
@@ -445,11 +447,14 @@ func _spawn_enemy() -> void:
     if Vector2(chosen.x - player.position.x, chosen.z - player.position.z).length() < 8.0:
         return
     var enemy := CharacterBody3D.new()
-    enemy.set_script(ENEMY_SCRIPT)
+    enemy.set_script(ANIMATED_REAVER_SCRIPT)
+    enemy_serial += 1
+    enemy.asset_kind = "eye" if enemy_serial % 4 == 0 else "quad"
     enemy.target = player
     enemy.director = self
     enemy.position = chosen + Vector3(0, 1, 0)
-    enemy.speed = 3.4 + minf(2.2, elapsed * 0.014)
+    enemy.speed = (4.2 if enemy.asset_kind == "eye" else 3.4) + minf(2.2, elapsed * 0.014)
+    enemy.hit_points = 27 if enemy.asset_kind == "eye" else 58
     add_child(enemy)
 
 func register_kill() -> void:
@@ -543,3 +548,25 @@ func register_damage_feedback() -> void:
     hit_overlay.color = Color(0.92, 0.14, 0.06, 0.34)
     var fade := create_tween()
     fade.tween_property(hit_overlay, "color:a", 0.0, 0.32)
+
+func register_enemy_laser(start: Vector3, destination: Vector3) -> void:
+    # Gameplay-sourced enemy beam; bounded effect lifetime and zero physics impact.
+    var beam := MeshInstance3D.new()
+    beam.name = "EyeDrone hostile energy bolt"
+    var line := BoxMesh.new()
+    line.size = Vector3(0.085, 0.085, maxf(0.1, start.distance_to(destination)))
+    beam.mesh = line
+    var energy := StandardMaterial3D.new()
+    energy.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    energy.albedo_color = Color("#fc925f")
+    energy.emission_enabled = true
+    energy.emission = Color("#ff532a")
+    energy.emission_energy_multiplier = 2.4
+    beam.material_override = energy
+    add_child(beam)
+    beam.global_position = (start + destination) * 0.5
+    if start.distance_to(destination) > 0.3:
+        beam.look_at(destination, Vector3.UP)
+    var tween := create_tween()
+    tween.tween_property(beam, "scale", Vector3(0.01, 0.01, 1), 0.20)
+    tween.finished.connect(beam.queue_free)

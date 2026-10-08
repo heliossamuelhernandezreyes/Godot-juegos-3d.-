@@ -75,3 +75,14 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 - Pruebas de navegación específicas en `tests/tactical_validation.gd`.
 
 **[Auditoría técnica 0.3](docs/ARCONT_FIELD_REPORT_V03.md):** expone qué capacidades de ARCONT se han validado y qué falta para lograr estándares visuales o jugables cercanos a AAA. Aún no es un producto AAA y su rendimiento Android es desconocido.
+
+## Actualización 0.4 — IA animada de verdad (Quaternius CC0)
+
+- **QuadShell:** perseguidor de combate cercano, piel esquelética + animaciones Idle/Walk/Run/Attack/Hit. Utiliza navegación y colisiones desacopladas del mesh gracias al contrato ARCONT.
+- **EyeDrone:** enemigo más veloz, modelo skinned con animaciones Idle/Charging/Attack/Hit; añade disparo de energía a distancia con línea de visión, tiempo de recarga y bloqueo por coberturas.
+- **Arma del protagonista:** rifle 3D texturizado importado desde Quaternius.
+- **Activos probados:** `tests/quaternius_import.gd` comprueba esqueletos, animaciones y geometría; `tests/animated_combat.gd` prueba Idle→Hit; `tests/ranged_drone.gd` comprueba ataque y cobertura.
+- **Evidencia visual:** captura generada ejecutando el juego en Godot Linux bajo Xvfb, con ambos enemigos en el campo de visión (GitHub Actions).
+- **Licencias y reproducibilidad:** archivos CC0 del paquete Standard de Quaternius con source SHA fijado y hashes SHA-256 en `assets/vendor/quaternius/scifi_essentials/PROVENANCE.json`, sin descargas durante el juego.
+
+**Límite técnico:** aún no se han implementado animaciones esqueléticas humanoides completas para Vanguard, ni retargeting/IK, perfiles Android, VFX de alta fidelidad o escenarios de producción AAA.
