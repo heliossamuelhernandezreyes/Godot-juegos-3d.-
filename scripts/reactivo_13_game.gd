@@ -148,9 +148,9 @@ func _build_world() -> void:
     cinematic_stage.set_script(CINEMATIC_SCRIPT)
     add_child(cinematic_stage)
     # Distinct colored lanes anchor each combat/mission region.
-    _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#2eaec9"), false)
-    _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#dba04c"), false)
-    _box("Reactor perimeter", Vector3(0, 0.09, -20), Vector3(25, 0.06, 0.35), Color("#df694e"), false)
+    _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#438ca7"), false)
+    _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#b58b50"), false)
+    _box("Reactor perimeter", Vector3(0, 0.09, -20), Vector3(25, 0.06, 0.16), Color("#df694e"), false)
 
 func _vec(a: Array) -> Vector3:
     return Vector3(float(a[0]), float(a[1]), float(a[2]))
@@ -167,7 +167,7 @@ func _make_camera() -> void:
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(-0.1, 0.96, -1.15), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
 
 func _camera_position() -> Vector3:
     var desired: Vector3 = player.global_position + Vector3(1.8, 2.75, 3.10)
@@ -413,7 +413,7 @@ func _process(delta: float) -> void:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(-0.1, 0.96, -1.15), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
     camera.fov = lerpf(camera.fov, 49.0 if player.wants_to_fire() else 56.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
