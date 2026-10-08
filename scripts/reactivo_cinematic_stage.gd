@@ -173,7 +173,7 @@ func _reactor() -> void:
     sph.radial_segments = 32
     sph.rings = 16
     core.mesh = sph
-    core.material_override = amber
+    core.material_override = _mat(Color("#19596b"), 0.62, 0.23, 0.9)
     core.position = Vector3(0, 3.4, -11)
     add_child(core)
     glowing_core = core
@@ -229,7 +229,7 @@ func _light_rig() -> void:
 func set_reactor_alarm(enabled: bool) -> void:
     alarm_active = enabled
     if glowing_core != null:
-        glowing_core.material_override = red if enabled else amber
+        glowing_core.material_override = red if enabled else _mat(Color("#19596b"), 0.62, 0.23, 0.9)
     if halo != null:
         halo.material_override = red if enabled else cyan
 
