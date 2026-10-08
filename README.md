@@ -99,3 +99,15 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 - Como antes, cada CI genera **una captura real de Godot**. Android no está probado.
 
 **No se afirma animación AAA:** son clips CC0 funcionales con transiciones sencillas, sin retargeting humanoide avanzado, IK de pies/manos, motion matching, cámara libre ni animaciones contextuales de cobertura.
+
+## FISURA 0.6 — puntería coherente, modificador de torso y compilación Android
+
+- **Puntería 3D:** el cursor o la retícula táctil proyectan un rayo desde la cámara; el rifle dispara un hitscan desde su origen virtual hacia el punto seleccionado. Ya no dispara solo sobre el plano horizontal.
+- **Movimiento táctil simultáneo:** el dedo izquierdo mueve al jugador, mientras que el derecho puede arrastrarse por la región media-derecha para apuntar. Se conservan los botones de disparo e impulso.
+- **Capa de animación tras clips:** `scripts/aim_spine_modifier.gd` usa Godot `SkeletonModifier3D` para aplicar cambios limitados de pitch/yaw sobre los huesos originales `Torso` y `Chest` y un retroceso que desaparece rápidamente. **No es IK completo**.
+- **Rifle realmente montado:** el importador Quaternius nombra el hueso derecho `Wrist.R`. `BoneAttachment3D` lo utiliza para el rifle; un test verifica esa relación.
+- **Regresiones:** `tests/aim_pipeline.gd` exige puntería con dos dedos, trayectoria 3D y modificador activo; siguen ejecutándose todos los tests de clips, combate, navegación, cámara y extracción.
+- **Preparación Android:** `export_presets.cfg` declara APK ARM64 de depuración sin secretos. `.github/workflows/android-debug.yml` configura Java/Android SDK, plantillas exactamente para Godot 4.7.2, firma temporal de depuración y la publicación del APK **solo si la exportación sale bien**.
+- **Importante:** una APK generada en GitHub no demuestra que esté jugable en Android. Se requiere prueba en teléfono, p50/p95/p99, termal y ergonomía.
+
+Informe de evidencia: [docs/ARCONT_FIELD_REPORT_V06.md](docs/ARCONT_FIELD_REPORT_V06.md). Ninguna ejecución instala automáticamente la APK ni maneja firmas comerciales.
