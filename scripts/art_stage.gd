@@ -32,6 +32,7 @@ func build(map_data: Dictionary, anchors: Dictionary) -> void:
     _lighting()
     _set_wall_detail()
     _industrial_architecture(map_data)
+    _dress_covers(map_data)
     print("ART STAGE READY models=%d instances=%d lights=%d" % [mesh_count, mesh_instances, point_lights])
 
 func _display_asset(label: String, mesh: Mesh, pos: Vector3, yaw: float = 0.0) -> MeshInstance3D:
@@ -269,3 +270,32 @@ func _pbr_material(slug: String, tint: Color, scale: float) -> ORMMaterial3D:
     mat.uv1_triplanar = true
     mat.uv1_scale = Vector3.ONE * scale
     return mat
+
+func _dress_covers(contract: Dictionary) -> void:
+    # Collision remains with game semantic blockout; layers below are visual-only.
+    var armor := _pbr_material("green_metal_rust", Color("#bac8d1"), 0.58)
+    var trim := _material(Color("#c3a573"), 0.70, 0.35)
+    var seam := _material(Color("#0c2433"), 0.25, 0.42, 1.5)
+    for guide in contract.get("authoring", {}).get("structure_guides", []):
+        if guide.get("kind", "") != "cover":
+            continue
+        var p: Array = guide["position"]
+        var d: Array = guide["size"]
+        var center := Vector3(float(p[0]), float(p[1]), float(p[2]))
+        var size := Vector3(float(d[0]), float(d[1]), float(d[2]))
+        var x_offset := size.x * 0.5 + 0.06
+        var z_offset := size.z * 0.5 + 0.06
+        var y_offset := size.y * 0.5 + 0.06
+        _beam("Blindaje cubierta - superior", center + Vector3(0, y_offset, 0),
+            Vector3(size.x + 0.16, 0.13, size.z + 0.16), armor)
+        for xside in [-1.0, 1.0]:
+            _beam("Blindaje lateral", center + Vector3(float(xside) * x_offset, 0, 0),
+                Vector3(0.14, size.y, size.z + 0.13), armor)
+        for zside in [-1.0, 1.0]:
+            _beam("Panel frontal", center + Vector3(0, 0, float(zside) * z_offset),
+                Vector3(size.x, size.y, 0.14), armor)
+            _beam("Linea de aviso", center + Vector3(0, -size.y * 0.28, float(zside) * (z_offset + 0.08)),
+                Vector3(size.x * 0.78, 0.10, 0.03), seam)
+        for along in [-0.4, 0.4]:
+            _beam("Montante blindado", center + Vector3(0, size.y * 0.34, along * size.z),
+                Vector3(size.x + 0.20, 0.12, 0.14), trim)
