@@ -36,6 +36,14 @@ func _ready() -> void:
         add_child(voice)
         voices.append(voice)
 
+func _exit_tree() -> void:
+    # Stop the audio thread and release imported Vorbis references before SceneTree
+    # teardown; headless regression scenes destroy the world during quit().
+    for voice in voices:
+        voice.stop()
+        voice.stream = null
+    streams.clear()
+
 func _play_voice(key: String, pitch: float, volume: float) -> void:
     if not streams.has(key) or voices.is_empty():
         return
