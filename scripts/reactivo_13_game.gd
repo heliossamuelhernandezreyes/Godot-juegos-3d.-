@@ -117,14 +117,14 @@ func _build_world() -> void:
     environment.background_color = Color("#0a1422")
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color("#8197ac")
-    environment.ambient_light_energy = 0.85
+    environment.ambient_light_energy = 0.62
     var world_env := WorldEnvironment.new()
     world_env.environment = environment
     add_child(world_env)
     var key := DirectionalLight3D.new()
     key.rotation_degrees = Vector3(-60.0, -25.0, 0.0)
     key.light_color = Color("#b5d8f0")
-    key.light_energy = 1.4
+    key.light_energy = 1.03
     key.shadow_enabled = true
     add_child(key)
     var bounds: Dictionary = map_data["bounds"]
@@ -162,14 +162,14 @@ func _make_player() -> void:
 
 func _make_camera() -> void:
     camera = Camera3D.new()
-    camera.fov = 62.0
+    camera.fov = 59.0
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
     camera.look_at(player.global_position + Vector3(0, 0.85, -1.2), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(1.10, 3.85, 5.8)
+    var desired: Vector3 = player.global_position + Vector3(1.25, 2.95, 4.1)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -232,9 +232,31 @@ func _make_interactables() -> void:
     gate_mesh.size = Vector3(8.0, 3.2, 0.75)
     gate_visual.mesh = gate_mesh
     var gate_mat := StandardMaterial3D.new()
-    gate_mat.albedo_color = Color("#7e4c39")
+    gate_mat.albedo_color = Color("#788692")
+    gate_mat.albedo_texture = load("res://assets/vendor/polyhaven_materials/green_metal_rust/diff.jpg") as Texture2D
+    gate_mat.normal_enabled = true
+    gate_mat.normal_texture = load("res://assets/vendor/polyhaven_materials/green_metal_rust/nor_gl.jpg") as Texture2D
+    gate_mat.metallic = 0.77
+    gate_mat.roughness = 0.39
     gate_visual.material_override = gate_mat
     gate_body.add_child(gate_visual)
+    var blast_face := StandardMaterial3D.new()
+    blast_face.albedo_color = Color("#31414d")
+    blast_face.metallic = 0.80
+    blast_face.roughness = 0.42
+    var inset := StandardMaterial3D.new()
+    inset.albedo_color = Color("#152d38")
+    inset.metallic = 0.63
+    inset.roughness = 0.40
+    for panel_index in range(4):
+        var rib := MeshInstance3D.new()
+        rib.name = "Blast shield | recessed segmented plate %d" % panel_index
+        var rib_shape := BoxMesh.new()
+        rib_shape.size = Vector3(7.42, 0.57, 0.12)
+        rib.mesh = rib_shape
+        rib.position = Vector3(0, -1.11 + float(panel_index) * 0.72, 0.47)
+        rib.material_override = blast_face if panel_index % 2 == 0 else inset
+        gate_visual.add_child(rib)
     var brass := StandardMaterial3D.new()
     brass.albedo_color = Color("#d3a45b")
     brass.metallic = 0.7
@@ -246,7 +268,7 @@ func _make_interactables() -> void:
         stripe.mesh = bar
         stripe.position = Vector3(offset, 0, 0.45)
         stripe.material_override = brass
-        gate_body.add_child(stripe)
+        gate_visual.add_child(stripe)
     var lock_text := Label3D.new()
     lock_text.name = "Access gate | warning signage"
     lock_text.text = "REACTIVO-13   //   NODOS A + B"
@@ -254,7 +276,7 @@ func _make_interactables() -> void:
     lock_text.pixel_size = 0.0034
     lock_text.modulate = Color("#ffcf85")
     lock_text.position = Vector3(0, 0.45, 0.47)
-    gate_body.add_child(lock_text)
+    gate_visual.add_child(lock_text)
     add_child(gate_body)
 
 func _make_hud() -> void:
@@ -365,7 +387,7 @@ func _process(delta: float) -> void:
         return
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
     camera.look_at(player.global_position + Vector3(0, 0.7, -2.0), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 55.0 if player.wants_to_fire() else 62.0, minf(1.0, delta * 6.0))
+    camera.fov = lerpf(camera.fov, 51.0 if player.wants_to_fire() else 59.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta
