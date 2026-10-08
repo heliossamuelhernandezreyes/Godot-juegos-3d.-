@@ -15,7 +15,8 @@ import re
 import urllib.parse
 import urllib.request
 
-# First vetted candidate import: barrel_03 + industrial_wall_lamp.\nROOT=pathlib.Path("assets/vendor/polyhaven")
+# First vetted candidate import: barrel_03 + industrial_wall_lamp.
+ROOT=pathlib.Path("assets/vendor/polyhaven")
 SLUGS=("barrel_03","industrial_wall_lamp")
 HEADER={"User-Agent":"FISURA-Godot-Game/0.2 (CC0 asset intake; github.com/heliossamuelhernandezreyes/Godot-juegos-3d.-)"}
 MAX_SINGLE=18*1024*1024
