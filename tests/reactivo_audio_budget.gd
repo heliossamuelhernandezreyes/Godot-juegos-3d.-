@@ -52,8 +52,7 @@ func _verify() -> void:
         voice.stop()
         voice.stream = null
     audio.streams.clear()
-    audio.queue_free()
-    await process_frame
+    audio.free()
     print("REACTIVO AUDIO BUDGET PASS kenney_cc0_ogg=",assets.size(),
         " source_hashes=true voices=",audio.voices.size()," fire_layered=true")
     quit(0)
