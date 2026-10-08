@@ -17,10 +17,15 @@
     "validator": "tools/map_forge_contract.py"
   },
   "prototype": {
-    "stage": "vertical-slice-0.1",
+    "stage": "vertical-slice-0.2-art",
     "map": "maps/crisol_01.json",
-    "runtime_tested": false,
-    "android_export_tested": false
+    "runtime_tested": true,
+    "android_export_tested": false,
+    "runtime_test_scope": "GitHub Actions Linux Godot 4.7.2 headless: import, 120 frames and deterministic extraction playthrough; visual software raster capture"
   },
-  "asset_policy": "game-owned procedural primitives; third-party imports require license proof"
+  "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
+  "asset_sources": [
+    "assets/vendor/polyhaven/barrel_03/PROVENANCE.json",
+    "assets/vendor/polyhaven/industrial_wall_lamp/PROVENANCE.json"
+  ]
 }

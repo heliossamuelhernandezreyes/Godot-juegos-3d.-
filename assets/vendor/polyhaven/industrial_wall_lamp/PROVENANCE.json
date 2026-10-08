@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "name": "industrial_wall_lamp",
+  "catalog_ref": "heliossamuelhernandezreyes/Arcont",
+  "asset_page": "https://polyhaven.com/a/industrial_wall_lamp",
+  "license": "CC0-1.0",
+  "license_page": "https://polyhaven.com/license",
+  "source_api": "https://api.polyhaven.com/info/industrial_wall_lamp",
+  "files_api": "https://api.polyhaven.com/files/industrial_wall_lamp",
+  "files_hash": "136c5533789630d2ab312385f75ad413c0d2c221",
+  "files": [
+    {
+      "file": "industrial_wall_lamp_1k.gltf",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/industrial_wall_lamp/industrial_wall_lamp_1k.gltf",
+      "size_bytes": 3383,
+      "sha256": "97cf8c58be1055baae3512731eef6eb6801365a6ba0d30627e11a4fb9f8414b8"
+    },
+    {
+      "file": "buffers_0.bin",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/industrial_wall_lamp/industrial_wall_lamp.bin",
+      "size_bytes": 141492,
+      "sha256": "d0a6a08b5e2e83ff8d6eb61bb5daa74654b4ff8d9c634348c87f83dbda4837a2"
+    },
+    {
+      "file": "images_0.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_emissive_1k.jpg",
+      "size_bytes": 62349,
+      "sha256": "cf80eeeb6fec87499fb8444f554eae62e471ad79f8906d6fd693d7fde53b012f"
+    },
+    {
+      "file": "images_1.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_nor_gl_1k.jpg",
+      "size_bytes": 673018,
+      "sha256": "427bafa2f14d9f81a5949507d5d6915bfb4b70a8e5e5076a3a18c7de49b3d78b"
+    },
+    {
+      "file": "images_2.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_diff_1k.jpg",
+      "size_bytes": 669629,
+      "sha256": "e0f824b7e639fceb7ca5b7b7f67a8168bc53db184b818770126167d16d424b2e"
+    },
+    {
+      "file": "images_3.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_arm_1k.jpg",
+      "size_bytes": 753080,
+      "sha256": "70adef2921bfcf985f951f9f85fca8dbfb63dc84535613c3872684fea65ab025"
+    },
+    {
+      "file": "images_4.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_glass_nor_gl_1k.jpg",
+      "size_bytes": 585913,
+      "sha256": "73ce4f34d90aee29db9a5e301934c0642bf89136353d7e400f63db1c2f99f345"
+    },
+    {
+      "file": "images_5.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_glass_diff_1k.jpg",
+      "size_bytes": 316099,
+      "sha256": "215457a5d41ae5d999e94f4ea0f424ff769940e71e1449ce712f35687e33af67"
+    },
+    {
+      "file": "images_6.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_glass_arm_1k.jpg",
+      "size_bytes": 570850,
+      "sha256": "a3ba7f76ff395ada04a804b94f4f2f506bc994336189916d2a414173e2360069"
+    }
+  ]
+}

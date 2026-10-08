@@ -1,0 +1,33 @@
+name: Vendor Poly Haven 3D assets
+
+on:
+  push:
+    branches: [feat/fisura-cinematic-3d-art]
+    paths:
+      - 'tools/vendor_polyhaven.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch_cc0_models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download verified catalog assets and glTF dependencies
+        run: python3 tools/vendor_polyhaven.py
+      - name: Commit the exact original 1K assets to feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/vendor/polyhaven
+          if ! git diff --cached --quiet; then
+            git commit -m 'assets: vendor Poly Haven CC0 industrial models with provenance'
+            git push origin HEAD:feat/fisura-cinematic-3d-art
+          else
+            echo 'Poly Haven assets already committed'
+          fi

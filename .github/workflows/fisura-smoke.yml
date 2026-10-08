@@ -2,7 +2,7 @@ name: FISURA smoke and ARCONT contract
 
 on:
   push:
-    branches: [main, feat/fisura-first-playable]
+    branches: [main, "feat/**"]
   pull_request:
   workflow_dispatch:
 
@@ -37,6 +37,8 @@ jobs:
               assert Path(file).is_file()
           print("Game map, objectives and files: PASS")
           PY
+      - name: Explore ARCONT CC0 Poly Haven model variants (nonblocking)
+        run: python3 tools/probe_polyhaven.py || true
       - name: Download Godot 4.7.2 stable
         run: |
           curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
@@ -52,12 +54,39 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 120 > godot-smoke.log 2>&1
           cat godot-smoke.log
           ! grep -E "SCRIPT ERROR|Parse Error|Invalid call|ERROR:" godot-smoke.log
+      - name: Audit all authored OBJ geometry imports
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/asset_audit.gd > asset-integrity.log 2>&1 || { cat asset-integrity.log; exit 1; }
+          cat asset-integrity.log
+          grep -q "ASSET INTEGRITY PASS" asset-integrity.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" asset-integrity.log
+      - name: Audit vendored Poly Haven glTF scenes and texture import
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/vendor_asset_audit.gd > vendor-import.log 2>&1 || { cat vendor-import.log; exit 1; }
+          cat vendor-import.log
+          grep -q "VENDOR IMPORT PASS count=2" vendor-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" vendor-import.log
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
           cat godot-playthrough.log
           grep -q "PLAYTHROUGH PASS" godot-playthrough.log
           ! grep -E "SCRIPT ERROR|Parse Error|Invalid call|ERROR:" godot-playthrough.log
+      - name: Capture true gameplay render (software OpenGL)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1 libx11-6 libxcursor1 libxinerama1 libxrandr2 libxi6 libasound2t64
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/capture.gd > render-capture.log 2>&1 || { cat render-capture.log; exit 1; }
+          cat render-capture.log
+          grep -q "RENDER PROOF PASS" render-capture.log
+          test -s fisura-render-proof.png
+          file fisura-render-proof.png
+      - name: Upload gameplay render proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-actual-render
+          path: fisura-render-proof.png
+          if-no-files-found: error
       - name: Upload diagnostic logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,4 +96,7 @@ jobs:
             godot-import.log
             godot-smoke.log
             godot-playthrough.log
+            asset-integrity.log
+            render-capture.log
+            vendor-import.log
           if-no-files-found: ignore
