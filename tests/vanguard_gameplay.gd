@@ -43,7 +43,7 @@ func _test() -> void:
     if soldier.health != 0 or soldier.selected_clip != "Death":
         _fail("Death animation and zero health mismatch")
         return
-    var dist := game.player.global_position.distance_to(game._camera_safe_position())
+    var dist: float = game.player.global_position.distance_to(game._camera_safe_position())
     if dist >= 10.0:
         _fail("Shoulder camera too far from protagonist: "+str(dist))
         return
