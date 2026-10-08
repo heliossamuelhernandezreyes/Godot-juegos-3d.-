@@ -187,7 +187,7 @@ func _create_player() -> void:
 
 func _camera_safe_position() -> Vector3:
     # Enclosed industrial environment: never put the camera behind a tall wall.
-    var desired: Vector3 = player.global_position + Vector3(0, 11.0, 10.0)
+    var desired: Vector3 = player.global_position + Vector3(0.85, 4.9, 7.2)
     var half_width := float(map_data["bounds"]["width"]) * 0.5
     var half_depth := float(map_data["bounds"]["depth"]) * 0.5
     desired.x = clampf(desired.x, -half_width + 2.8, half_width - 2.8)
@@ -197,11 +197,11 @@ func _camera_safe_position() -> Vector3:
 func _create_camera() -> void:
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-    camera.fov = 54.0
+    camera.fov = 67.0
     camera.position = _camera_safe_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(0, 0, -1.4), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0.75, -2.0), Vector3.UP)
 
 func _create_objectives() -> void:
     for anchor_id in ["core_alpha", "core_beta", "core_gamma"]:
@@ -413,6 +413,7 @@ func _target_nearest_enemy() -> Vector3:
 
 func _fire_rifle() -> void:
     audio_fx.trigger("fire")
+    player.on_weapon_fired()
     var from: Vector3 = player.global_position + Vector3(0, 0.18, 0)
     var to: Vector3 = from + player.aim_direction * 34.0
     var query := PhysicsRayQueryParameters3D.create(from, to)

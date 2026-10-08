@@ -1,5 +1,6 @@
 extends CharacterBody3D
-## Personaje sin dependencias de recursos externos. El origen está a ~1 m del suelo.
+## FISURA Vanguard 0.5: skinned humanoid, deterministic gameplay collider.
+## ARCONT principle: Skeleton3D/AnimationPlayer are visual, CharacterBody3D remains authoritative.
 signal health_changed(current: int, maximum: int)
 signal dash_started
 
@@ -8,11 +9,9 @@ const DASH_SPEED := 24.0
 const DASH_DURATION := 0.19
 const DASH_COOLDOWN := 1.6
 const GRAVITY := 24.0
-const BODY_MESH = preload("res://assets/models/vanguard_body.obj")
-const ARM_MESH = preload("res://assets/models/vanguard_arm.obj")
-const LEG_MESH = preload("res://assets/models/vanguard_leg.obj")
-const RIFLE_MESH = preload("res://assets/models/vanguard_rifle.obj")
-const RIFLE_CC0 = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
+const VANGUARD_SCENE = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
+const RIFLE_SCENE = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
+const LOCOMOTION := ["Idle_Gun", "Run", "Run_Back", "Run_Left", "Run_Right", "Walk", "Run_Shoot"]
 
 var max_health := 100
 var health := 100
@@ -22,17 +21,21 @@ var mobile_firing := false
 var dash_queued := false
 var dash_remaining := 0.0
 var dash_cooldown := 0.0
-var invulnerability := 0.0
 var dash_vector := Vector3.FORWARD
+var invulnerability := 0.0
 var visual_root: Node3D
-var left_leg: Node3D
-var right_leg: Node3D
-var left_arm: Node3D
-var right_arm: Node3D
-var animation_clock := 0.0
+var humanoid: Node3D
+var rig_animation: AnimationPlayer
+var humanoid_skeleton: Skeleton3D
+var selected_clip := ""
+var animation_lock := 0.0
+var weapon_active := 0.0
+var last_move := Vector3.ZERO
+var fire_events := 0
+var visual_ready := false
 
 func _ready() -> void:
-    name = "Piloto"
+    name = "Vanguard"
     collision_layer = 1
     collision_mask = 1
     var collider := CollisionShape3D.new()
@@ -41,88 +44,121 @@ func _ready() -> void:
     capsule.height = 1.8
     collider.shape = capsule
     add_child(collider)
-
-    _build_mech_visual()
+    _build_skeletal_vanguard()
     health_changed.emit(health, max_health)
 
-func _build_mech_visual() -> void:
+func _build_skeletal_vanguard() -> void:
     visual_root = Node3D.new()
-    visual_root.name = "VANGUARD - rig de piezas OBJ"
+    visual_root.name = "VANGUARD | Quaternius CC0 skeletal visual"
     add_child(visual_root)
-    _piece(visual_root, BODY_MESH, "Armadura principal", Vector3.ZERO)
-    left_leg = Node3D.new()
-    left_leg.name = "Pierna izquierda - pivote"
-    left_leg.position = Vector3(-0.23, -0.14, 0)
-    visual_root.add_child(left_leg)
-    _piece(left_leg, LEG_MESH, "Malla pierna izquierda", Vector3.ZERO)
-    right_leg = Node3D.new()
-    right_leg.name = "Pierna derecha - pivote"
-    right_leg.position = Vector3(0.23, -0.14, 0)
-    visual_root.add_child(right_leg)
-    _piece(right_leg, LEG_MESH, "Malla pierna derecha", Vector3.ZERO)
-    left_arm = Node3D.new()
-    left_arm.name = "Brazo izquierdo - pivote"
-    left_arm.position = Vector3(-0.55, 0.40, 0)
-    visual_root.add_child(left_arm)
-    _piece(left_arm, ARM_MESH, "Malla brazo izquierdo", Vector3.ZERO)
-    right_arm = Node3D.new()
-    right_arm.name = "Brazo derecho - pivote"
-    right_arm.position = Vector3(0.55, 0.40, 0)
-    visual_root.add_child(right_arm)
-    _piece(right_arm, ARM_MESH, "Malla brazo derecho", Vector3.ZERO)
-    var detailed_rifle: Node3D = RIFLE_CC0.instantiate()
-    detailed_rifle.name = "Rifle de asalto Quaternius CC0"
-    detailed_rifle.position = Vector3(-0.12, -0.43, -0.30)
-    detailed_rifle.scale = Vector3.ONE * 0.83
-    right_arm.add_child(detailed_rifle)
-    _add_back_lighting()
-
-func _add_back_lighting() -> void:
-    # Readable hero silhouette when seen from the isometric chase camera.
-    var material := StandardMaterial3D.new()
-    material.albedo_color = Color("#69f6fb")
-    material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    material.emission_enabled = true
-    material.emission = Color("#18c7ed")
-    material.emission_energy_multiplier = 3.2
-    for px in [-0.25, 0.25]:
-        var mesh := MeshInstance3D.new()
-        mesh.name = "VANGUARD - escape lights"
-        var strip := BoxMesh.new()
-        strip.size = Vector3(0.09, 0.38, 0.05)
-        mesh.mesh = strip
-        mesh.material_override = material
-        mesh.position = Vector3(px, 0.24, 0.335)
-        visual_root.add_child(mesh)
-    var spine := MeshInstance3D.new()
-    spine.name = "VANGUARD - reactor spine"
-    var spine_box := BoxMesh.new()
-    spine_box.size = Vector3(0.22, 0.13, 0.055)
-    spine.mesh = spine_box
-    spine.material_override = material
-    spine.position = Vector3(0, -0.12, 0.34)
-    visual_root.add_child(spine)
-
-func _piece(parent: Node3D, asset: Mesh, label: String, at: Vector3) -> void:
-    var instance := MeshInstance3D.new()
-    instance.name = label
-    instance.mesh = asset
-    instance.position = at
-    parent.add_child(instance)
-
-func _animate_suit(delta: float, moving: bool) -> void:
-    if visual_root == null:
+    humanoid = VANGUARD_SCENE.instantiate()
+    humanoid.name = "Spacesuit | skinned mesh"
+    # The source model has its feet at its own origin; CharacterBody3D origin is centered.
+    humanoid.position = Vector3(0, -0.88, 0)
+    visual_root.add_child(humanoid)
+    rig_animation = _find_animator(humanoid)
+    humanoid_skeleton = _find_skeleton(humanoid)
+    if rig_animation == null or humanoid_skeleton == null:
+        push_error("VANGUARD: animated model missing Skeleton3D or AnimationPlayer")
         return
-    var gait := clampf(Vector2(velocity.x, velocity.z).length() / WALK_SPEED, 0.0, 1.0)
-    if moving:
-        animation_clock += delta * (11.0 if dash_remaining <= 0.0 else 19.0)
-    var leg_angle := sin(animation_clock) * 0.48 * gait
-    left_leg.rotation.x = lerpf(left_leg.rotation.x, leg_angle, minf(delta * 12.0, 1.0))
-    right_leg.rotation.x = lerpf(right_leg.rotation.x, -leg_angle, minf(delta * 12.0, 1.0))
-    left_arm.rotation.x = lerpf(left_arm.rotation.x, -0.25 - leg_angle * 0.42, minf(delta * 11.0, 1.0))
-    right_arm.rotation.x = lerpf(right_arm.rotation.x, -0.35 + leg_angle * 0.3, minf(delta * 11.0, 1.0))
-    visual_root.position.y = sin(animation_clock * 2.0) * 0.035 * gait
-    visual_root.rotation.x = lerpf(visual_root.rotation.x, -0.11 if dash_remaining > 0.0 else 0.0, minf(delta * 9.0, 1.0))
+    for clip in LOCOMOTION:
+        if rig_animation.has_animation(clip):
+            var motion: Animation = rig_animation.get_animation(clip)
+            motion.loop_mode = Animation.LOOP_LINEAR
+    _play_clip("Idle_Gun")
+    # Separate gun mesh is attached only if a matching right-hand bone is present.
+    _attach_rifle_to_hand()
+    visual_ready = true
+    print("VANGUARD RIG READY bones=%d clips=%d" %
+        [humanoid_skeleton.get_bone_count(), rig_animation.get_animation_list().size()])
+
+func _find_animator(root_node: Node) -> AnimationPlayer:
+    if root_node is AnimationPlayer:
+        return root_node
+    for child in root_node.get_children():
+        var result := _find_animator(child)
+        if result != null:
+            return result
+    return null
+
+func _find_skeleton(root_node: Node) -> Skeleton3D:
+    if root_node is Skeleton3D:
+        return root_node
+    for child in root_node.get_children():
+        var result := _find_skeleton(child)
+        if result != null:
+            return result
+    return null
+
+func _attach_rifle_to_hand() -> void:
+    if humanoid_skeleton == null:
+        return
+    var bone_id := -1
+    for i in range(humanoid_skeleton.get_bone_count()):
+        var name = humanoid_skeleton.get_bone_name(i).to_lower()
+        if (name.contains("hand") and (name.contains("right") or name.contains(".r") or name.ends_with("_r"))) or name == "r_hand":
+            bone_id = i
+            break
+    if bone_id < 0:
+        print("VANGUARD: no compatible right-hand attachment bone; intrinsic gun animation retained")
+        return
+    var mount := BoneAttachment3D.new()
+    mount.name = "Hand-held PBR rifle attachment"
+    mount.bone_idx = bone_id
+    humanoid_skeleton.add_child(mount)
+    var rifle: Node3D = RIFLE_SCENE.instantiate()
+    rifle.name = "Quaternius CC0 Rifle"
+    # Local adjustment is deliberately separate from the imported animation/rig.
+    rifle.position = Vector3(0.0, 0.0, -0.12)
+    rifle.rotation_degrees = Vector3(-90, 0, 0)
+    rifle.scale = Vector3.ONE * 0.78
+    mount.add_child(rifle)
+
+func _play_clip(clip: String, blend: float = 0.15) -> void:
+    if rig_animation == null or selected_clip == clip or not rig_animation.has_animation(clip):
+        return
+    selected_clip = clip
+    rig_animation.play(clip, blend)
+
+func on_weapon_fired() -> void:
+    fire_events += 1
+    weapon_active = 0.24
+    if health > 0 and dash_remaining <= 0.0 and animation_lock <= 0.0:
+        var moving := Vector2(velocity.x, velocity.z).length() > 1.0
+        _play_clip("Run_Shoot" if moving else "Gun_Shoot", 0.10)
+
+func _update_visual_state(delta: float) -> void:
+    if not visual_ready:
+        return
+    animation_lock = maxf(0.0, animation_lock - delta)
+    weapon_active = maxf(0.0, weapon_active - delta)
+    if health <= 0:
+        _play_clip("Death", 0.15)
+        return
+    if dash_remaining > 0.0:
+        if selected_clip != "Roll":
+            _play_clip("Roll", 0.06)
+            animation_lock = 0.43
+        return
+    if animation_lock > 0.0:
+        return
+    var movement := Vector3(velocity.x, 0.0, velocity.z)
+    if movement.length_squared() < 0.30:
+        _play_clip("Gun_Shoot" if weapon_active > 0.0 else "Idle_Gun")
+        return
+    if weapon_active > 0.0:
+        _play_clip("Run_Shoot", 0.10)
+        return
+    var local_movement := global_basis.inverse() * movement.normalized()
+    # Directional clips remove backward/sideways moonwalking.
+    if local_movement.z > 0.42:
+        _play_clip("Run_Back")
+    elif local_movement.x > 0.53:
+        _play_clip("Run_Right")
+    elif local_movement.x < -0.53:
+        _play_clip("Run_Left")
+    else:
+        _play_clip("Run")
 
 func _physics_process(delta: float) -> void:
     dash_cooldown = maxf(0.0, dash_cooldown - delta)
@@ -133,11 +169,12 @@ func _physics_process(delta: float) -> void:
         dash_vector = direction
     elif aim_direction.length_squared() > 0.01:
         dash_vector = aim_direction.normalized()
-
     if (dash_queued or Input.is_key_pressed(KEY_SHIFT)) and dash_cooldown <= 0.0:
         dash_remaining = DASH_DURATION
         dash_cooldown = DASH_COOLDOWN
         invulnerability = DASH_DURATION + 0.12
+        animation_lock = 0.0
+        selected_clip = ""
         dash_started.emit()
     dash_queued = false
 
@@ -153,9 +190,9 @@ func _physics_process(delta: float) -> void:
     else:
         velocity.y = -0.5
     move_and_slide()
-    _animate_suit(delta, direction.length_squared() > 0.01)
     if aim_direction.length_squared() > 0.001:
         look_at(global_position + aim_direction, Vector3.UP)
+    _update_visual_state(delta)
 
 func _movement_axis() -> Vector2:
     if touch_axis.length_squared() > 0.02:
@@ -182,4 +219,10 @@ func take_damage(amount: int) -> void:
         return
     health = maxi(0, health - amount)
     invulnerability = 0.45
+    if health > 0:
+        animation_lock = 0.24
+        _play_clip("HitRecieve", 0.06)
+    else:
+        animation_lock = 0.0
+        _play_clip("Death", 0.07)
     health_changed.emit(health, max_health)

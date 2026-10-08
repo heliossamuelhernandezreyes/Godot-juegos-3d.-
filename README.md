@@ -86,3 +86,16 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 - **Licencias y reproducibilidad:** archivos CC0 del paquete Standard de Quaternius con source SHA fijado y hashes SHA-256 en `assets/vendor/quaternius/scifi_essentials/PROVENANCE.json`, sin descargas durante el juego.
 
 **Límite técnico:** aún no se han implementado animaciones esqueléticas humanoides completas para Vanguard, ni retargeting/IK, perfiles Android, VFX de alta fidelidad o escenarios de producción AAA.
+
+
+## FISURA 0.5 — Vanguard humanoide, animación esquelética y cámara al hombro
+
+- Vanguard usa **Spacesuit**, un personaje humanoide completo de Quaternius Ultimate Modular Men CC0, en lugar del torso y las extremidades OBJ segmentados.
+- Su fuente contiene **1 Skeleton3D y 24 clips nativos**: Idle_Gun, Run/Run_Back/Run_Left/Run_Right, Run_Shoot, Gun_Shoot, Roll, HitRecieve, Death y otros. No se presupone retargeting automático: se usan sus propios clips.
+- El cuerpo físico `CharacterBody3D` y sus estadísticas permanecen separados de `Skeleton3D` para no romper salud, impulsos ni colisiones. El arma PBR preexistente se monta en la mano derecha solo cuando encontramos un hueso compatible.
+- La cámara ahora sigue al personaje **más cerca y con desplazamiento lateral**, con estrechamiento suave del campo visual al apuntar/disparar. Conserva el límite de seguridad dentro del escenario cerrado.
+- `tests/vanguard_import.gd` inspecciona clip, huesos y Skeleton3D; `tests/vanguard_gameplay.gd` exige transiciones Idle→Run→Run_Shoot→Roll→HitRecieve→Death y que la cámara quede cerca.
+- Los recursos y la licencia tienen hashes SHA-256 y origen fijado a `agentkaerf/FreeModels@db3df04d1e4714298a09510b26fb6de6645138a2`. Ver `assets/vendor/quaternius/vanguard_spacesuit/PROVENANCE.json`.
+- Como antes, cada CI genera **una captura real de Godot**. Android no está probado.
+
+**No se afirma animación AAA:** son clips CC0 funcionales con transiciones sencillas, sin retargeting humanoide avanzado, IK de pies/manos, motion matching, cámara libre ni animaciones contextuales de cobertura.
