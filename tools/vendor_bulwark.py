@@ -29,7 +29,7 @@ for file in FILES:
 doc=json.loads((DIR/"Enemy_Trilobite.gltf").read_text())
 assert len(doc.get("skins",[]))>=1
 assert len(doc.get("animations",[]))>=8
-assert all((DIR[x["uri"]]).is_file() for x in doc.get("images",[]))
+assert all((DIR / x["uri"]).is_file() for x in doc.get("images",[]))
 assert all((DIR[x["uri"]]).is_file() for x in doc.get("buffers",[]))
 record={"model":"Enemy_Trilobite","source_pack":"https://quaternius.com/packs/scifiessentialskit.html",
         "source_mirror_commit":REV,"license":"CC0-1.0",
