@@ -27,6 +27,7 @@ jobs:
           git add assets/vendor/polyhaven_cinematic
           if ! git diff --cached --quiet; then
             git commit -m 'assets: vendor Poly Haven CC0 industrial models with provenance'
+            git pull --rebase origin feat/fisura-v08-source-asset-upgrade
             git push origin HEAD:feat/fisura-v08-source-asset-upgrade
           else
             echo 'Poly Haven assets already committed'
