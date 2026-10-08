@@ -1,0 +1,79 @@
+name: FISURA Android arm64 debug APK
+
+on:
+  push:
+    branches: [feat/fisura-v06-aim-animation-mobile]
+    paths:
+      - "export_presets.cfg"
+      - "tools/configure_android_editor.gd"
+      - ".github/workflows/android-debug.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android_debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Android SDK prerequisites
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -x "$ANDROID_HOME/platform-tools/adb"
+      - name: Download exact Godot editor binary and export templates
+        run: |
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          curl -fL --retry 3 -o templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -p templates.tpz templates/android_debug.apk > "$HOME/.local/share/godot/export_templates/4.7.2.stable/android_debug.apk"
+          unzip -p templates.tpz templates/version.txt > "$HOME/.local/share/godot/export_templates/4.7.2.stable/version.txt"
+          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/android_debug.apk"
+      - name: Generate disposable debug-only signing identity
+        run: |
+          keytool -genkeypair -v -keystore "$RUNNER_TEMP/fisura-debug.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=FISURA Debug,O=ARCONT Experiment,C=MX"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$RUNNER_TEMP/fisura-debug.keystore" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
+      - name: Configure Godot Android SDK and import project
+        run: |
+          EDITOR=godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          $EDITOR --headless --editor --path . --quit --script res://tools/configure_android_editor.gd > android-configuration.log 2>&1 || { cat android-configuration.log; exit 1; }
+          cat android-configuration.log
+          grep -q 'ANDROID CI CONFIGURED' android-configuration.log
+          $EDITOR --headless --editor --path . --import --quit > android-import.log 2>&1 || { cat android-import.log; exit 1; }
+      - name: Export unsigned-release-free installable debug APK
+        run: |
+          mkdir -p build
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --editor --path . --export-debug Android build/FISURA-0.6-arm64-debug.apk > android-export.log 2>&1 || { cat android-export.log; exit 1; }
+          cat android-export.log
+          test -s build/FISURA-0.6-arm64-debug.apk
+          unzip -t build/FISURA-0.6-arm64-debug.apk | tail -n 2
+          sha256sum build/FISURA-0.6-arm64-debug.apk > build/SHA256SUMS.txt
+          echo "ANDROID APK EXPORT PASS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fisura-v06-android-arm64-debug-apk
+          path: |
+            build/FISURA-0.6-arm64-debug.apk
+            build/SHA256SUMS.txt
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fisura-android-build-logs
+          path: |
+            android-configuration.log
+            android-import.log
+            android-export.log
+          if-no-files-found: ignore
