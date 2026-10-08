@@ -10,7 +10,7 @@
   },
   "arcont": {
     "repository": "heliossamuelhernandezreyes/Arcont",
-    "commit": "3dd31bd962999f36de264c5bb364f41624ca7f0b",
+    "commit": "77c8bff879a6adbec64613af0721548c5cca4323",
     "dependency_kind": "design contract, pinned validation tool and knowledge",
     "embedded_project": false,
     "map_standard": "docs/knowledge/MAP_FORGE_STANDARD.md",
@@ -27,7 +27,9 @@
       "post-animation-bounded-recoil",
       "simulated-dual-touch-input",
       "android-export-packaging-gate"
-    ]
+    ],
+    "mission_contract": "missions/reactivo_13.slice.json",
+    "mission_validator": "_arcont_reference/tools/vertical_slice_contract.py"
   },
   "prototype": {
     "stage": "vertical-slice-0.6-additive-aim-android-debug",
@@ -43,6 +45,13 @@
       "sha256": "54d58fd8028bcf64d99621b1a24f8424649f397f591da84055bd50728add3c23",
       "physical_install_tested": false,
       "source_commit": "5aea84d6549292813b23525370054e199c24c92b"
+    },
+    "next_slice": {
+      "id": "reactivo_13",
+      "status": "design_only",
+      "gdd": "docs/production/REACTIVO_13_GDD.md",
+      "gap_audit": "docs/production/ARCONT_GAP_AUDIT_07.md",
+      "runtime_integrated": false
     }
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
