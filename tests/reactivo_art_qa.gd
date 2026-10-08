@@ -20,6 +20,23 @@ func _check() -> void:
     if art.environment_parts < 150 or art.environment_parts > 750:
         _fail("stage geometry unexpectedly sparse/expensive: " + str(art.environment_parts))
         return
+    # ARCONT VISUAL-02: prevent uncollidable presentation meshes enclosing
+    # the camera at the two mission terminals (regression from screenshot review).
+    var processors := 0
+    for node in art.get_children():
+        if not (node is MeshInstance3D) or node.name != "Cryo processor vessel":
+            continue
+        processors += 1
+        var size: Vector3 = node.mesh.size
+        for id in ["node_a_console", "node_b_console"]:
+            var camera_probe: Vector3 = game.positions[id] + Vector3(1.05, 4.35, 12.15)
+            var offset: Vector3 = camera_probe - node.global_position
+            if absf(offset.x) < size.x * 0.5 + 0.20 and absf(offset.y) < size.y * 0.5 + 0.20 and absf(offset.z) < size.z * 0.5 + 0.20:
+                _fail("Terminal shoulder-camera inside procedural machine: " + str(id))
+                return
+    if processors != 4:
+        _fail("Expected four industrial processor meshes, got " + str(processors))
+        return
     if art.reactor_light == null:
         _fail("reactor focal lighting missing")
         return
