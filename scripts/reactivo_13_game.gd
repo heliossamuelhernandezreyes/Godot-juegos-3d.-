@@ -32,6 +32,7 @@ var result_label: Label
 var progress_bar: ColorRect
 var control_note: Label
 var tactical_reticle: Label
+var cover_label: Label
 var consoles: Dictionary = {}
 var objective_names: Dictionary = {}
 var gate_body: StaticBody3D
@@ -160,6 +161,7 @@ func _make_player() -> void:
     player.set_script(PLAYER_SCRIPT)
     player.position = positions["vanguard_start"] + Vector3(0, 1, 0)
     add_child(player)
+    player.configure_cover_zones(map_data.get("authoring", {}).get("structure_guides", []))
 
 func _make_camera() -> void:
     camera = Camera3D.new()
@@ -331,6 +333,9 @@ func _make_hud() -> void:
     tactical_reticle.add_theme_color_override("font_shadow_color", Color(0.0, 0.07, 0.12, 0.9))
     tactical_reticle.add_theme_constant_override("shadow_offset_x", 1)
     tactical_reticle.add_theme_constant_override("shadow_offset_y", 1)
+    cover_label = _label(root, Vector2(308, 93), 15)
+    cover_label.name = "Contextual cover status"
+    cover_label.add_theme_color_override("font_color", Color("#ffcb78"))
     result_label = _label(root, Vector2.ZERO, 39)
     result_label.set_anchors_preset(Control.PRESET_CENTER)
     result_label.offset_left = -350
@@ -340,13 +345,15 @@ func _make_hud() -> void:
     result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     result_label.visible = false
     if OS.has_feature("mobile"):
-        control_note.text = "Izquierda mover · Derecha orientar · INTERACTUAR · DISPARAR · IMPULSO"
+        control_note.text = "Izquierda: movimiento  ·  Derecha: apuntar  ·  COBERTURA/IMPULSO"
         var interact := _mobile_button(root, "INTERACTUAR", -260, -20, -85, -20)
         interact.button_down.connect(func() -> void: interact_held = true)
         interact.button_up.connect(func() -> void: interact_held = false)
         var shoot := _mobile_button(root, "DISPARAR", -240, -20, -170, -110)
         shoot.button_down.connect(func() -> void: player.mobile_firing = true)
         shoot.button_up.connect(func() -> void: player.mobile_firing = false)
+        var cover := _mobile_button(root, "COBERTURA", -445, -270, -170, -110)
+        cover.pressed.connect(func() -> void: player.request_cover_toggle())
         var dash := _mobile_button(root, "IMPULSO", -420, -270, -80, -20)
         dash.pressed.connect(func() -> void: player.request_dash())
     var restart := _mobile_button(root, "REINICIAR", -170, -20, -70, -10)
@@ -603,6 +610,9 @@ func _refresh_hud() -> void:
         marker.visible = director.can_complete(objective_id)
     var target := _available_target()
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
+    if cover_label != null:
+        cover_label.text = "EN COBERTURA  [Q]" if player.in_cover else ("COBERTURA [Q]" if player.can_take_cover() else "")
+    
     progress_bar.size.x = 0.0
     if not target.is_empty():
         var item: Dictionary = director.get_objective(target)
