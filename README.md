@@ -1,4 +1,17 @@
-# FISURA — El Crisol
+# FISURA — Reactivo-13 (0.7, prototipo jugable)
+
+**Escena principal: `scenes/reactivo_13.tscn`** (Godot 4.7.2). Incluye una misión de cinco fases con nodos de energía A/B, reactor, defensa de 75 segundos y extracción. **No es todavía una vertical slice AAA pulida ni está validada físicamente en Android.**
+
+- [GDD de Reactivo-13](docs/production/REACTIVO_13_GDD.md) · [Contrato de misión](missions/reactivo_13.slice.json) · [Auditoría de Arcont](docs/production/ARCONT_GAP_AUDIT_07.md) · [Evidencia de implementación](docs/production/REACTIVO_13_IMPLEMENTATION_07.md).
+- **Teclado:** WASD mover, ratón orientar, clic/Espacio disparar, `E` mantener al lado de los nodos/núcleo/extracción, Mayús esquivar.
+- **Android:** zona izquierda movimiento, derecha orientación, botones DISPARAR, IMPULSO e INTERACTUAR. La prueba de eventos sintéticos y la exportación no sustituyen prueba en pantalla física.
+- **Nueva IA:** Bulwark provisional con blindaje frontal. Los antiguos QuadShell y EyeDrone continúan.
+- **QA:** Arcont Map Forge, validador de misión, **puente misión/mapa**, navegación y pruebas de secuencia Godot más una captura auténtica 1280×720; la escena anterior `scenes/main.tscn` permanece para regresión.
+
+---
+
+## Escena anterior — El Crisol (0.6)
+
 
 Prototipo 3D de **acción y extracción** para Godot 4.7.2, en revisión industrial/táctica 0.3. Proyecto independiente concebido como una prueba real de **ARCONT**.
 
@@ -111,7 +124,7 @@ Revisa `fisura.manifest.json`, `.github/workflows/fisura-smoke.yml` y `LICENSE_A
 
 El APK, si se genera, **no queda validado en dispositivo** hasta instalarlo y medir FPS/latencia, temperatura y controles.
 
-## Próxima misión: REACTIVO-13 (FISURA 0.7, diseño)
+## Historial: diseño de REACTIVO-13
 
 **Estado: diseño solamente, no jugable todavía.** El juego principal de este repositorio sigue siendo la extracción del Crisol de 0.6; no se han sustituido ni el mapa ni los scripts actuales.
 
