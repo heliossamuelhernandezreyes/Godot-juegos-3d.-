@@ -85,13 +85,13 @@ func _build_environment() -> void:
     environment.background_color = Color("#090f1c")
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color("#6d819e")
-    environment.ambient_light_energy = 0.65
+    environment.ambient_light_energy = 0.94
     world_env.environment = environment
     add_child(world_env)
     var sun := DirectionalLight3D.new()
     sun.rotation_degrees = Vector3(-58.0, -29.0, 0.0)
     sun.light_color = Color("#a6c5dc")
-    sun.light_energy = 1.15
+    sun.light_energy = 1.55
     sun.shadow_enabled = true
     add_child(sun)
 
@@ -169,8 +169,8 @@ func _create_player() -> void:
 func _create_camera() -> void:
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-    camera.fov = 49.0
-    camera.position = player.global_position + Vector3(0, 21, 17)
+    camera.fov = 51.0
+    camera.position = player.global_position + Vector3(0, 15, 13)
     add_child(camera)
     camera.current = true
     camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
