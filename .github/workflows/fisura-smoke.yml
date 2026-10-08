@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: heliossamuelhernandezreyes/Arcont
-          ref: e10c51bc00bce8f5856d84b90ddee5696d0ca35f
+          ref: b3912c960092377b5984d50320109c0cfdf75b6b
           path: _arcont_reference
       - name: Validate map with real ARCONT Map Forge validator
         run: python3 _arcont_reference/tools/map_forge_contract.py maps/crisol_01.json
@@ -177,6 +177,10 @@ jobs:
           test -s reactivo-13-node.png
           test -s reactivo-13-reactor.png
           test -s reactivo-13-bulwark.png
+      - name: ARCONT verify four unique viewport artifacts at 1280x720
+        run: |
+          python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png | tee reactivo-visual-evidence.log
+          grep -q "VIEWPORT EVIDENCE PASS" reactivo-visual-evidence.log
       - name: Upload Reactivo-13 actual render proof
         uses: actions/upload-artifact@v4
         with:
@@ -209,6 +213,7 @@ jobs:
             reactivo-bulwark.log
             reactivo-warning.log
             reactivo-art-budget.log
+            reactivo-visual-evidence.log
             asset-integrity.log
             render-capture.log
             vendor-import.log
