@@ -66,3 +66,5 @@ assert b"CC0 1.0" in license_content, "Source license does not establish CC0"
 manifest["license_file_sha256"]=hashlib.sha256(license_content).hexdigest()
 (ROOT/"PROVENANCE.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
 print("QUATERNIUS VENDOR PASS",len(FILES),"bytes",used)
+
+# Pinned source-vetting campaign for FISURA 0.4.
