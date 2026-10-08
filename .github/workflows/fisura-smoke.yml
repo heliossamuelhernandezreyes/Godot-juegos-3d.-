@@ -2,7 +2,7 @@ name: FISURA smoke and ARCONT contract
 
 on:
   push:
-    branches: [main, feat/fisura-first-playable]
+    branches: [main, "feat/**"]
   pull_request:
   workflow_dispatch:
 
