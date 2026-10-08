@@ -83,7 +83,7 @@
     },
     "visual_pass": {
       "gdd": "docs/production/REACTIVO_13_VISUAL_QA_08.md",
-      "capture_count": 5,
+      "capture_count": 6,
       "godot_render_source": "GitHub Actions Linux 1280x720",
       "visual_quality_assessed_by_human": false,
       "validated_behaviors": [
@@ -161,7 +161,8 @@
         "physical Android and human animation review pending"
       ],
       "ci_test": "tests/reactivo_cover_vault.gd",
-      "source_sfx_manifest": "assets/vendor/kenney_sfx/PROVENANCE.json"
+      "source_sfx_manifest": "assets/vendor/kenney_sfx/PROVENANCE.json",
+      "ci_capture": "tests/capture_reactivo.gd; sixth genuine gameplay screenshot reactivo-13-vault.png"
     },
     "audio_092": {
       "source": "Kenney CC0 via pinned intermediary with exact Git blob SHA and SHA256 receipt",

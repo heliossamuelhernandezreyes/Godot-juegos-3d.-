@@ -16,7 +16,7 @@
 - `scripts/audio_fx.gd` plays imported Vorbis clips with an eight-voice cap and two complementary source samples on shots. Synthetic code-generated beeps were removed. The mix has not been approved on device or headphones.
 
 ## ARCONT acceptance
-`tests/reactivo_cover_vault.gd`: validate inability to vault tall cover, eligibility at authored crate, physical crossing and landing. `tests/reactivo_audio_budget.gd`: decode source OGG, verify SHA-256 and voice cap.
-Existing full mission playthrough, 1280x720 Godot render evidence and ARM64 APK export remain CI gates.
+`tests/reactivo_cover_vault.gd`: validate inability to vault tall cover, eligibility at authored crate, physical crossing and landing. `tests/reactivo_audio_budget.gd`: verify source OGG headers/SHA-256, registered runtime paths and voice cap without claiming live headless playback.
+Existing full mission playthrough, six 1280x720 Godot render images including mid-vault evidence and ARM64 APK export remain CI gates.
 
 **Release blocker:** Android three-finger movement/aim/fire, cover/vault responsiveness, character boot contact/weapon alignment, and recorded sound balance must be checked on an actual handset. Arcont's finish profile additionally calls for native skeletal contact samples and 15+ minutes of performance/thermal measurements; those are *not* provided by these tests.
