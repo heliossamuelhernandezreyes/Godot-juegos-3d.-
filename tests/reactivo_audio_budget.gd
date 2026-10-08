@@ -47,6 +47,13 @@ func _verify() -> void:
     audio.trigger("cover")
     audio.trigger("vault")
     audio.trigger("land")
+    # Release native Vorbis playback before the headless SceneTree exits.
+    for voice in audio.voices:
+        voice.stop()
+        voice.stream = null
+    audio.streams.clear()
+    audio.queue_free()
+    await process_frame
     print("REACTIVO AUDIO BUDGET PASS kenney_cc0_ogg=",assets.size(),
         " source_hashes=true voices=",audio.voices.size()," fire_layered=true")
     quit(0)
