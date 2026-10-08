@@ -61,3 +61,5 @@ manifest={
 "dependencies":dependency_manifest,"runtime_verified":False}
 (DST/"PROVENANCE.json").write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 print("VANGUARD CC0 INTAKE PASS",len(animations),"animations",len(data),"bytes",flush=True)
+
+# Source-vetted CC0 Vanguard candidate for Godot 4.7.2 regression campaign.
