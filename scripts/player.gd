@@ -187,7 +187,10 @@ func _update_visual_state(delta: float) -> void:
         elif rig_animation.has_animation("Jump"):
             _play_clip("Jump", 0.08)
         else:
-            _play_clip("Idle_Gun_Pointing", 0.12)
+            # The audited 24-clip Spacesuit rig has no Jump/Crouch clip.
+            # Interact is the source-authored reach/grab action; use this
+            # during the vault rather than inventing a nonexistent animation.
+            _play_clip("Interact", 0.12)
         return
     if dash_remaining > 0.0:
         if selected_clip != "Roll":
