@@ -209,14 +209,16 @@ func _make_interactables() -> void:
     gate_mesh.size = Vector3(8.0, 3.2, 0.75)
     gate_visual.mesh = gate_mesh
     var gate_mat := StandardMaterial3D.new()
-    gate_mat.albedo_color = Color("#7e4c39")
+    gate_mat.albedo_color = Color("#354b59")
+    gate_mat.metallic = 0.78
+    gate_mat.roughness = 0.33
     gate_visual.material_override = gate_mat
     gate_body.add_child(gate_visual)
     var brass := StandardMaterial3D.new()
     brass.albedo_color = Color("#d3a45b")
     brass.metallic = 0.7
     brass.roughness = 0.3
-    for offset in [-3.0, 3.0]:
+    for offset in [-3.0, -1.6, 0.0, 1.6, 3.0]:
         var stripe := MeshInstance3D.new()
         var bar := BoxMesh.new()
         bar.size = Vector3(0.18, 2.7, 0.08)
@@ -227,11 +229,35 @@ func _make_interactables() -> void:
     var lock_text := Label3D.new()
     lock_text.name = "Access gate | warning signage"
     lock_text.text = "REACTIVO-13   //   NODOS A + B"
-    lock_text.font_size = 52
-    lock_text.pixel_size = 0.0034
+    lock_text.font_size = 84
+    lock_text.pixel_size = 0.0062
     lock_text.modulate = Color("#ffcf85")
-    lock_text.position = Vector3(0, 0.45, 0.47)
+    lock_text.position = Vector3(0, 0.42, 0.47)
     gate_body.add_child(lock_text)
+    var warning := StandardMaterial3D.new()
+    warning.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    warning.albedo_color = Color("#ffb75d")
+    warning.emission_enabled = true
+    warning.emission = Color("#ff7e3d")
+    warning.emission_energy_multiplier = 2.2
+    for height in [-1.05, 1.07]:
+        var beacon := MeshInstance3D.new()
+        beacon.name = "LOCKED REACTOR | anti-tamper amber light"
+        var beam := BoxMesh.new()
+        beam.size = Vector3(7.3, 0.09, 0.085)
+        beacon.mesh = beam
+        beacon.position = Vector3(0, height, 0.43)
+        beacon.material_override = warning
+        gate_body.add_child(beacon)
+    for side in [-1.0,1.0]:
+        var rivet := MeshInstance3D.new()
+        rivet.name = "Bulkhead gate machinery"
+        var chassis := BoxMesh.new()
+        chassis.size = Vector3(0.28, 3.0, 0.38)
+        rivet.mesh = chassis
+        rivet.position = Vector3(side*3.9, 0, 0.32)
+        rivet.material_override = brass
+        gate_body.add_child(rivet)
     add_child(gate_body)
 
 func _make_hud() -> void:
@@ -473,6 +499,7 @@ func _phase_changed(next_phase: String) -> void:
     if next_phase == "core_chamber" and gate_shape != null:
         gate_shape.set_deferred("disabled", true)
         gate_visual.visible = false
+        gate_body.visible = false
     if not testing_disable_spawns:
         _spawn_phase_encounters(next_phase)
 
