@@ -26,7 +26,7 @@ func _check() -> void:
             return
         var triangles := 0
         for surface_id in range(mesh.get_surface_count()):
-            var primitive := mesh.surface_get_primitive_type(surface_id)
+            var primitive: int = mesh.surface_get_primitive_type(surface_id)
             if primitive != Mesh.PRIMITIVE_TRIANGLES:
                 printerr("ASSET FAIL: expected triangular surface " + path)
                 quit(1)
