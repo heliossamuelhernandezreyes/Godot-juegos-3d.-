@@ -43,3 +43,10 @@ Repositorio de redistribución identificado: `agentkaerf/FreeModels`, commit **d
 Se incorporaron únicamente las mallas y dependencias de **Enemy_QuadShell**, **Enemy_EyeDrone** y **Gun_Rifle** en glTF + BIN + PNG PBR. El archivo `PROVENANCE.json` conserva por cada componente: URL exacta fijada al commit, tamaño, SHA-256. Quaternius es el creador; el repositorio fuente de descarga es un espejo de terceros, no el alojamiento oficial.
 
 Comprobado: glTF importable en Godot 4.7.2, dos mallas skin con Skeleton3D y AnimationPlayer y rifle PBR. **No inferir** compatibilidad de FPS Android ni calidad comercial AAA por esos resultados.
+
+## Vanguard Spacesuit (Ultimate Modular Men — Quaternius CC0)
+
+- Creador original: Quaternius (Ultimate Modular Men, 2022). Licencia CC0 1.0 Universal; archivada en `assets/vendor/quaternius/vanguard_spacesuit/SOURCE_LICENSE.txt`.
+- Modelo seleccionado: `Spacesuit.gltf`, con esqueleto y **24 clips nativos**. Descarga reproducible desde el espejo `agentkaerf/FreeModels` fijado al commit `db3df04d1e4714298a09510b26fb6de6645138a2`.
+- `PROVENANCE.json` conserva el URL exacto de origen, hash SHA-256, tamaño y evidencia de licencia. El juego no efectúa descargas al abrirse.
+- Resultado verificado exclusivamente en Godot 4.7.2 Linux mediante importación, activación de Run y transiciones de gameplay. No confundir con QA visual riguroso, certificación de rendimiento Android ni nivel AAA.
