@@ -237,7 +237,9 @@ func _physics_process(delta: float) -> void:
         look_at(global_position + aim_direction, Vector3.UP)
     if visual_root != null:
         # Animation-safe visual brace, without changing the authoritative capsule.
-        visual_root.position.y = lerpf(visual_root.position.y, -0.32 if in_cover else 0.0, minf(1.0, delta * 9.0))
+        # Preserve feet height when lowering the silhouette. Imported Crouch (if any) owns the detailed pose.
+        visual_root.scale.y = lerpf(visual_root.scale.y, 0.85 if in_cover else 1.0, minf(1.0, delta * 9.0))
+        visual_root.position.y = lerpf(visual_root.position.y, -0.13 if in_cover else 0.0, minf(1.0, delta * 9.0))
         visual_root.rotation.z = lerpf(visual_root.rotation.z, -0.09 * cover_normal.x if in_cover else 0.0, minf(1.0, delta * 8.0))
     _update_visual_state(delta)
 
