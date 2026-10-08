@@ -10,7 +10,7 @@
   },
   "arcont": {
     "repository": "heliossamuelhernandezreyes/Arcont",
-    "commit": "e10c51bc00bce8f5856d84b90ddee5696d0ca35f",
+    "commit": "b3912c960092377b5984d50320109c0cfdf75b6b",
     "dependency_kind": "design contract, pinned validation tool and knowledge",
     "embedded_project": false,
     "map_standard": "docs/knowledge/MAP_FORGE_STANDARD.md",
@@ -26,17 +26,21 @@
       "source-pinned-native-humanoid-animation-import",
       "post-animation-bounded-recoil",
       "simulated-dual-touch-input",
-      "android-export-packaging-gate"
+      "android-export-packaging-gate",
+      "multi-view-godot-frame-evidence-integrity",
+      "source-traced-cinematic-stage-budget",
+      "LOS-gated-attack-warning"
     ],
     "mission_contract": "missions/reactivo_13.slice.json",
     "mission_validator": "_arcont_reference/tools/vertical_slice_contract.py",
-    "mission_map_bridge": "_arcont_reference/tools/mission_map_bridge.py"
+    "mission_map_bridge": "_arcont_reference/tools/mission_map_bridge.py",
+    "viewport_evidence_gate": "_arcont_reference/tools/viewport_evidence_gate.py"
   },
   "prototype": {
-    "stage": "vertical-slice-0.7-reactivo13-prototype",
+    "stage": "vertical-slice-0.8-cinematic-industrial-combat",
     "map": "maps/reactivo_13.json",
     "runtime_tested": true,
-    "android_export_tested": true,
+    "android_export_tested": false,
     "runtime_test_scope": "GitHub Actions Linux Godot 4.7.2 headless; exact scoped functionality: import, 120 frames, deterministic extraction, tactical navigation and actual frame render; Godot 4.7.2 imported Quaternius rigged enemies and deterministic AI animation and ranged LOS tests.; Godot 4.7.2 native Quaternius Spacesuit Skeleton3D 24 clips and gameplay animation-state transitions/close shoulder camera. FISURA 0.6: tested simulated multitouch and SkeletonModifier3D torso correction; actual signed debug APK packaging passed Godot Linux CI, device installation and perf untested.",
     "android_device_tested": false,
     "android_export_evidence": {
@@ -46,7 +50,7 @@
       "sha256": "54d58fd8028bcf64d99621b1a24f8424649f397f591da84055bd50728add3c23",
       "physical_install_tested": false,
       "source_commit": "5aea84d6549292813b23525370054e199c24c92b",
-      "notes": "Prior v0.6 APK. FISURA 0.7 export requires independent CI run, cannot reuse earlier APK claim."
+      "notes": "Earlier APK evidence is only for FISURA 0.6 and 0.7; 0.8 needs independent CI Android export. No physical install or frame-time measurements."
     },
     "next_slice": {
       "id": "reactivo_13",
@@ -63,6 +67,19 @@
         "G5 physical Android test",
         "G6 human playtest"
       ]
+    },
+    "visual_pass": {
+      "gdd": "docs/production/REACTIVO_13_VISUAL_QA_08.md",
+      "capture_count": 4,
+      "godot_render_source": "GitHub Actions Linux 1280x720",
+      "visual_quality_assessed_by_human": false,
+      "validated_behaviors": [
+        "dynamic reactor alert",
+        "enemy shot warning 0.72s",
+        "directional Bulwark shield",
+        "limited-cost shot FX"
+      ],
+      "android_real_device": false
     }
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
