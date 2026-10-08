@@ -109,3 +109,5 @@ print("VENDOR INTAKE COMPLETE bytes=%d" % total)
 # Each downloaded component is source-traced in PROVENANCE.json.
 
 # Source identity pinned and source checksums recorded before game use.
+
+# Retry on latest branch after other CC0 import completed; exact files unchanged.
