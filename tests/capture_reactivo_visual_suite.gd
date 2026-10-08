@@ -14,9 +14,18 @@ func _capture() -> void:
         {"id":"insertion", "position":Vector3(0,1,23)},
         {"id":"node-a","position":Vector3(-28,1,11)},
         {"id":"reactor","position":Vector3(0,1,-3)},
-        {"id":"extraction","position":Vector3(0,1,-25)}
+        {"id":"extraction","position":Vector3(0,1,-25)},
+        {"id":"bulwark","position":Vector3(6,1,-3)}
     ]:
         world.player.global_position = view["position"]
+        if view["id"] == "bulwark":
+            var guard := CharacterBody3D.new()
+            guard.set_script(load("res://scripts/reactivo_bulwark.gd"))
+            guard.target = world.player
+            guard.director = world
+            guard.position = Vector3(6,1,-11)
+            world.add_child(guard)
+            guard.set_physics_process(false)
         world.player.touch_axis = Vector2.ZERO
         world.player.set_physics_process(false)
         for _f in range(22):
@@ -32,5 +41,5 @@ func _capture() -> void:
             quit(1)
             return
         print("REACTIVO VISUAL FRAME PASS ",view["id"]," ",image.get_width(),"x",image.get_height())
-    print("REACTIVO VISUAL SUITE PASS frames=4; inspect visually before merging")
+    print("REACTIVO VISUAL SUITE PASS frames=5; inspect visually before merging")
     quit(0)
