@@ -203,8 +203,8 @@ func _industrial_architecture(contract: Dictionary) -> void:
     # Giant corner machines with deterministic light accents.
     for side_x in [-1.0, 1.0]:
         for side_z in [-1.0, 1.0]:
-            var x := side_x * 19.2
-            var z := side_z * 19.2
+            var x: float = float(side_x) * 19.2
+            var z: float = float(side_z) * 19.2
             _beam("Torre de extraccion", Vector3(x, 5.1, z),
                 Vector3(2.1, 8.9, 2.1), iron)
             _beam("Panel de mantenimiento", Vector3(x - side_x * 0.48, 5.6, z - side_z * 1.10),
