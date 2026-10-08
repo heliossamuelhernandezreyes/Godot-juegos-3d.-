@@ -2,6 +2,7 @@ extends Node3D
 ## FISURA: vertical slice 0.1. El mundo y sus objetivos vienen de un contrato ARCONT.
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const ENEMY_SCRIPT = preload("res://scripts/enemy.gd")
+const ANIMATED_REAVER_SCRIPT = preload("res://scripts/animated_reaver.gd")
 const ART_STAGE_SCRIPT = preload("res://scripts/art_stage.gd")
 const NAV_SCRIPT = preload("res://scripts/tactical_grid.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
@@ -33,6 +34,7 @@ var hazard_radius := 6.0
 var last_shock_phase := 0.0
 var collected := 0
 var kills := 0
+var enemy_serial := 0
 var finished := false
 var hp_label: Label
 var mission_label: Label
@@ -445,11 +447,14 @@ func _spawn_enemy() -> void:
     if Vector2(chosen.x - player.position.x, chosen.z - player.position.z).length() < 8.0:
         return
     var enemy := CharacterBody3D.new()
-    enemy.set_script(ENEMY_SCRIPT)
+    enemy.set_script(ANIMATED_REAVER_SCRIPT)
+    enemy_serial += 1
+    enemy.asset_kind = "eye" if enemy_serial % 4 == 0 else "quad"
     enemy.target = player
     enemy.director = self
     enemy.position = chosen + Vector3(0, 1, 0)
-    enemy.speed = 3.4 + minf(2.2, elapsed * 0.014)
+    enemy.speed = (4.2 if enemy.asset_kind == "eye" else 3.4) + minf(2.2, elapsed * 0.014)
+    enemy.hit_points = 27 if enemy.asset_kind == "eye" else 58
     add_child(enemy)
 
 func register_kill() -> void:
