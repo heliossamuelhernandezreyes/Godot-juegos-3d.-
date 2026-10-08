@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: heliossamuelhernandezreyes/Arcont
-          ref: 77c8bff879a6adbec64613af0721548c5cca4323
+          ref: e10c51bc00bce8f5856d84b90ddee5696d0ca35f
           path: _arcont_reference
       - name: Validate map with real ARCONT Map Forge validator
         run: python3 _arcont_reference/tools/map_forge_contract.py maps/crisol_01.json
@@ -119,6 +119,10 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/camera_bounds.gd > camera-bounds.log 2>&1 || { cat camera-bounds.log; exit 1; }
           cat camera-bounds.log
           grep -q "CAMERA OCCLUSION PASS" camera-bounds.log
+      - name: Cross-validate Reactivo-13 mission map anchors with ARCONT
+        run: |
+          python3 _arcont_reference/tools/mission_map_bridge.py missions/reactivo_13.slice.json maps/reactivo_13.json | tee reactivo-bridge.log
+          grep -q "MISSION MAP PASS" reactivo-bridge.log
       - name: Check Reactivo-13 static waypoint reachability in real Godot
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_navigation.gd > reactivo-nav.log 2>&1 || { cat reactivo-nav.log; exit 1; }
@@ -173,6 +177,7 @@ jobs:
             godot-import.log
             godot-smoke.log
             godot-playthrough.log
+            reactivo-bridge.log
             reactivo-nav.log
             reactivo-playthrough.log
             reactivo-render.log
