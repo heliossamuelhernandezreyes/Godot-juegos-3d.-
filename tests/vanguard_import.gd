@@ -27,6 +27,16 @@ func _audit() -> void:
         return
     print("VANGUARD IMPORT PASS", totals, "anim_count=",anim.get_animation_list().size())
     print("VANGUARD CLIPS",anim.get_animation_list())
+    print("VANGUARD RIG bone name audit:")
+    var pending: Array[Node] = [actor]
+    while not pending.is_empty():
+        var node: Node = pending.pop_back()
+        if node is Skeleton3D:
+            var skeleton := node as Skeleton3D
+            for i in range(skeleton.get_bone_count()):
+                print("VANGUARD BONE ",i," ",skeleton.get_bone_name(i))
+        for child in node.get_children():
+            pending.append(child)
     anim.play("Run")
     for i in range(3):
         await process_frame
