@@ -94,6 +94,9 @@ func _ready() -> void:
     combat_fx.set_script(EFFECT_SCRIPT)
     add_child(combat_fx)
     player.dash_started.connect(func() -> void: audio_fx.trigger("dash"))
+    player.cover_entered.connect(func() -> void: audio_fx.trigger("cover"))
+    player.vault_started.connect(func() -> void: audio_fx.trigger("vault"))
+    player.vault_landed.connect(func() -> void: audio_fx.trigger("land"))
     director.initialize(contract)
     _refresh_hud()
 
