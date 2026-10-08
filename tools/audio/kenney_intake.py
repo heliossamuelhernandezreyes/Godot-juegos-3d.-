@@ -13,7 +13,7 @@ DEST = Path("assets/vendor/kenney_sfx")
 # Each SHA1 is Git's blob SHA from the pinned public repository tree.
 SOUNDS = {
     "fire_laser.ogg": ("laser.ogg", "ffc89b9e7e2d816fd532e1a06f379a32ef1d4cef", "Sci-fi Sounds", "laserSmall_001.ogg"),
-    "fire_mechanical.ogg": ("paddle-hit.ogg", "e1ab0b5a969be92022eded6b4e2050b8da39ea4", "Impact Sounds", "impactPlate_medium_000.ogg"),
+    "fire_mechanical.ogg": ("paddle-hit.ogg", "e1ab0b5a969be92022eded6b2d06437e71f0a082", "Impact Sounds", "impactPlate_medium_000.ogg"),
     "impact_metal.ogg": ("brick-hit.ogg", "3346d1a9c624d31cdb6d4a67f2b0b405110880eb", "Impact Sounds", "impactMining_000.ogg"),
     "impact_light.ogg": ("wall-hit.ogg", "db4e79ab6649090d66f96b30f5b5ffa0a593040e", "Impact Sounds", "impactPlate_light_002.ogg"),
     "explosion.ogg": ("brick-break.ogg", "019e53664abf859fc5529f95d0db23fa3ac1e42d", "Sci-fi Sounds", "explosionCrunch_000.ogg"),
