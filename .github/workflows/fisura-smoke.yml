@@ -237,9 +237,10 @@ jobs:
           test -s reactivo-13-reactor.png
           test -s reactivo-13-bulwark.png
           test -s reactivo-13-cover.png
-      - name: ARCONT verify five unique viewport artifacts at 1280x720
+          test -s reactivo-13-vault.png
+      - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
-          python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png | tee reactivo-visual-evidence.log
+          python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
           grep -q "VIEWPORT EVIDENCE PASS" reactivo-visual-evidence.log
       - name: Upload Reactivo-13 actual render proof
         uses: actions/upload-artifact@v4
@@ -251,6 +252,7 @@ jobs:
             reactivo-13-reactor.png
             reactivo-13-bulwark.png
             reactivo-13-cover.png
+            reactivo-13-vault.png
           if-no-files-found: error
       - name: Upload gameplay render proof
         uses: actions/upload-artifact@v4
