@@ -56,8 +56,8 @@ func _shield_visual() -> void:
     shield_mesh.position = Vector3(0,0.05,-0.72)
     shield_mesh.material_override = plating
     add_child(shield_mesh)
-    var signal := StandardMaterial3D.new()
-    signal.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    var signal_material := StandardMaterial3D.new()
+    signal_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     signal.albedo_color = Color("#f3b568")
     signal.emission_enabled = true
     signal.emission = Color("#d87c3e")
@@ -69,7 +69,7 @@ func _shield_visual() -> void:
         mesh.size = Vector3(0.10,0.90,0.08)
         rail.mesh = mesh
         rail.position = Vector3(side*0.48,0.06,-0.84)
-        rail.material_override = signal
+        rail.material_override = signal_material
         add_child(rail)
 
 func _physics_process(delta: float) -> void:
