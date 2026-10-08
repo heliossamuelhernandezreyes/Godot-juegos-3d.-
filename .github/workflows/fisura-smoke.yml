@@ -176,14 +176,15 @@ jobs:
           cat reactivo-render.log
           grep -q "REACTIVO RENDER PASS" reactivo-render.log
           test -s reactivo-13-render-proof.png
-      - name: Capture four Reactivo-13 visual QA reference frames
+      - name: Capture five Reactivo-13 visual QA reference frames
         run: |
           xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/capture_reactivo_visual_suite.gd > reactivo-visual-suite.log 2>&1 || { cat reactivo-visual-suite.log; exit 1; }
           cat reactivo-visual-suite.log
           grep -q "REACTIVO VISUAL SUITE PASS" reactivo-visual-suite.log
           test -s reactivo-13-insertion.png
           test -s reactivo-13-reactor.png
-      - name: Upload four actual scene QA frames
+          test -s reactivo-13-bulwark.png
+      - name: Upload five actual scene QA frames
         uses: actions/upload-artifact@v4
         with:
           name: reactivo-13-cinematic-visual-qa
