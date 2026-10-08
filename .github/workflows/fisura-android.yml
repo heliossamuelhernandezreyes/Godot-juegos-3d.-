@@ -25,9 +25,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
       - name: Install supported Android platform SDK
         run: |
+          yes | sdkmanager --licenses > /dev/null || true
           sdkmanager --install 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
           echo "ANDROID SDK: ${ANDROID_HOME:-unknown}"
       - name: Download matching Godot 4.7.2 editor
