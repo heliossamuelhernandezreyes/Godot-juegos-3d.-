@@ -2,7 +2,7 @@ name: FISURA Android arm64 debug APK
 
 on:
   push:
-    branches: [feat/fisura-v06-aim-animation-mobile]
+    branches: [main, feat/fisura-v06-aim-animation-mobile]
     paths:
       - "export_presets.cfg"
       - "tools/configure_android_editor.gd"
