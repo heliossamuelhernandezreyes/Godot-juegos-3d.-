@@ -8,6 +8,8 @@ const REACTOR = preload("res://assets/models/reactor_altar.obj")
 const PORTAL = preload("res://assets/models/extraction_gate.obj")
 const POLY_BARREL = preload("res://assets/vendor/polyhaven/barrel_03/barrel_03_1k.gltf")
 const POLY_LAMP = preload("res://assets/vendor/polyhaven/industrial_wall_lamp/industrial_wall_lamp_1k.gltf")
+const POLY_CART = preload("res://assets/vendor/polyhaven_cinematic/industrial_storage_cart/industrial_storage_cart_1k.gltf")
+const POLY_CONTAINER = preload("res://assets/vendor/polyhaven_cinematic/industrial_pastic_container/industrial_pastic_container_1k.gltf")
 
 var environment_parts := 0
 var unique_lights := 0
@@ -299,6 +301,20 @@ func _authored_props(world: Dictionary) -> void:
         environment_parts+=1
 
 func _vendor_props() -> void:
+    # Two actual Poly Haven photogrammetric 3D meshes, not procedural cube substitutes.
+    for point in [Vector3(-32,0,-19),Vector3(32,0,19)]:
+        var item := POLY_CART.instantiate()
+        item.name = "Poly Haven CC0 PBR storage cart | 1K"
+        item.position = point
+        item.rotation.y = 1.57
+        add_child(item)
+        environment_parts += 1
+    for point in [Vector3(-33,0,18),Vector3(33,0,-17),Vector3(-23,0,-23),Vector3(23,0,22)]:
+        var item := POLY_CONTAINER.instantiate()
+        item.name = "Poly Haven CC0 industrial container | 1K"
+        item.position = point
+        add_child(item)
+        environment_parts += 1
     for point in [Vector3(-16,0,18),Vector3(17,0,16),Vector3(-19,0,-16),Vector3(19,0,-14)]:
         var item := POLY_BARREL.instantiate()
         item.name="Poly Haven CC0 oil barrel PBR"
