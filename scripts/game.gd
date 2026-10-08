@@ -43,6 +43,9 @@ var result_label: Label
 var health_bar: ColorRect
 var move_touch_id := -1
 var move_touch_start := Vector2.ZERO
+var look_touch_id := -1
+var look_touch_start := Vector2.ZERO
+var look_touch_axis := Vector2.ZERO
 
 func _ready() -> void:
     rng.randomize()
@@ -192,6 +195,14 @@ func _camera_safe_position() -> Vector3:
     var half_depth := float(map_data["bounds"]["depth"]) * 0.5
     desired.x = clampf(desired.x, -half_width + 2.8, half_width - 2.8)
     desired.z = clampf(desired.z, -half_depth + 2.8, half_depth - 2.8)
+    if player.is_inside_tree():
+        var from: Vector3 = player.global_position + Vector3(0, 0.75, 0)
+        var query := PhysicsRayQueryParameters3D.create(from, desired)
+        query.exclude = [player.get_rid()]
+        var found := get_world_3d().direct_space_state.intersect_ray(query)
+        if not found.is_empty():
+            var hit_position: Vector3 = found["position"]
+            desired = hit_position - (desired - from).normalized() * 0.30
     return desired
 
 func _create_camera() -> void:
@@ -254,6 +265,18 @@ func _create_hud() -> void:
     hit_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
     hit_overlay.color = Color(0.88, 0.1, 0.06, 0.0)
     root.add_child(hit_overlay)
+    var reticle := Label.new()
+    reticle.name = "Reticle - FISURA"
+    reticle.text = "+"
+    reticle.set_anchors_preset(Control.PRESET_CENTER)
+    reticle.offset_left = -9
+    reticle.offset_top = -21
+    reticle.offset_right = 15
+    reticle.offset_bottom = 23
+    reticle.add_theme_font_size_override("font_size", 32)
+    reticle.add_theme_color_override("font_color", Color("#c9f4ef"))
+    reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(reticle)
     var banner := Panel.new()
     banner.name = "HUD - telemetria tactica"
     banner.position = Vector2(12, 10)
@@ -299,7 +322,7 @@ func _create_hud() -> void:
     result_label.offset_bottom = 0.0
     result_label.visible = false
     if OS.has_feature("mobile"):
-        controls_label.text = "Arrastra abajo a la izquierda para moverte"
+        controls_label.text = "Izquierda: mover  |  Derecha: orientar  |  DISPARAR + IMPULSO"
         var fire := _mobile_button(root, "DISPARAR", -210, -45, -180, -35)
         fire.button_down.connect(func() -> void: player.mobile_firing = true)
         fire.button_up.connect(func() -> void: player.mobile_firing = false)
@@ -344,22 +367,33 @@ func _input(event: InputEvent) -> void:
     if player == null or finished:
         return
     if event is InputEventScreenTouch:
-        if event.pressed and move_touch_id == -1:
-            var screen := get_viewport().get_visible_rect().size
-            if event.position.x < screen.x * 0.48 and event.position.y > screen.y * 0.34:
+        var size := get_viewport().get_visible_rect().size
+        if event.pressed:
+            if move_touch_id == -1 and event.position.x < size.x * 0.48 and event.position.y > size.y * 0.34:
                 move_touch_id = event.index
                 move_touch_start = event.position
-        elif not event.pressed and event.index == move_touch_id:
-            move_touch_id = -1
-            player.touch_axis = Vector2.ZERO
-    elif event is InputEventScreenDrag and event.index == move_touch_id:
-        player.touch_axis = ((event.position - move_touch_start) / 78.0).limit_length(1.0)
+            elif look_touch_id == -1 and event.position.x > size.x * 0.52 and event.position.y > size.y * 0.18 and event.position.y < size.y * 0.72:
+                look_touch_id = event.index
+                look_touch_start = event.position
+        else:
+            if event.index == move_touch_id:
+                move_touch_id = -1
+                player.touch_axis = Vector2.ZERO
+            if event.index == look_touch_id:
+                look_touch_id = -1
+                look_touch_axis = Vector2.ZERO
+    elif event is InputEventScreenDrag:
+        if event.index == move_touch_id:
+            player.touch_axis = ((event.position - move_touch_start) / 78.0).limit_length(1.0)
+        elif event.index == look_touch_id:
+            look_touch_axis = ((event.position - look_touch_start) / 88.0).limit_length(1.0)
 
 func _process(delta: float) -> void:
     if player == null:
         return
     camera.position = camera.position.lerp(_camera_safe_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0.75, -2.0), Vector3.UP)
+    camera.fov = lerpf(camera.fov, 60.0 if player.wants_to_fire() else 67.0, minf(1.0, delta * 5.0))
     if finished:
         if Input.is_key_pressed(KEY_R):
             get_tree().reload_current_scene()
@@ -388,7 +422,9 @@ func _physics_process(delta: float) -> void:
 
 func _update_aim() -> void:
     var direction := Vector3.ZERO
-    if player.mobile_firing or Input.is_key_pressed(KEY_SPACE):
+    if look_touch_id != -1 and look_touch_axis.length_squared() > 0.03:
+        direction = Vector3(look_touch_axis.x, 0.0, look_touch_axis.y)
+    elif player.mobile_firing or Input.is_key_pressed(KEY_SPACE):
         direction = _target_nearest_enemy()
     elif not OS.has_feature("mobile"):
         var cursor := get_viewport().get_mouse_position()
@@ -397,6 +433,7 @@ func _update_aim() -> void:
             direction = Vector3(projected.x - player.global_position.x, 0, projected.z - player.global_position.z)
     if direction.length_squared() > 0.01:
         player.aim_direction = direction.normalized()
+    player.aim_pitch = clampf(-look_touch_axis.y * 0.12, -0.12, 0.12) if look_touch_id != -1 else 0.0
 
 func _target_nearest_enemy() -> Vector3:
     var best_distance := 34.0
