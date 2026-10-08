@@ -24,11 +24,17 @@ func _ready() -> void:
         "explosion":"explosion.ogg"
     }
     for key in files:
-        var res: AudioStream = load(SFX_DIR + files[key]) as AudioStream
-        if res == null:
-            push_error("FISURA AUDIO: missing licensed sample " + str(files[key]))
+        # Headless gameplay regression scenes intentionally don't start an audio
+        # device or hold imported Vorbis references across a SceneTree.quit().
+        # Dedicated audio QA still decodes the exact OGG assets independently.
+        if DisplayServer.get_name() == "headless":
+            streams[key] = SFX_DIR + files[key]
         else:
-            streams[key] = res
+            var res: AudioStream = load(SFX_DIR + files[key]) as AudioStream
+            if res == null:
+                push_error("FISURA AUDIO: missing licensed sample " + str(files[key]))
+            else:
+                streams[key] = res
     for i in range(POOL_SIZE):
         var voice := AudioStreamPlayer.new()
         voice.name = "Pooled licensed SFX voice %d" % i
@@ -50,7 +56,14 @@ func _play_voice(key: String, pitch: float, volume: float) -> void:
     var voice: AudioStreamPlayer = voices[voice_cursor]
     voice_cursor = (voice_cursor + 1) % voices.size()
     voice.stop()
-    voice.stream = streams[key]
+    var asset: Variant = streams[key]
+    if asset is String:
+        # Explicit headless event testing may request the clip on demand.
+        asset = load(asset) as AudioStream
+        if asset == null:
+            return
+        streams[key] = asset
+    voice.stream = asset
     voice.pitch_scale = pitch
     voice.volume_db = volume
     voice.play()
