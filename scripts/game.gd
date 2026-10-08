@@ -33,6 +33,7 @@ var hp_label: Label
 var mission_label: Label
 var controls_label: Label
 var result_label: Label
+var health_bar: ColorRect
 var move_touch_id := -1
 var move_touch_start := Vector2.ZERO
 
@@ -168,11 +169,11 @@ func _create_player() -> void:
 func _create_camera() -> void:
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-    camera.fov = 55.0
-    camera.position = player.global_position + Vector3(0, 28, 24)
+    camera.fov = 49.0
+    camera.position = player.global_position + Vector3(0, 21, 17)
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position, Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
 
 func _create_objectives() -> void:
     for anchor_id in ["core_alpha", "core_beta", "core_gamma"]:
@@ -220,9 +221,38 @@ func _create_hud() -> void:
     root.set_anchors_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_IGNORE
     overlay.add_child(root)
+    var banner := Panel.new()
+    banner.name = "HUD - telemetria tactica"
+    banner.position = Vector2(12, 10)
+    banner.size = Vector2(820, 129)
+    banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var panel_skin := StyleBoxFlat.new()
+    panel_skin.bg_color = Color(0.025, 0.042, 0.075, 0.90)
+    panel_skin.border_color = Color("#21708a")
+    panel_skin.border_width_left = 2
+    panel_skin.border_width_top = 1
+    panel_skin.border_width_bottom = 2
+    panel_skin.corner_radius_top_left = 8
+    panel_skin.corner_radius_top_right = 8
+    panel_skin.corner_radius_bottom_left = 8
+    panel_skin.corner_radius_bottom_right = 8
+    banner.add_theme_stylebox_override("panel", panel_skin)
+    root.add_child(banner)
+    var bar_back := ColorRect.new()
+    bar_back.position = Vector2(21, 111)
+    bar_back.size = Vector2(244, 10)
+    bar_back.color = Color("#284359")
+    bar_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(bar_back)
+    health_bar = ColorRect.new()
+    health_bar.position = Vector2(21, 111)
+    health_bar.size = Vector2(244, 10)
+    health_bar.color = Color("#42d9e3")
+    health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(health_bar)
     hp_label = _label(root, Vector2(20, 12), 24)
     mission_label = _label(root, Vector2(20, 49), 20)
-    controls_label = _label(root, Vector2(20, 79), 17)
+    controls_label = _label(root, Vector2(20, 82), 16)
     controls_label.text = "WASD/flechas: mover  |  Clic/Espacio: disparar  |  Shift: impulso"
     result_label = _label(root, Vector2.ZERO, 39)
     result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -295,8 +325,8 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null:
         return
-    camera.position = camera.position.lerp(player.global_position + Vector3(0, 28, 24), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position, Vector3.UP)
+    camera.position = camera.position.lerp(player.global_position + Vector3(0, 21, 17), minf(1.0, delta * 6.0))
+    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
     if finished:
         if Input.is_key_pressed(KEY_R):
             get_tree().reload_current_scene()
@@ -425,7 +455,9 @@ func _update_hazard(delta: float) -> void:
         _finish(false)
 
 func _update_hud() -> void:
-    hp_label.text = "FISURA   |   SALUD %d/100   |   NUCLEOS %d/%d   |   BAJAS %d" % [player.health, collected, CORE_GOAL, kills]
+    hp_label.text = "FISURA  //  HP %d   |   NUCLEOS %d/%d   |   BAJAS %d" % [player.health, collected, CORE_GOAL, kills]
+    health_bar.size.x = 244.0 * clampf(float(player.health) / float(player.max_health), 0.0, 1.0)
+    health_bar.color = Color("#fc6f62") if player.health <= 30 else Color("#42d9e3")
     if collected == CORE_GOAL:
         mission_label.text = "PORTAL ABIERTO: corre a la plataforma turquesa del norte"
     else:
