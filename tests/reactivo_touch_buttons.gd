@@ -32,8 +32,9 @@ func _run() -> void:
     # Linux headless Godot does not dispatch touchscreen shape presses from
     # Input.parse_input_event. Check native class, independent hitbox geometry
     # and signal-wiring only; physical finger dispatch is an Android test.
-    var expected_fire := Vector2(1150, 580)
-    var expected_cover := Vector2(890, 580)
+    var viewport_size := root.get_visible_rect().size
+    var expected_fire := viewport_size + Vector2(-245, -180)
+    var expected_cover := viewport_size + Vector2(-465, -180)
     if (fire.position - expected_fire).length() > 0.1 or (cover.position - expected_cover).length() > 0.1:
         _fail("Touch hitboxes are not at the displayed button positions")
         return
