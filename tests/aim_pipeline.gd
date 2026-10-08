@@ -13,6 +13,13 @@ func _test() -> void:
     if hero.aim_layer == null or not hero.aim_layer is SkeletonModifier3D:
         _fail("No SkeletonModifier3D attached to Vanguard")
         return
+    if hero.aim_layer.spine_id < 0 or hero.aim_layer.chest_id < 0:
+        _fail("Real source Torso and Chest not resolved")
+        return
+    var mount := hero.humanoid_skeleton.get_node_or_null("Hand-held PBR rifle attachment")
+    if mount == null or not mount is BoneAttachment3D or mount.get_child_count() == 0:
+        _fail("Real Wrist.R rifle mount missing")
+        return
     var screen := game.get_viewport().get_visible_rect().size
     var touch_move := InputEventScreenTouch.new()
     touch_move.index = 1
@@ -59,7 +66,7 @@ func _test() -> void:
     if game.aim_touch_id != -1 or game.move_touch_id != -1:
         _fail("Multitouch fingers not released")
         return
-    print("ARCONT AIM PASS multitouch=2 modifier=true recoil=true 3d_aim_delta=", difference)
+    print("ARCONT AIM PASS multitouch=2 modifier=true recoil=true torso_chest=true wrist_rifle=true 3d_aim_delta=", difference)
     quit(0)
 
 func _fail(reason: String) -> void:
