@@ -121,7 +121,11 @@ func _attach_rifle_to_hand() -> void:
             bone_id = i
             break
     if bone_id < 0:
-        print("VANGUARD: no compatible right-hand attachment bone; intrinsic gun animation retained")
+        # The shipped Quaternius Spacesuit rig calls its grip bone "Wrist.R",
+        # not "RightHand". This is source-audited against all 62 imported bones.
+        bone_id = humanoid_skeleton.find_bone("Wrist.R")
+    if bone_id < 0:
+        print("VANGUARD: no compatible grip bone; intrinsic gun animation retained")
         return
     var mount := BoneAttachment3D.new()
     mount.name = "Hand-held PBR rifle attachment"
