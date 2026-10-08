@@ -11,7 +11,7 @@ from pathlib import Path
 import urllib.parse
 import urllib.request
 
-SLUGS = ("concrete_wall_007", "concrete_floor_worn_02", "green_metal_rust")
+# Canonical CC0 shortlist evaluated using ARCONT catalog.\nSLUGS = ("concrete_wall_007", "concrete_floor_worn_02", "green_metal_rust")
 ROOT = Path("assets/vendor/polyhaven_materials")
 HEADERS = {"User-Agent": "FISURA-Godot-Game/0.3 (CC0 asset intake, github.com/heliossamuelhernandezreyes/Godot-juegos-3d.-)"}
 CAP = 8 * 1024 * 1024
