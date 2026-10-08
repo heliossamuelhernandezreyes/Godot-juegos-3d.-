@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "publisher": "Quaternius",
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "original_pack": "https://quaternius.com/packs/scifiessentialskit.html",
+  "redistribution_repo": "agentkaerf/FreeModels",
+  "source_commit": "db3df04d1e4714298a09510b26fb6de6645138a2",
+  "source_pack_subdirectory": "Sci-Fi Essentials Kit[Standard]/glTF",
+  "purpose": "Godot 4.7.2 animation and visual QA, game-owned assets",
+  "files": [
+    {
+      "name": "Enemy_QuadShell.gltf",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/Enemy_QuadShell.gltf",
+      "sha256": "fb441f91a21d05faab2b8570f379cd7a4169fa53cb680c158cd9e09408868670",
+      "bytes": 235254
+    },
+    {
+      "name": "Enemy_QuadShell.bin",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/Enemy_QuadShell.bin",
+      "sha256": "8f2759ba937e4f4e4b98cdba2d782ec9289541fe2405b7cffd7d5364eda10162",
+      "bytes": 551404
+    },
+    {
+      "name": "Enemy_EyeDrone.gltf",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/Enemy_EyeDrone.gltf",
+      "sha256": "ae39f7a2cc7698aaa774c9c84df3263d833023d69e7638e417d88e79cb3c7005",
+      "bytes": 53939
+    },
+    {
+      "name": "Enemy_EyeDrone.bin",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/Enemy_EyeDrone.bin",
+      "sha256": "3e2006cbb5836c0bdb9e4c0d74115c5301f34150b25d5a36cc2eb98daa4ce991",
+      "bytes": 221780
+    },
+    {
+      "name": "Gun_Rifle.gltf",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/Gun_Rifle.gltf",
+      "sha256": "be2597e0dcf5ec45b969fb043fbf870ca67e0f39a68f17cdc3e3da04706ec589",
+      "bytes": 2210
+    },
+    {
+      "name": "Gun_Rifle.bin",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/Gun_Rifle.bin",
+      "sha256": "9a26ab644e6b887c3e03d290ee4722e2eb7d037b7ed0d8d890ae8c4fb81b4b1f",
+      "bytes": 214892
+    },
+    {
+      "name": "T_Enemies_Normal.png",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/T_Enemies_Normal.png",
+      "sha256": "3e1f78e93b93df32828ee9a9389665e9ccbe330065a36f365267bd9e094d2187",
+      "bytes": 313447
+    },
+    {
+      "name": "T_Enemies_BaseColor_png.png",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/T_Enemies_BaseColor_png.png",
+      "sha256": "65ab96c4ed89e64d84ed453fd67dfd37027860d81b93fb2a5d5bb2e9e0e35df8",
+      "bytes": 1076933
+    },
+    {
+      "name": "T_Enemies_ORM.png",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/T_Enemies_ORM.png",
+      "sha256": "c9b85f821df22954ca63cbeb09bc392bba4e12a3776c413886ea86b8457fd08d",
+      "bytes": 3043013
+    },
+    {
+      "name": "T_Guns_Batch1_Normal.png",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/T_Guns_Batch1_Normal.png",
+      "sha256": "40c00467ff3f1d881097cf373ccaaf9b805a163af562e6ff44d1c117cbe45e63",
+      "bytes": 2941899
+    },
+    {
+      "name": "T_Guns_Batch1_BaseColor.png",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/T_Guns_Batch1_BaseColor.png",
+      "sha256": "bb995634e417a243c104f54f43fdd71b166a36a30a38b7de00144400fd92f17d",
+      "bytes": 1437203
+    },
+    {
+      "name": "T_Guns_Batch1_ORM.png",
+      "url": "https://raw.githubusercontent.com/agentkaerf/FreeModels/db3df04d1e4714298a09510b26fb6de6645138a2/Sci-Fi%20Essentials%20Kit%5BStandard%5D/glTF/T_Guns_Batch1_ORM.png",
+      "sha256": "f9df518727f27048cfaa4a4ed6d13e5fdd482ae51e1963fc7a97fe70c9f98022",
+      "bytes": 3107515
+    }
+  ],
+  "license_file_sha256": "2687fba65dca7bbd2f9ab2fb7a8c51dd0c7c8e9acd7579415612bec43f68b3f5"
+}
