@@ -419,7 +419,6 @@ func _update_hud() -> void:
         mission_label.text = "Recoge los 3 nucleos y sobrevive. Pulso peligroso en el centro cada 12 s."
     if hazard_disk.visible:
         mission_label.text += "  [PULSO INMINENTE]"
-    controls_label.text = controls_label.text if elapsed > 0.1 else controls_label.text
 
 func _finish(won: bool) -> void:
     if finished:
