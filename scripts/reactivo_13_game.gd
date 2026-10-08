@@ -22,6 +22,7 @@ var tactical_nav
 var player
 var camera: Camera3D
 var stage: Node3D
+var cinematic_stage: Node3D
 var audio_fx: Node
 var combat_fx: Node3D
 var mission_label: Label
@@ -142,9 +143,9 @@ func _build_world() -> void:
     stage.set_script(ART_SCRIPT)
     add_child(stage)
     stage.build(map_data, positions)
-    var visual_upgrade := Node3D.new()
-    visual_upgrade.set_script(CINEMATIC_SCRIPT)
-    add_child(visual_upgrade)
+    cinematic_stage = Node3D.new()
+    cinematic_stage.set_script(CINEMATIC_SCRIPT)
+    add_child(cinematic_stage)
     # Distinct colored lanes anchor each combat/mission region.
     _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#2eaec9"), false)
     _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.34), Color("#dba04c"), false)
@@ -473,6 +474,8 @@ func _phase_changed(next_phase: String) -> void:
     phase_time = 0.0
     interaction_progress = 0.0
     interaction_target = ""
+    if cinematic_stage != null:
+        cinematic_stage.set_reactor_alarm(next_phase == "defense")
     if next_phase == "core_chamber" and gate_shape != null:
         gate_shape.set_deferred("disabled", true)
         gate_visual.visible = false
@@ -538,6 +541,17 @@ func _refresh_hud() -> void:
         mission_label.text += "   A:%s B:%s" % ["OK" if director.is_complete("power_a") else "--", "OK" if director.is_complete("power_b") else "--"]
     elif director.phase_id == "defense":
         mission_label.text += "   %d/75 s · %d enemigos" % [mini(75, int(director.defense_seconds)), get_tree().get_nodes_in_group("enemies").size()]
+    var names := {
+        "node_a_console":"power_a",
+        "node_b_console":"power_b",
+        "reactor_altar":"collect_reactor",
+        "stabilizer":"defense_hold",
+        "extraction_pad":"evacuate"
+    }
+    for visual_id in objective_names:
+        var objective_id: String = names[visual_id]
+        var marker: Label3D = objective_names[visual_id]
+        marker.visible = director.can_complete(objective_id)
     var target := _available_target()
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     progress_bar.size.x = 0.0
