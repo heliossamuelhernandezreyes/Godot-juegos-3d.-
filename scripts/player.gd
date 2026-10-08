@@ -16,7 +16,7 @@ const COVER_EXIT_GAP := 2.25
 const VANGUARD_SCENE = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
 const RIFLE_SCENE = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
 const AIM_MODIFIER = preload("res://scripts/vanguard_aim_modifier.gd")
-const LOCOMOTION := ["Idle_Gun", "Run", "Run_Back", "Run_Left", "Run_Right", "Walk", "Run_Shoot"]
+const LOCOMOTION := ["Idle_Gun", "Idle_Gun_Pointing", "Run", "Run_Back", "Run_Left", "Run_Right", "Walk", "Run_Shoot"]
 
 var max_health := 100
 var health := 100
