@@ -27,7 +27,11 @@ func _check() -> void:
         if not (node is MeshInstance3D) or node.name != "Cryo processor vessel":
             continue
         processors += 1
-        var size: Vector3 = node.mesh.size
+        var processor_box: BoxMesh = node.mesh as BoxMesh
+        if processor_box == null:
+            _fail("Cryo processor must have finite BoxMesh bounds")
+            return
+        var size: Vector3 = processor_box.size
         for id in ["node_a_console", "node_b_console"]:
             var camera_probe: Vector3 = game.positions[id] + Vector3(1.05, 4.35, 12.15)
             var offset: Vector3 = camera_probe - node.global_position
