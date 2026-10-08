@@ -4,6 +4,8 @@ extends Node3D
 ## Target: recognisable mission landmarks, controlled light budgets and mobile LOD path.
 const BARREL: PackedScene = preload("res://assets/vendor/polyhaven/barrel_03/barrel_03_1k.gltf")
 const WALL_LAMP: PackedScene = preload("res://assets/vendor/polyhaven/industrial_wall_lamp/industrial_wall_lamp_1k.gltf")
+const PHOTO_CART: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_storage_cart/industrial_storage_cart_1k.gltf")
+const PHOTO_CONTAINER: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_pastic_container/industrial_pastic_container_1k.gltf")
 var metal: Material
 var worn: Material
 var copper: Material
@@ -33,6 +35,7 @@ func _ready() -> void:
     _perimeter()
     _main_corridor()
     _node_rooms()
+    _detailed_factory_props()
     _reactor()
     _exit_platform()
     _light_rig()
@@ -163,6 +166,23 @@ func _node_rooms() -> void:
             prop.position = Vector3(x + dx, 0, 2)
             add_child(prop)
             draw_nodes += 1
+
+func _detailed_factory_props() -> void:
+    # ARCONT-vetted original Poly Haven photogrammetry, with complete glTF dependencies.
+    # Keep these far from terminal consoles/character collision paths; art-only props.
+    for p in [Vector3(-35,0,-20),Vector3(35,0,20)]:
+        var cart := PHOTO_CART.instantiate()
+        cart.name = "Poly Haven CC0 | photogrammetric industrial rolling cart"
+        cart.position = p
+        cart.rotation.y = PI * 0.5
+        add_child(cart)
+        draw_nodes += 1
+    for p in [Vector3(-35,0,18),Vector3(35,0,-19),Vector3(-36,0,-23),Vector3(36,0,23)]:
+        var tub := PHOTO_CONTAINER.instantiate()
+        tub.name = "Poly Haven CC0 | industrial plastic work container"
+        tub.position = p
+        add_child(tub)
+        draw_nodes += 1
 
 func _reactor() -> void:
     var core := MeshInstance3D.new()
