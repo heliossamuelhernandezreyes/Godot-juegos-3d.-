@@ -17,8 +17,8 @@ func _run() -> void:
     if ui == null:
         _fail("Missing HUD CanvasLayer root")
         return
-    var fire := game._touch_action(ui, "PRUEBA_FUEGO", -245, -25, -180, -112)
-    var cover := game._touch_action(ui, "PRUEBA_CUBRIR", -465, -285, -180, -112)
+    var fire: TouchScreenButton = game._touch_action(ui, "PRUEBA_FUEGO", -245, -25, -180, -112)
+    var cover: TouchScreenButton = game._touch_action(ui, "PRUEBA_CUBRIR", -465, -285, -180, -112)
     if not (fire is TouchScreenButton and cover is TouchScreenButton):
         _fail("Gameplay controls are generic mouse-only GUI buttons")
         return
