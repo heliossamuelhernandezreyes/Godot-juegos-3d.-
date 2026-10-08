@@ -102,18 +102,18 @@ jobs:
           PY
       - name: Build actual signed debug APK
         run: |
-          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --export-debug Android build/fisura-v08-debug.apk > android-export.log 2>&1 || { tail -150 android-export.log; exit 1; }
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --export-debug Android build/fisura-v09-debug.apk > android-export.log 2>&1 || { tail -150 android-export.log; exit 1; }
           tail -100 android-export.log
-          test -s build/fisura-v08-debug.apk
-          unzip -t build/fisura-v08-debug.apk | tail -4
-          file build/fisura-v08-debug.apk
-          sha256sum build/fisura-v08-debug.apk | tee build/SHA256SUMS.txt
+          test -s build/fisura-v09-debug.apk
+          unzip -t build/fisura-v09-debug.apk | tail -4
+          file build/fisura-v09-debug.apk
+          sha256sum build/fisura-v09-debug.apk | tee build/SHA256SUMS.txt
           echo "ANDROID APK EXPORT PASS (not device-tested)"
       - name: Verify APK signature and ARM64 binary payload
         run: |
           python3 - <<'PY'
           from zipfile import ZipFile
-          with ZipFile('build/fisura-v08-debug.apk') as apk:
+          with ZipFile('build/fisura-v09-debug.apk') as apk:
               files = apk.namelist()
               assert any(f.startswith('lib/arm64-v8a/') and f.endswith('.so') for f in files), 'Missing ARM64 runtime library'
               assert not any(f.startswith(('lib/armeabi-v7a/', 'lib/x86/', 'lib/x86_64/')) for f in files), 'Unexpected ABI bundled'
@@ -122,14 +122,14 @@ jobs:
           SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           APKSIGNER="$(find "${SDK_ROOT}/build-tools" -type f -name apksigner | sort -V | tail -1)"
           test -x "${APKSIGNER}"
-          "${APKSIGNER}" verify --verbose build/fisura-v08-debug.apk
+          "${APKSIGNER}" verify --verbose build/fisura-v09-debug.apk
           echo "ANDROID APK SIGNATURE PASS (device runtime untested)"
       - name: Upload actual debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: FISURA-v0.8-Android-ARM64-debug
+          name: FISURA-v0.9-Android-ARM64-debug
           path: |
-            build/fisura-v08-debug.apk
+            build/fisura-v09-debug.apk
             build/SHA256SUMS.txt
           if-no-files-found: error
       - name: Upload diagnostic logs
