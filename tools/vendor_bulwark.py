@@ -37,3 +37,5 @@ record={"model":"Enemy_Trilobite","source_pack":"https://quaternius.com/packs/sc
         "animations":[v["name"] for v in doc["animations"]],"skins":len(doc["skins"]),"files":records}
 (DIR/"BULWARK_PROVENANCE.json").write_text(json.dumps(record,indent=2)+"\n")
 print("BULWARK VENDOR PASS",len(records),"clips",len(doc["animations"]))
+
+# Additional binary dependencies are stored only in the game, not ARCONT.
