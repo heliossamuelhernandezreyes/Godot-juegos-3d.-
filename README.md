@@ -1,4 +1,14 @@
-# FISURA — Reactivo-13 (0.9.1, candidato Android en desarrollo)
+# FISURA — Reactivo-13 (0.9.2, candidato experimental de cobertura y audio)
+
+## FISURA 0.9.2 — salto de cobertura + Kenney CC0
+
+- **Travesía contextual**: desde cajas físicas de 1.4 metros, tecla `F` o botón Android **SALTAR**; validación de trayectoria antes de subir y movimientos con el controlador físico. Las barreras de 2 m no se pueden saltar.
+- **Asomarse**: al disparar desde cobertura baja, la postura se eleva y el rayo sale más alto; sigue bloqueado si encuentra pared. Las transiciones y el gesto de salto son provisionales; **no hay todavía retargeting completo ni IK de pies**.
+- **Siete efectos de audio [Kenney CC0](assets/vendor/kenney_sfx/PROVENANCE.json)**, fuente y hashes registrados; disparo de dos capas, golpes, interfaz de cobertura y aterrizaje. El audio sigue necesitando prueba auditiva y mezcla.
+- **Arcont 1.1**: pruebas físicas para salto, comprobación de OGG/hash y resto de la misión. [Informe y límites](docs/production/FISURA_V092_MOBILITY_AUDIO.md).
+- La rama produce `FISURA-v0.9.2-Android-ARM64-debug` con `fisura-v092-debug.apk` **solo si CI está verde**. El PR es experimental y no sustituye a la revisión física de Fisura 0.9.1.
+
+---
 
 ## FISURA 0.9.1 — correcciones tras pruebas en Android
 
