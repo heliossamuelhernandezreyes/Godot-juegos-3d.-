@@ -13,6 +13,10 @@ const ART_SCRIPT = preload("res://scripts/art_stage.gd")
 const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
 const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
+const CAMERA_SHOULDER := 1.05
+const CAMERA_HEIGHT := 1.30
+const CAMERA_DISTANCE := 4.25
+const TOUCH_LOOK_SENSITIVITY := 0.0034
 
 var contract: Dictionary = {}
 var map_data: Dictionary = {}
@@ -40,6 +44,8 @@ var gate_shape: CollisionShape3D
 var gate_visual: MeshInstance3D
 var interact_held := false
 var shoulder_side := 1.0
+var camera_yaw := 0.0
+var camera_pitch := 0.0
 var touch_move_id := -1
 var touch_look_id := -1
 var touch_move_origin := Vector2.ZERO
@@ -162,18 +168,18 @@ func _make_player() -> void:
     player.set_script(PLAYER_SCRIPT)
     player.position = positions["vanguard_start"] + Vector3(0, 1, 0)
     add_child(player)
-    player.configure_cover_zones(map_data.get("authoring", {}).get("structure_guides", []))
+    player.configure_cover_zones(map_data.get("authoring", {}).get("structure_guides", []), map_data.get("authoring", {}).get("world_props", []))
 
 func _make_camera() -> void:
     camera = Camera3D.new()
-    camera.fov = 56.0
+    camera.fov = 60.0
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(-0.1 * shoulder_side, 0.80, -0.85), Vector3.UP)
+    camera.look_at(_camera_target(), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(1.8 * shoulder_side, 2.75, 3.10)
+    var desired: Vector3 = player.global_position + Basis(Vector3.UP, camera_yaw) * Vector3(CAMERA_SHOULDER * shoulder_side, CAMERA_HEIGHT, CAMERA_DISTANCE)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -186,6 +192,11 @@ func _camera_position() -> Vector3:
         if not hit.is_empty():
             desired = hit["position"] - (desired-from).normalized() * 0.25
     return desired
+
+func _camera_target() -> Vector3:
+    # Aim ahead of the actor at shoulder height instead of down toward the floor.
+    var direction := Basis(Vector3.UP, camera_yaw)
+    return player.global_position + direction * Vector3(0.0, 1.15 + camera_pitch * 5.0, -3.3)
 
 func _make_interactables() -> void:
     for object_id in ["node_a_console", "node_b_console", "reactor_altar", "stabilizer", "extraction_pad"]:
@@ -315,7 +326,7 @@ func _make_hud() -> void:
     prompt_label = _label(root, Vector2(20, 73), 15)
     control_note = _label(root, Vector2(20, 122), 12)
     control_note.visible = OS.has_feature("mobile")
-    control_note.text = "Mover WASD · Apuntar raton · Disparar clic/Espacio · E interactuar · Shift evasión"
+    control_note.text = "WASD mover · ratón apuntar · clic disparar · E usar · Q cobertura · V hombro"
     var bar_bg := ColorRect.new()
     bar_bg.position = Vector2(20, 103)
     bar_bg.size = Vector2(230, 5)
@@ -346,7 +357,7 @@ func _make_hud() -> void:
     result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     result_label.visible = false
     if OS.has_feature("mobile"):
-        control_note.text = "Izquierda: movimiento  ·  Derecha: apuntar  ·  COBERTURA/IMPULSO"
+        control_note.text = "Izquierda: mover · Derecha: girar cámara · DISPARAR: único gatillo"
         var interact := _mobile_button(root, "INTERACTUAR", -260, -20, -85, -20)
         interact.button_down.connect(func() -> void: interact_held = true)
         interact.button_up.connect(func() -> void: interact_held = false)
@@ -380,6 +391,7 @@ func _label(parent: Control, pos: Vector2, size: int) -> Label:
 func _mobile_button(parent: Control, title: String, x0: int, x1: int, y0: int, y1: int) -> Button:
     var btn := Button.new()
     btn.text = title
+    btn.mouse_filter = Control.MOUSE_FILTER_STOP
     btn.anchor_left = 1
     btn.anchor_right = 1
     btn.anchor_top = 1
@@ -420,7 +432,11 @@ func _input(event: InputEvent) -> void:
         if event.index == touch_move_id:
             player.touch_axis = ((event.position - touch_move_origin) / 78.0).limit_length(1.0)
         elif event.index == touch_look_id:
-            look_touch_axis = ((event.position - touch_look_origin) / 88.0).limit_length(1.0)
+            var swipe: Vector2 = event.position - touch_look_origin
+            touch_look_origin = event.position
+            look_touch_axis = (swipe / 88.0).limit_length(1.0)
+            camera_yaw -= swipe.x * TOUCH_LOOK_SENSITIVITY
+            camera_pitch = clampf(camera_pitch - swipe.y * TOUCH_LOOK_SENSITIVITY, -0.22, 0.17)
 
 func _process(delta: float) -> void:
     if player == null or director == null:
@@ -428,9 +444,10 @@ func _process(delta: float) -> void:
     if tactical_reticle != null:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
-    camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(-0.1 * shoulder_side, 0.80, -0.85), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 49.0 if player.wants_to_fire() else 56.0, minf(1.0, delta * 6.0))
+    player.camera_yaw = camera_yaw
+    camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 10.0))
+    camera.look_at(_camera_target(), Vector3.UP)
+    camera.fov = lerpf(camera.fov, 54.0 if player.wants_to_fire() else 60.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta
@@ -454,27 +471,20 @@ func _inside_zone(id: String, where: Vector3) -> bool:
     return false
 
 func _update_aim() -> void:
-    var direction := Vector3.ZERO
-    if touch_look_id != -1 and look_touch_axis.length_squared() > 0.03:
-        direction = Vector3(look_touch_axis.x, 0, look_touch_axis.y)
-    elif player.mobile_firing or Input.is_key_pressed(KEY_SPACE):
-        var best := 35.0
-        for node in get_tree().get_nodes_in_group("enemies"):
-            var offset: Vector3 = node.global_position - player.global_position
-            offset.y = 0
-            if offset.length() < best:
-                best = offset.length()
-                direction = offset
-    elif not OS.has_feature("mobile"):
+    # Camera owns heading on touch. Swiping on the right rotates the camera,
+    # never overwrites the actor with a short arbitrary world-space stick vector.
+    var facing: Vector3 = Basis(Vector3.UP, camera_yaw) * Vector3.FORWARD
+    if not OS.has_feature("mobile") and touch_look_id == -1:
         var cursor := get_viewport().get_mouse_position()
         var origin := camera.project_ray_origin(cursor)
-        var vector := camera.project_ray_normal(cursor)
-        var point: Variant = Plane(Vector3.UP, 1.0).intersects_ray(origin, vector)
+        var ray := camera.project_ray_normal(cursor)
+        var point: Variant = Plane(Vector3.UP, player.global_position.y).intersects_ray(origin, ray)
         if point != null:
-            direction = Vector3(point.x - player.global_position.x, 0, point.z - player.global_position.z)
-    if direction.length_squared() > 0.01:
-        player.aim_direction = direction.normalized()
-    player.aim_pitch = clampf(-look_touch_axis.y * 0.12, -0.12, 0.12)
+            var flat := Vector3(point.x - player.global_position.x, 0.0, point.z - player.global_position.z)
+            if flat.length_squared() > 0.04:
+                facing = flat.normalized()
+    player.aim_direction = facing.normalized()
+    player.aim_pitch = camera_pitch
 
 func _physics_process(delta: float) -> void:
     if director == null or director.terminated:
@@ -620,7 +630,7 @@ func _refresh_hud() -> void:
     var target := _available_target()
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     if cover_label != null:
-        cover_label.text = "EN COBERTURA  [Q]" if player.in_cover else ("COBERTURA [Q]" if player.can_take_cover() else "")
+        cover_label.text = "EN COBERTURA" if player.in_cover else ("CUBRIRSE" if player.can_take_cover() else "")
     
     progress_bar.size.x = 0.0
     if not target.is_empty():
