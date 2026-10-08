@@ -78,6 +78,12 @@ jobs:
           cat tactical-nav.log
           grep -q "TACTICAL NAV PASS" tactical-nav.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" tactical-nav.log
+      - name: Test Quaternius active skeleton transitions in FISURA combat
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/animated_combat.gd > animated-combat.log 2>&1 || { cat animated-combat.log; exit 1; }
+          cat animated-combat.log
+          grep -q "ANIMATED COMBAT PASS" animated-combat.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" animated-combat.log
       - name: Validate camera inside tall industrial walls
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/camera_bounds.gd > camera-bounds.log 2>&1 || { cat camera-bounds.log; exit 1; }
@@ -119,4 +125,5 @@ jobs:
             tactical-nav.log
             camera-bounds.log
             quaternius-import.log
+            animated-combat.log
           if-no-files-found: ignore
