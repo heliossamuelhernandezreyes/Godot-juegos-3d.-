@@ -22,11 +22,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
       - name: Android SDK prerequisites
         run: |
-          yes | sdkmanager --licenses >/dev/null
+          yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          test -n "$ANDROID_HOME"
           echo "ANDROID_HOME=$ANDROID_HOME"
           test -x "$ANDROID_HOME/platform-tools/adb"
       - name: Download exact Godot editor binary and export templates
