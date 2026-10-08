@@ -159,6 +159,12 @@ jobs:
           cat reactivo-cover.log
           grep -q "REACTIVO COVER MOTION PASS" reactivo-cover.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-cover.log
+      - name: ARCONT physically swept vault over low cover only
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_cover_vault.gd > reactivo-vault.log 2>&1 || { cat reactivo-vault.log; exit 1; }
+          cat reactivo-vault.log
+          grep -q "REACTIVO LOW COVER VAULT PASS" reactivo-vault.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-vault.log
       - name: ARCONT touch regression - no accidental fire and shoulder camera
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_input_camera_regression.gd > input-camera.log 2>&1 || { cat input-camera.log; exit 1; }
@@ -267,6 +273,7 @@ jobs:
             reactivo-render.log
             reactivo-bulwark.log
             reactivo-cover.log
+            reactivo-vault.log
             input-camera.log
             audio-budget.log
             touch-buttons.log
