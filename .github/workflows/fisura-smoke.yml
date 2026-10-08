@@ -1,0 +1,70 @@
+name: FISURA smoke and ARCONT contract
+
+on:
+  push:
+    branches: [main, feat/fisura-first-playable]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: heliossamuelhernandezreyes/Arcont
+          ref: 3dd31bd962999f36de264c5bb364f41624ca7f0b
+          path: _arcont_reference
+      - name: Validate map with real ARCONT Map Forge validator
+        run: python3 _arcont_reference/tools/map_forge_contract.py maps/crisol_01.json
+      - name: Validate gameplay anchors
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m = json.loads(Path("maps/crisol_01.json").read_text(encoding="utf-8"))
+          a = {x["id"]: x for x in m["anchors"]}
+          for key in ("player_start", "core_alpha", "core_beta", "core_gamma", "exit_portal"):
+              assert key in a, f"Missing gameplay anchor: {key}"
+          assert len([x for x in m["anchors"] if x.get("team") == "enemy"]) >= 4
+          assert Path("scenes/main.tscn").is_file()
+          for file in ("scripts/game.gd", "scripts/player.gd", "scripts/enemy.gd"):
+              assert Path(file).is_file()
+          print("Game map, objectives and files: PASS")
+          PY
+      - name: Download Godot 4.7.2 stable
+        run: |
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Godot headless import and parse validation
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit > godot-import.log 2>&1
+          cat godot-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load script|ERROR:" godot-import.log
+      - name: Godot headless runtime smoke (120 frames)
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 120 > godot-smoke.log 2>&1
+          cat godot-smoke.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Invalid call|ERROR:" godot-smoke.log
+      - name: Run deterministic extraction playthrough
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
+          cat godot-playthrough.log
+          grep -q "PLAYTHROUGH PASS" godot-playthrough.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Invalid call|ERROR:" godot-playthrough.log
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-ci-logs
+          path: |
+            godot-import.log
+            godot-smoke.log
+            godot-playthrough.log
+          if-no-files-found: ignore

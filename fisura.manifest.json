@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "project": "fisura",
+  "repository_role": "production-game",
+  "engine": {
+    "name": "Godot",
+    "version": "4.7.2-stable",
+    "renderer": "gl_compatibility",
+    "expected_commit": "ed1daf0bf001b61586d9930840f2f1394092c079"
+  },
+  "arcont": {
+    "repository": "heliossamuelhernandezreyes/Arcont",
+    "commit": "3dd31bd962999f36de264c5bb364f41624ca7f0b",
+    "dependency_kind": "design contract, pinned validation tool and knowledge",
+    "embedded_project": false,
+    "map_standard": "docs/knowledge/MAP_FORGE_STANDARD.md",
+    "validator": "tools/map_forge_contract.py"
+  },
+  "prototype": {
+    "stage": "vertical-slice-0.1",
+    "map": "maps/crisol_01.json",
+    "runtime_tested": false,
+    "android_export_tested": false
+  },
+  "asset_policy": "game-owned procedural primitives; third-party imports require license proof"
+}
