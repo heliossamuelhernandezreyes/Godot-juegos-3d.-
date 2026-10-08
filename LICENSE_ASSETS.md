@@ -50,3 +50,16 @@ Comprobado: glTF importable en Godot 4.7.2, dos mallas skin con Skeleton3D y Ani
 - Modelo seleccionado: `Spacesuit.gltf`, con esqueleto y **24 clips nativos**. Descarga reproducible desde el espejo `agentkaerf/FreeModels` fijado al commit `db3df04d1e4714298a09510b26fb6de6645138a2`.
 - `PROVENANCE.json` conserva el URL exacto de origen, hash SHA-256, tamaño y evidencia de licencia. El juego no efectúa descargas al abrirse.
 - Resultado verificado exclusivamente en Godot 4.7.2 Linux mediante importación, activación de Run y transiciones de gameplay. No confundir con QA visual riguroso, certificación de rendimiento Android ni nivel AAA.
+
+## Importación adicional — FISURA 0.8 (CC0)
+
+Dos assets industriales con geometría y materiales PBR, obtenidos desde API oficial Poly Haven y seleccionados a través de ARCONT Asset Vault:
+
+| Activo | Página oficial | Datos reproducibles |
+|---|---|---|
+| Industrial Storage Cart | https://polyhaven.com/a/industrial_storage_cart | `assets/vendor/polyhaven_cinematic/industrial_storage_cart/PROVENANCE.json` |
+| Industrial Plastic Container (proveedor: `industrial_pastic_container`) | https://polyhaven.com/a/industrial_pastic_container | `assets/vendor/polyhaven_cinematic/industrial_pastic_container/PROVENANCE.json` |
+
+**Bulwark — Quaternius Enemy_Trilobite:** modelo nativo del mismo paquete Sci-Fi Essentials Kit Standard CC0 que QuadShell/EyeDrone. Recurso: `assets/vendor/quaternius/scifi_essentials/Enemy_Trilobite.gltf`. Esqueleto + nueve animaciones más sus dependencias originales. Procedencia exacta de archivos: `assets/vendor/quaternius/scifi_essentials/BULWARK_PROVENANCE.json`, espejo fijado a `agentkaerf/FreeModels@db3df04d1e4714298a09510b26fb6de6645138a2`. Archivo de licencia ya registrado en `SOURCE_LICENSE.txt` dentro del mismo directorio.
+
+La disponibilidad de mallas y la licencia CC0 no demuestran realismo AAA ni compatibilidad/performance Android. Se exigen pruebas Godot de importación y QA posterior sobre la experiencia visual.

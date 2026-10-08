@@ -8,7 +8,7 @@ const GRID_SCRIPT = preload("res://scripts/tactical_grid.gd")
 const QUAD_SCRIPT = preload("res://scripts/animated_reaver.gd")
 const BULWARK_SCRIPT = preload("res://scripts/reactivo_bulwark.gd")
 const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
-const ART_SCRIPT = preload("res://scripts/art_stage.gd")
+const ART_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
 
 var contract: Dictionary = {}
@@ -105,17 +105,23 @@ func _box(label: String, place: Vector3, size: Vector3, color: Color, solid: boo
 func _build_world() -> void:
     var environment := Environment.new()
     environment.background_mode = Environment.BG_COLOR
-    environment.background_color = Color("#0a1422")
+    environment.background_color = Color("#101b25")
+    environment.fog_enabled = true
+    environment.fog_light_color = Color("#344658")
+    environment.fog_density = 0.008
+    environment.adjustment_enabled = true
+    environment.adjustment_contrast = 1.14
+    environment.adjustment_saturation = 1.08
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color("#8197ac")
-    environment.ambient_light_energy = 0.85
+    environment.ambient_light_energy = 0.56
     var world_env := WorldEnvironment.new()
     world_env.environment = environment
     add_child(world_env)
     var key := DirectionalLight3D.new()
     key.rotation_degrees = Vector3(-60.0, -25.0, 0.0)
     key.light_color = Color("#b5d8f0")
-    key.light_energy = 1.4
+    key.light_energy = 1.1
     key.shadow_enabled = true
     add_child(key)
     var bounds: Dictionary = map_data["bounds"]
@@ -150,14 +156,14 @@ func _make_player() -> void:
 
 func _make_camera() -> void:
     camera = Camera3D.new()
-    camera.fov = 62.0
+    camera.fov = 66.0
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
     camera.look_at(player.global_position + Vector3(0, 0.85, -1.2), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(1.10, 3.85, 5.8)
+    var desired: Vector3 = player.global_position + Vector3(1.05, 3.35, 5.15)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -203,14 +209,16 @@ func _make_interactables() -> void:
     gate_mesh.size = Vector3(8.0, 3.2, 0.75)
     gate_visual.mesh = gate_mesh
     var gate_mat := StandardMaterial3D.new()
-    gate_mat.albedo_color = Color("#7e4c39")
+    gate_mat.albedo_color = Color("#354b59")
+    gate_mat.metallic = 0.78
+    gate_mat.roughness = 0.33
     gate_visual.material_override = gate_mat
     gate_body.add_child(gate_visual)
     var brass := StandardMaterial3D.new()
     brass.albedo_color = Color("#d3a45b")
     brass.metallic = 0.7
     brass.roughness = 0.3
-    for offset in [-3.0, 3.0]:
+    for offset in [-3.0, -1.6, 0.0, 1.6, 3.0]:
         var stripe := MeshInstance3D.new()
         var bar := BoxMesh.new()
         bar.size = Vector3(0.18, 2.7, 0.08)
@@ -221,11 +229,35 @@ func _make_interactables() -> void:
     var lock_text := Label3D.new()
     lock_text.name = "Access gate | warning signage"
     lock_text.text = "REACTIVO-13   //   NODOS A + B"
-    lock_text.font_size = 52
-    lock_text.pixel_size = 0.0034
+    lock_text.font_size = 84
+    lock_text.pixel_size = 0.0062
     lock_text.modulate = Color("#ffcf85")
-    lock_text.position = Vector3(0, 0.45, 0.47)
+    lock_text.position = Vector3(0, 0.42, 0.47)
     gate_body.add_child(lock_text)
+    var warning := StandardMaterial3D.new()
+    warning.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    warning.albedo_color = Color("#ffb75d")
+    warning.emission_enabled = true
+    warning.emission = Color("#ff7e3d")
+    warning.emission_energy_multiplier = 2.2
+    for height in [-1.05, 1.07]:
+        var beacon := MeshInstance3D.new()
+        beacon.name = "LOCKED REACTOR | anti-tamper amber light"
+        var beam := BoxMesh.new()
+        beam.size = Vector3(7.3, 0.09, 0.085)
+        beacon.mesh = beam
+        beacon.position = Vector3(0, height, 0.43)
+        beacon.material_override = warning
+        gate_body.add_child(beacon)
+    for side in [-1.0,1.0]:
+        var rivet := MeshInstance3D.new()
+        rivet.name = "Bulkhead gate machinery"
+        var chassis := BoxMesh.new()
+        chassis.size = Vector3(0.28, 3.0, 0.38)
+        rivet.mesh = chassis
+        rivet.position = Vector3(side*3.9, 0, 0.32)
+        rivet.material_override = brass
+        gate_body.add_child(rivet)
     add_child(gate_body)
 
 func _make_hud() -> void:
@@ -241,6 +273,25 @@ func _make_hud() -> void:
     hud_panel.color = Color(0.015, 0.035, 0.055, 0.72)
     hud_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(hud_panel)
+    var stripe := ColorRect.new()
+    stripe.name = "OPS UI / luminescent signal"
+    stripe.position = Vector2(10,8)
+    stripe.size = Vector2(5,160)
+    stripe.color = Color("#51cedd")
+    stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(stripe)
+    var reticle := Label.new()
+    reticle.name = "FISURA | tactical illuminated sight"
+    reticle.text = "⌖"
+    reticle.add_theme_font_size_override("font_size",27)
+    reticle.add_theme_color_override("font_color",Color("#7dfaf1"))
+    reticle.set_anchors_preset(Control.PRESET_CENTER)
+    reticle.offset_left = -14
+    reticle.offset_top = -18
+    reticle.offset_right = 24
+    reticle.offset_bottom = 24
+    reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(reticle)
     health_label = _label(root, Vector2(20, 16), 25)
     mission_label = _label(root, Vector2(20, 54), 21)
     prompt_label = _label(root, Vector2(20, 86), 18)
@@ -406,6 +457,7 @@ func _fire() -> void:
                 collider.call("take_hit_from", 23, origin)
             elif collider.has_method("take_hit"):
                 collider.call("take_hit", 23)
+    _shot_tracer(origin, destination)
     register_hit_feedback(destination)
 
 func _available_target() -> String:
@@ -442,9 +494,12 @@ func _phase_changed(next_phase: String) -> void:
     phase_time = 0.0
     interaction_progress = 0.0
     interaction_target = ""
+    if stage != null and stage.has_method("set_alarm"):
+        stage.set_alarm(next_phase == "defense" or next_phase == "extraction")
     if next_phase == "core_chamber" and gate_shape != null:
         gate_shape.set_deferred("disabled", true)
         gate_visual.visible = false
+        gate_body.visible = false
     if not testing_disable_spawns:
         _spawn_phase_encounters(next_phase)
 
@@ -513,6 +568,43 @@ func _refresh_hud() -> void:
 
 func register_kill() -> void:
     kills += 1
+
+func _shot_tracer(from: Vector3, to: Vector3) -> void:
+    var direction: Vector3 = to-from
+    if direction.length_squared() < 0.01:
+        return
+    var tracer := MeshInstance3D.new()
+    tracer.name = "FISURA | glowing copper bullet path"
+    var tube := CylinderMesh.new()
+    tube.top_radius = 0.033
+    tube.bottom_radius = 0.065
+    tube.height = direction.length()
+    tracer.mesh = tube
+    tracer.position = (from+to)*0.5
+    tracer.quaternion = Quaternion(Vector3.UP,direction.normalized())
+    var m := StandardMaterial3D.new()
+    m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    m.albedo_color = Color("#ffd9a0")
+    m.emission_enabled = true
+    m.emission = Color("#ff8a37")
+    m.emission_energy_multiplier = 3.8
+    tracer.material_override = m
+    add_child(tracer)
+    var pulse := create_tween()
+    pulse.tween_property(tracer,"scale",Vector3(0.01,0.01,1.0),0.12)
+    pulse.finished.connect(tracer.queue_free)
+    var flash := MeshInstance3D.new()
+    flash.name = "FISURA | muzzle bloom"
+    var orb := SphereMesh.new()
+    orb.radius = 0.22
+    orb.height = 0.44
+    flash.mesh = orb
+    flash.material_override = m
+    flash.position = from + direction.normalized()*0.85
+    add_child(flash)
+    var dissolve := create_tween()
+    dissolve.tween_property(flash,"scale",Vector3.ONE*0.01,0.10)
+    dissolve.finished.connect(flash.queue_free)
 
 func register_hit_feedback(at: Vector3) -> void:
     var spark := MeshInstance3D.new()

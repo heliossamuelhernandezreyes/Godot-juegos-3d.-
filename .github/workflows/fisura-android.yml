@@ -3,7 +3,7 @@ name: FISURA Android ARM64 debug APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, feat/fisura-v07-reactivo13-playable]
+    branches: [main, feat/fisura-v08-cinematic-industrial]
     paths:
       - 'export_presets.cfg'
       - 'project.godot'
@@ -76,19 +76,19 @@ jobs:
           PY
       - name: Build actual signed debug APK
         run: |
-          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --export-debug Android build/fisura-v07-debug.apk > android-export.log 2>&1 || { tail -150 android-export.log; exit 1; }
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --export-debug Android build/fisura-v08-debug.apk > android-export.log 2>&1 || { tail -150 android-export.log; exit 1; }
           tail -100 android-export.log
-          test -s build/fisura-v07-debug.apk
-          unzip -t build/fisura-v07-debug.apk | tail -4
-          file build/fisura-v07-debug.apk
-          sha256sum build/fisura-v07-debug.apk | tee build/SHA256SUMS.txt
+          test -s build/fisura-v08-debug.apk
+          unzip -t build/fisura-v08-debug.apk | tail -4
+          file build/fisura-v08-debug.apk
+          sha256sum build/fisura-v08-debug.apk | tee build/SHA256SUMS.txt
           echo "ANDROID APK EXPORT PASS (not device-tested)"
       - name: Upload actual debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: FISURA-v0.7-Android-ARM64-debug
+          name: FISURA-v0.8-Android-ARM64-debug
           path: |
-            build/fisura-v07-debug.apk
+            build/fisura-v08-debug.apk
             build/SHA256SUMS.txt
           if-no-files-found: error
       - name: Upload diagnostic logs

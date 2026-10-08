@@ -26,14 +26,18 @@
       "source-pinned-native-humanoid-animation-import",
       "post-animation-bounded-recoil",
       "simulated-dual-touch-input",
-      "android-export-packaging-gate"
+      "android-export-packaging-gate",
+      "four-views-software-render-visual-audit",
+      "visual-mesh-camera-probe",
+      "polyhaven-cc0-1k-pbr-intake",
+      "skinned-heavy-enemy-asset"
     ],
     "mission_contract": "missions/reactivo_13.slice.json",
     "mission_validator": "_arcont_reference/tools/vertical_slice_contract.py",
     "mission_map_bridge": "_arcont_reference/tools/mission_map_bridge.py"
   },
   "prototype": {
-    "stage": "vertical-slice-0.7-reactivo13-prototype",
+    "stage": "vertical-slice-0.8-cinematic-industrial",
     "map": "maps/reactivo_13.json",
     "runtime_tested": true,
     "android_export_tested": true,
@@ -46,7 +50,7 @@
       "sha256": "54d58fd8028bcf64d99621b1a24f8424649f397f591da84055bd50728add3c23",
       "physical_install_tested": false,
       "source_commit": "5aea84d6549292813b23525370054e199c24c92b",
-      "notes": "Prior v0.6 APK. FISURA 0.7 export requires independent CI run, cannot reuse earlier APK claim."
+      "notes": "FISURA 0.8 export has its own workflow; do not treat the archived v0.6 SHA as proof of an 0.8 device test."
     },
     "next_slice": {
       "id": "reactivo_13",
@@ -63,6 +67,14 @@
         "G5 physical Android test",
         "G6 human playtest"
       ]
+    },
+    "art_evidence": {
+      "source": "docs/production/REACTIVO_13_ART_V08.md",
+      "scene": "scripts/reactivo_cinematic_stage.gd",
+      "four_view_capture": "tests/capture_reactivo_visual_suite.gd",
+      "source_verified_assets": 2,
+      "bulwark_native_clips": 9,
+      "human_review_completed": false
     }
   },
   "asset_policy": "original Wavefront OBJ kit plus 1K CC0 Poly Haven glTF vendored with source URL SHA256",
@@ -73,6 +85,9 @@
     "assets/vendor/polyhaven_materials/concrete_floor_worn_02/PROVENANCE.json",
     "assets/vendor/polyhaven_materials/green_metal_rust/PROVENANCE.json",
     "assets/vendor/quaternius/scifi_essentials/PROVENANCE.json",
-    "assets/vendor/quaternius/vanguard_spacesuit/PROVENANCE.json"
+    "assets/vendor/quaternius/vanguard_spacesuit/PROVENANCE.json",
+    "assets/vendor/polyhaven_cinematic/industrial_storage_cart/PROVENANCE.json",
+    "assets/vendor/polyhaven_cinematic/industrial_pastic_container/PROVENANCE.json",
+    "assets/vendor/quaternius/scifi_essentials/BULWARK_PROVENANCE.json"
   ]
 }

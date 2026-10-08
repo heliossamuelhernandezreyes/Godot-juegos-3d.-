@@ -134,3 +134,13 @@ El APK, si se genera, **no queda validado en dispositivo** hasta instalarlo y me
 - El CI usa un SHA **fijado** del validador neutral de Arcont, independiente de `map_forge_contract.py`. Un PASS solo comprueba diseño; no desbloquea la palabra «jugable».
 
 **Próximo trabajo de código:** implementar director de estados 0.7, crear mapa nuevo (sin romper `crisol_01.json`), añadir nodos A/B y tests de interacciones, después Bulwark y QA móvil.
+
+## FISURA 0.8 — Reactivo-13 cinematográfico (primer pase visual)
+
+Se conserva el director y la misión de 0.7. La escena `scenes/reactivo_13.tscn` ahora usa `scripts/reactivo_cinematic_stage.gd`, un escenario especializado de 84×66 con suelo PBR instanciado, cubierta industrial segmentada, reactor más protagonista, salas con maquinaria, luz de emergencia que cambia según la fase, mayor detalle en compuerta y efectos de disparo. La cámara tiene un encuadre más cercano y el HUD una retícula discreta.
+
+**Assets originales y CC0:** se incorporaron desde el catálogo ARCONT dos glTF detallados de Poly Haven (`industrial_storage_cart`, `industrial_pastic_container`), descargados desde la API oficial en 1K y registrados con SHA-256. También se reemplazó el Bulwark provisional por un robot Quaternius `Enemy_Trilobite` con esqueleto y nueve clips nativos, preservando su mecánica de blindaje frontal. Todos los binarios siguen alojados en el repositorio del juego.
+
+**Pruebas:** las antiguas regresiones de Godot siguen vigentes, y se añadieron importación real de los dos props, un control de coste visual/oclusión de cámara en máquinas, prueba de rig esquelético del Bulwark y cuatro capturas auténticas (inserción, Nodo A, reactor y extracción). La exportación Android ARM64 versión 0.8 se valida por separado y no certifica la experiencia física.
+
+[Evaluación visual y brechas restantes](docs/production/REACTIVO_13_ART_V08.md). **Esta versión busca estética y legibilidad cercanas a un shooter de producción, pero todavía no puede describirse como AAA terminado.**
