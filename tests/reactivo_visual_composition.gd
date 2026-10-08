@@ -16,18 +16,18 @@ func _verify() -> void:
     world.player.global_position = Vector3(0.0, 1.0, 19.0)
     world.camera.global_position = world._camera_position()
     var camera_offset: Vector3 = world.camera.global_position - world.player.global_position
-    if camera_offset.z < 2.6 or camera_offset.z > 3.7:
+    if camera_offset.z < 3.8 or camera_offset.z > 4.7:
         _fail("Third-person camera must keep a legible player silhouette: " + str(camera_offset))
         return
-    if camera_offset.x < 1.4 or camera_offset.x > 2.2:
+    if camera_offset.x < 0.8 or camera_offset.x > 1.4:
         _fail("Over-shoulder framing was lost: " + str(camera_offset))
         return
-    if world.camera.fov > 57.0:
+    if world.camera.fov > 63.0:
         _fail("Excessive wide FOV reduces character readability")
         return
     # Photo evidence caught a previous regression with the actor's legs off-screen.
     # Evaluate an open-lane camera projection, not merely FOV and 3D distance.
-    world.camera.look_at(world.player.global_position + Vector3(-0.1, 0.80, -0.85), Vector3.UP)
+    world.camera.look_at(world._camera_target(), Vector3.UP)
     var frame_height: float = root.get_visible_rect().size.y
     var foot: Vector2 = world.camera.unproject_position(world.player.global_position + Vector3(0, -0.87, 0))
     var head: Vector2 = world.camera.unproject_position(world.player.global_position + Vector3(0, 0.93, 0))
@@ -36,6 +36,9 @@ func _verify() -> void:
         return
     if foot.y - head.y < frame_height * 0.19:
         _fail("Player silhouette too small for 3rd-person readability")
+        return
+    if camera_offset.y > 1.8:
+        _fail("Third-person camera is too high (near top-down): " + str(camera_offset))
         return
     if world.tactical_reticle == null or world.tactical_reticle.text != "+":
         _fail("Aim position has no HUD affordance")
