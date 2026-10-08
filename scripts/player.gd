@@ -11,6 +11,7 @@ const DASH_COOLDOWN := 1.6
 const GRAVITY := 24.0
 const VANGUARD_SCENE = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
 const RIFLE_SCENE = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
+const AIM_SPINE_SCRIPT = preload("res://scripts/aim_spine_modifier.gd")
 const LOCOMOTION := ["Idle_Gun", "Run", "Run_Back", "Run_Left", "Run_Right", "Walk", "Run_Shoot"]
 
 var max_health := 100
@@ -33,6 +34,9 @@ var weapon_active := 0.0
 var last_move := Vector3.ZERO
 var fire_events := 0
 var visual_ready := false
+var aim_pitch := 0.0
+var fire_direction := Vector3.FORWARD
+var aim_layer: SkeletonModifier3D
 
 func _ready() -> void:
     name = "Vanguard"
@@ -68,6 +72,9 @@ func _build_skeletal_vanguard() -> void:
     _play_clip("Idle_Gun")
     # Separate gun mesh is attached only if a matching right-hand bone is present.
     _attach_rifle_to_hand()
+    aim_layer = AIM_SPINE_SCRIPT.new()
+    aim_layer.name = "ARCONT | additive torso aim and recoil"
+    humanoid_skeleton.add_child(aim_layer)
     visual_ready = true
     print("VANGUARD RIG READY bones=%d clips=%d" %
         [humanoid_skeleton.get_bone_count(), rig_animation.get_animation_list().size()])
@@ -96,7 +103,7 @@ func _attach_rifle_to_hand() -> void:
     var bone_id := -1
     for i in range(humanoid_skeleton.get_bone_count()):
         var name = humanoid_skeleton.get_bone_name(i).to_lower()
-        if (name.contains("hand") and (name.contains("right") or name.contains(".r") or name.ends_with("_r"))) or name == "r_hand":
+        if (name.contains("hand") and (name.contains("right") or name.contains(".r") or name.ends_with("_r"))) or name == "r_hand" or name == "wrist.r" or name == "rightwrist":
             bone_id = i
             break
     if bone_id < 0:
@@ -123,6 +130,8 @@ func _play_clip(clip: String, blend: float = 0.15) -> void:
 func on_weapon_fired() -> void:
     fire_events += 1
     weapon_active = 0.24
+    if aim_layer != null:
+        aim_layer.add_recoil()
     if health > 0 and dash_remaining <= 0.0 and animation_lock <= 0.0:
         var moving := Vector2(velocity.x, velocity.z).length() > 1.0
         _play_clip("Run_Shoot" if moving else "Gun_Shoot", 0.10)
@@ -130,6 +139,9 @@ func on_weapon_fired() -> void:
 func _update_visual_state(delta: float) -> void:
     if not visual_ready:
         return
+    var local_move := global_basis.inverse() * Vector3(velocity.x, 0.0, velocity.z)
+    if aim_layer != null:
+        aim_layer.configure_aim(aim_pitch, clampf(local_move.x / WALK_SPEED, -1.0, 1.0) * -0.10)
     animation_lock = maxf(0.0, animation_lock - delta)
     weapon_active = maxf(0.0, weapon_active - delta)
     if health <= 0:
@@ -150,6 +162,11 @@ func _update_visual_state(delta: float) -> void:
         _play_clip("Run_Shoot", 0.10)
         return
     var local_movement := global_basis.inverse() * movement.normalized()
+    # Use native forward Run unless aiming; avoid false strafing from camera rotations.
+    var aiming := mobile_firing or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+    if not aiming:
+        _play_clip("Run")
+        return
     # Directional clips remove backward/sideways moonwalking.
     if local_movement.z > 0.42:
         _play_clip("Run_Back")

@@ -43,6 +43,10 @@ var result_label: Label
 var health_bar: ColorRect
 var move_touch_id := -1
 var move_touch_start := Vector2.ZERO
+var aim_touch_id := -1
+var aim_screen := Vector2.ZERO
+var manual_aim_active := false
+var crosshair: Control
 
 func _ready() -> void:
     rng.randomize()
@@ -242,6 +246,19 @@ func _create_objectives() -> void:
     portal.material_override = portal_material
     add_child(portal)
 
+func _create_reticle(parent: Control) -> void:
+    crosshair = Control.new()
+    crosshair.name = "ARCONT screen-space aim indicator"
+    crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    parent.add_child(crosshair)
+    for pos in [Vector2(-16, -1), Vector2(9, -1), Vector2(-1, -16), Vector2(-1, 9)]:
+        var line := ColorRect.new()
+        line.position = pos
+        line.size = Vector2(7, 2) if absf(pos.x) > 5 else Vector2(2, 7)
+        line.color = Color("#64f4fa")
+        line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        crosshair.add_child(line)
+
 func _create_hud() -> void:
     var overlay := CanvasLayer.new()
     add_child(overlay)
@@ -254,6 +271,7 @@ func _create_hud() -> void:
     hit_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
     hit_overlay.color = Color(0.88, 0.1, 0.06, 0.0)
     root.add_child(hit_overlay)
+    _create_reticle(root)
     var banner := Panel.new()
     banner.name = "HUD - telemetria tactica"
     banner.position = Vector2(12, 10)
@@ -344,22 +362,33 @@ func _input(event: InputEvent) -> void:
     if player == null or finished:
         return
     if event is InputEventScreenTouch:
-        if event.pressed and move_touch_id == -1:
-            var screen := get_viewport().get_visible_rect().size
-            if event.position.x < screen.x * 0.48 and event.position.y > screen.y * 0.34:
+        var rect := get_viewport().get_visible_rect().size
+        if event.pressed:
+            if move_touch_id == -1 and event.position.x < rect.x * 0.48 and event.position.y > rect.y * 0.34:
                 move_touch_id = event.index
                 move_touch_start = event.position
-        elif not event.pressed and event.index == move_touch_id:
-            move_touch_id = -1
-            player.touch_axis = Vector2.ZERO
-    elif event is InputEventScreenDrag and event.index == move_touch_id:
-        player.touch_axis = ((event.position - move_touch_start) / 78.0).limit_length(1.0)
+            elif aim_touch_id == -1 and event.position.x > rect.x * 0.52 and event.position.y < rect.y * 0.72:
+                aim_touch_id = event.index
+                aim_screen = event.position
+                manual_aim_active = true
+        else:
+            if event.index == move_touch_id:
+                move_touch_id = -1
+                player.touch_axis = Vector2.ZERO
+            if event.index == aim_touch_id:
+                aim_touch_id = -1
+    elif event is InputEventScreenDrag:
+        if event.index == move_touch_id:
+            player.touch_axis = ((event.position - move_touch_start) / 78.0).limit_length(1.0)
+        elif event.index == aim_touch_id:
+            aim_screen = event.position
+            manual_aim_active = true
 
 func _process(delta: float) -> void:
     if player == null:
         return
     camera.position = camera.position.lerp(_camera_safe_position(), minf(1.0, delta * 6.0))
-    camera.look_at(player.global_position + Vector3(0, 0, -4), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0.75, -2.0), Vector3.UP)
     if finished:
         if Input.is_key_pressed(KEY_R):
             get_tree().reload_current_scene()
@@ -387,35 +416,59 @@ func _physics_process(delta: float) -> void:
         _fire_rifle()
 
 func _update_aim() -> void:
-    var direction := Vector3.ZERO
-    if player.mobile_firing or Input.is_key_pressed(KEY_SPACE):
-        direction = _target_nearest_enemy()
-    elif not OS.has_feature("mobile"):
-        var cursor := get_viewport().get_mouse_position()
-        var projected: Variant = Plane(Vector3.UP, 1.0).intersects_ray(camera.project_ray_origin(cursor), camera.project_ray_normal(cursor))
-        if projected != null:
-            direction = Vector3(projected.x - player.global_position.x, 0, projected.z - player.global_position.z)
-    if direction.length_squared() > 0.01:
-        player.aim_direction = direction.normalized()
+    # Shared screen-space aim: mouse, right-side touch aim, or auto target.
+    var viewport_size := get_viewport().get_visible_rect().size
+    var screen_point := aim_screen if manual_aim_active else viewport_size * 0.5
+    if not OS.has_feature("mobile") and not manual_aim_active:
+        screen_point = get_viewport().get_mouse_position()
+    var muzzle: Vector3 = player.global_position + Vector3(0, 0.18, 0)
+    var target := Vector3.ZERO
+    if (player.mobile_firing or Input.is_key_pressed(KEY_SPACE)) and not manual_aim_active:
+        target = _nearest_enemy_aim_point(muzzle)
+    if target == Vector3.ZERO:
+        target = _screen_aim_point(screen_point)
+    var trajectory: Vector3 = target - muzzle
+    if trajectory.length_squared() > 0.05:
+        player.fire_direction = trajectory.normalized()
+        var planar := Vector3(trajectory.x, 0.0, trajectory.z)
+        if planar.length_squared() > 0.05:
+            player.aim_direction = planar.normalized()
+        var flat_distance: float = maxf(planar.length(), 0.01)
+        player.aim_pitch = clampf(atan2(trajectory.y, flat_distance), -0.30, 0.30)
+    if crosshair != null:
+        crosshair.position = screen_point
 
-func _target_nearest_enemy() -> Vector3:
-    var best_distance := 34.0
-    var best := Vector3.ZERO
-    for node in get_tree().get_nodes_in_group("enemies"):
-        if not is_instance_valid(node):
+func _screen_aim_point(screen_point: Vector2) -> Vector3:
+    var from := camera.project_ray_origin(screen_point)
+    var ray_dir := camera.project_ray_normal(screen_point)
+    var query := PhysicsRayQueryParameters3D.create(from, from + ray_dir * 75.0)
+    query.exclude = [player.get_rid()]
+    var hit := get_world_3d().direct_space_state.intersect_ray(query)
+    if not hit.is_empty():
+        return hit["position"]
+    var projected: Variant = Plane(Vector3.UP, 1.0).intersects_ray(from, ray_dir)
+    if projected != null:
+        return projected
+    return from + ray_dir * 35.0
+
+func _nearest_enemy_aim_point(muzzle: Vector3) -> Vector3:
+    var best_distance := 32.0
+    var target := Vector3.ZERO
+    for actor in get_tree().get_nodes_in_group("enemies"):
+        if not is_instance_valid(actor):
             continue
-        var delta_pos: Vector3 = node.global_position - player.global_position
-        delta_pos.y = 0.0
-        if delta_pos.length() < best_distance:
-            best_distance = delta_pos.length()
-            best = delta_pos
-    return best
+        var delta_pos: Vector3 = actor.global_position - muzzle
+        var distance := delta_pos.length()
+        if distance < best_distance:
+            best_distance = distance
+            target = actor.global_position + Vector3(0, 0.25, 0)
+    return target
 
 func _fire_rifle() -> void:
     audio_fx.trigger("fire")
     player.on_weapon_fired()
     var from: Vector3 = player.global_position + Vector3(0, 0.18, 0)
-    var to: Vector3 = from + player.aim_direction * 34.0
+    var to: Vector3 = from + player.fire_direction.normalized() * 34.0
     var query := PhysicsRayQueryParameters3D.create(from, to)
     query.exclude = [player.get_rid()]
     var hit := get_world_3d().direct_space_state.intersect_ray(query)

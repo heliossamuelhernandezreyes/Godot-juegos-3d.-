@@ -102,6 +102,12 @@ jobs:
           cat vanguard-gameplay.log
           grep -q "VANGUARD GAMEPLAY PASS" vanguard-gameplay.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" vanguard-gameplay.log
+      - name: ARCONT ANIM post-clip aiming and multi-touch ballistic regression
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/aim_pipeline.gd > aim-pipeline.log 2>&1 || { cat aim-pipeline.log; exit 1; }
+          cat aim-pipeline.log
+          grep -q "ARCONT AIM PASS" aim-pipeline.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" aim-pipeline.log
       - name: Validate camera inside tall industrial walls
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/camera_bounds.gd > camera-bounds.log 2>&1 || { cat camera-bounds.log; exit 1; }
@@ -147,4 +153,5 @@ jobs:
             vanguard-import.log
             vanguard-gameplay.log
             drone-ranged.log
+            aim-pipeline.log
           if-no-files-found: ignore
