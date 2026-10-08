@@ -11,7 +11,7 @@ func _test() -> void:
     if soldier.humanoid_skeleton == null or soldier.rig_animation == null or not soldier.visual_ready:
         _fail("No active Vanguard human rig")
         return
-    var grip := soldier.humanoid_skeleton.find_bone("Wrist.R")
+    var grip: int = soldier.humanoid_skeleton.find_bone("Wrist.R")
     if grip < 0:
         _fail("Source rig lost its right-hand wrist bone")
         return
