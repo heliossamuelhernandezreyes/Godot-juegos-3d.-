@@ -150,14 +150,14 @@ func _make_player() -> void:
 
 func _make_camera() -> void:
     camera = Camera3D.new()
-    camera.fov = 66.0
+    camera.fov = 62.0
     camera.position = _camera_position()
     add_child(camera)
     camera.current = true
-    camera.look_at(player.global_position + Vector3(0, 0.7, -2.0), Vector3.UP)
+    camera.look_at(player.global_position + Vector3(0, 0.85, -1.2), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Vector3(0.9, 5.4, 8.2)
+    var desired: Vector3 = player.global_position + Vector3(1.10, 3.85, 5.8)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -206,6 +206,26 @@ func _make_interactables() -> void:
     gate_mat.albedo_color = Color("#7e4c39")
     gate_visual.material_override = gate_mat
     gate_body.add_child(gate_visual)
+    var brass := StandardMaterial3D.new()
+    brass.albedo_color = Color("#d3a45b")
+    brass.metallic = 0.7
+    brass.roughness = 0.3
+    for offset in [-3.0, 3.0]:
+        var stripe := MeshInstance3D.new()
+        var bar := BoxMesh.new()
+        bar.size = Vector3(0.18, 2.7, 0.08)
+        stripe.mesh = bar
+        stripe.position = Vector3(offset, 0, 0.45)
+        stripe.material_override = brass
+        gate_body.add_child(stripe)
+    var lock_text := Label3D.new()
+    lock_text.name = "Access gate | warning signage"
+    lock_text.text = "REACTIVO-13   //   NODOS A + B"
+    lock_text.font_size = 52
+    lock_text.pixel_size = 0.0034
+    lock_text.modulate = Color("#ffcf85")
+    lock_text.position = Vector3(0, 0.45, 0.47)
+    gate_body.add_child(lock_text)
     add_child(gate_body)
 
 func _make_hud() -> void:
@@ -215,6 +235,12 @@ func _make_hud() -> void:
     root.set_anchors_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_IGNORE
     layer.add_child(root)
+    var hud_panel := ColorRect.new()
+    hud_panel.position = Vector2(10, 8)
+    hud_panel.size = Vector2(720, 160)
+    hud_panel.color = Color(0.015, 0.035, 0.055, 0.72)
+    hud_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(hud_panel)
     health_label = _label(root, Vector2(20, 16), 25)
     mission_label = _label(root, Vector2(20, 54), 21)
     prompt_label = _label(root, Vector2(20, 86), 18)
@@ -310,7 +336,7 @@ func _process(delta: float) -> void:
         return
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 6.0))
     camera.look_at(player.global_position + Vector3(0, 0.7, -2.0), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 59.0 if player.wants_to_fire() else 66.0, minf(1.0, delta * 6.0))
+    camera.fov = lerpf(camera.fov, 55.0 if player.wants_to_fire() else 62.0, minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta
