@@ -7,6 +7,7 @@ const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const GRID_SCRIPT = preload("res://scripts/tactical_grid.gd")
 const QUAD_SCRIPT = preload("res://scripts/animated_reaver.gd")
 const BULWARK_SCRIPT = preload("res://scripts/reactivo_bulwark.gd")
+const TELEGRAPH_DRONE_SCRIPT = preload("res://scripts/reactivo_eyedrone.gd")
 const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
 const ART_SCRIPT = preload("res://scripts/art_stage.gd")
 const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
@@ -497,9 +498,12 @@ func _spawn_role(role: String, at: Vector3) -> void:
     var body := CharacterBody3D.new()
     if role == "bulwark":
         body.set_script(BULWARK_SCRIPT)
+    elif role == "eyedrone":
+        body.set_script(TELEGRAPH_DRONE_SCRIPT)
+        body.asset_kind = "eye"
     else:
         body.set_script(QUAD_SCRIPT)
-        body.asset_kind = "eye" if role == "eyedrone" else "quad"
+        body.asset_kind = "quad"
     body.target = player
     body.director = self
     body.position = at
