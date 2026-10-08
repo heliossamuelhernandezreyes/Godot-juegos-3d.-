@@ -37,7 +37,10 @@ var progress_bar: ColorRect
 var control_note: Label
 var tactical_reticle: Label
 var cover_label: Label
-var cover_button: Button
+var cover_button: TouchScreenButton
+var cover_face: ColorRect
+var touch_buttons: Array[TouchScreenButton] = []
+var touch_offsets: Array[Vector2] = []
 var consoles: Dictionary = {}
 var objective_names: Dictionary = {}
 var gate_body: StaticBody3D
@@ -359,17 +362,19 @@ func _make_hud() -> void:
     result_label.visible = false
     if OS.has_feature("mobile"):
         control_note.text = "Izquierda: mover · Derecha: girar cámara · DISPARAR: único gatillo"
-        var interact := _mobile_button(root, "INTERACTUAR", -260, -20, -85, -20)
-        interact.button_down.connect(func() -> void: interact_held = true)
-        interact.button_up.connect(func() -> void: interact_held = false)
-        var shoot := _mobile_button(root, "DISPARAR", -240, -20, -170, -110)
-        shoot.button_down.connect(func() -> void: player.mobile_firing = true)
-        shoot.button_up.connect(func() -> void: player.mobile_firing = false)
-        cover_button = _mobile_button(root, "COBERTURA", -445, -270, -170, -110)
+        # TouchScreenButton supports independent fingers unlike generic GUI Buttons.
+        var interact := _touch_action(root, "INTERACTUAR", -260, -20, -85, -20)
+        interact.pressed.connect(func() -> void: interact_held = true)
+        interact.released.connect(func() -> void: interact_held = false)
+        var shoot := _touch_action(root, "DISPARAR", -240, -20, -170, -110)
+        shoot.pressed.connect(func() -> void: player.mobile_firing = true)
+        shoot.released.connect(func() -> void: player.mobile_firing = false)
+        cover_button = _touch_action(root, "COBERTURA", -445, -270, -170, -110)
+        cover_face = root.get_node_or_null("TOUCH_UI_COBERTURA") as ColorRect
         cover_button.pressed.connect(func() -> void: player.request_cover_toggle())
-        var shoulder := _mobile_button(root, "HOMBRO", -600, -450, -80, -20)
+        var shoulder := _touch_action(root, "HOMBRO", -600, -450, -80, -20)
         shoulder.pressed.connect(_swap_shoulder)
-        var dash := _mobile_button(root, "IMPULSO", -420, -270, -80, -20)
+        var dash := _touch_action(root, "IMPULSO", -420, -270, -80, -20)
         dash.pressed.connect(func() -> void: player.request_dash())
     var restart := _mobile_button(root, "REINICIAR", -170, -20, -70, -10)
     restart.anchor_top = 0
@@ -404,6 +409,41 @@ func _mobile_button(parent: Control, title: String, x0: int, x1: int, y0: int, y
     btn.offset_bottom = y1
     parent.add_child(btn)
     return btn
+
+func _touch_action(parent: Control, title: String, x0: int, x1: int, y0: int, y1: int) -> TouchScreenButton:
+    # UI artwork follows the regular bottom-right anchors; the input collector
+    # is a *real* independent TouchScreenButton with its own finger identity.
+    var face := ColorRect.new()
+    face.name = "TOUCH_UI_" + title
+    face.anchor_left = 1.0
+    face.anchor_right = 1.0
+    face.anchor_top = 1.0
+    face.anchor_bottom = 1.0
+    face.offset_left = x0
+    face.offset_right = x1
+    face.offset_top = y0
+    face.offset_bottom = y1
+    face.color = Color(0.025, 0.09, 0.12, 0.68)
+    face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    parent.add_child(face)
+    var caption := Label.new()
+    caption.text = title
+    caption.set_anchors_preset(Control.PRESET_FULL_RECT)
+    caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    face.add_child(caption)
+    var touch := TouchScreenButton.new()
+    touch.name = "Finger-local action " + title
+    var collision := RectangleShape2D.new()
+    collision.size = Vector2(float(x1 - x0), float(y1 - y0))
+    touch.shape = collision
+    touch.shape_centered = false
+    touch.position = get_viewport().get_visible_rect().size + Vector2(x0, y0)
+    parent.add_child(touch)
+    touch_buttons.append(touch)
+    touch_offsets.append(Vector2(x0, y0))
+    return touch
 
 func _swap_shoulder() -> void:
     shoulder_side *= -1.0
@@ -447,6 +487,10 @@ func _process(delta: float) -> void:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
     player.camera_yaw = camera_yaw
+    if not touch_buttons.is_empty():
+        var screen_size := get_viewport().get_visible_rect().size
+        for i in range(touch_buttons.size()):
+            touch_buttons[i].position = screen_size + touch_offsets[i]
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 10.0))
     camera.look_at(_camera_target(), Vector3.UP)
     camera.fov = lerpf(camera.fov, 54.0 if player.wants_to_fire() else 60.0, minf(1.0, delta * 6.0))
@@ -643,9 +687,8 @@ func _refresh_hud() -> void:
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     if cover_label != null:
         cover_label.text = "EN COBERTURA" if player.in_cover else ("CUBRIRSE" if player.can_take_cover() else "")
-    if cover_button != null:
-        cover_button.disabled = not player.in_cover and not player.can_take_cover()
-        cover_button.text = "SALIR" if player.in_cover else "COBERTURA"
+    if cover_face != null:
+        cover_face.color = Color(0.025, 0.24, 0.25, 0.82) if (player.in_cover or player.can_take_cover()) else Color(0.025, 0.07, 0.10, 0.38)
     
     progress_bar.size.x = 0.0
     if not target.is_empty():
