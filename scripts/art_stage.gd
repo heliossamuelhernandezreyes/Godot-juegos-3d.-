@@ -109,6 +109,7 @@ func _lighting() -> void:
     _spot("Recorte ambar", Vector3(15, 7.5, 9), Color("#e98042"), 7.5, 27.0)
     _spot("Portal", Vector3(0, 6.0, -16), Color("#49e8ed"), 8.5, 16.0)
     _spot("Reactor central", Vector3(0, 5.0, 0), Color("#fa7340"), 5.0, 12.0)
+    _spot("Luz protagonista", Vector3(0, 8.5, 13.5), Color("#b7deee"), 6.7, 18.0)
 
 func _spot(label: String, at: Vector3, color: Color, energy: float, reach: float) -> void:
     var light := OmniLight3D.new()
@@ -185,14 +186,14 @@ func _industrial_architecture(contract: Dictionary) -> void:
 
     # Perimeter maintenance catwalks and railings; decoration only, not walkable.
     for x in [-19.0, 19.0]:
-        _beam("Pasarela E-O", Vector3(x, 7.5, 0), Vector3(1.65, 0.24, 35.0), iron)
+        _beam("Pasarela E-O", Vector3(x, 13.5, 0), Vector3(1.65, 0.24, 35.0), iron)
         for side in [-1.0, 1.0]:
-            _beam("Pasamanos", Vector3(x + side * 0.80, 8.20, 0),
+            _beam("Pasamanos", Vector3(x + side * 0.80, 14.20, 0),
                 Vector3(0.12, 1.2, 35), frame)
     for z in [-19.0, 19.0]:
-        _beam("Pasarela N-S", Vector3(0, 7.5, z), Vector3(35.0, 0.24, 1.65), iron)
+        _beam("Pasarela N-S", Vector3(0, 13.5, z), Vector3(35.0, 0.24, 1.65), iron)
         for side in [-1.0, 1.0]:
-            _beam("Baranda metalica", Vector3(0, 8.2, z + side * 0.80),
+            _beam("Baranda metalica", Vector3(0, 14.2, z + side * 0.80),
                 Vector3(35.0, 1.2, 0.12), frame)
 
     # Industrial utility pipes; cylindrical geometry has no gameplay collider.
