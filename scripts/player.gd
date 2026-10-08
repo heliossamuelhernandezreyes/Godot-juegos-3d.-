@@ -12,6 +12,7 @@ const BODY_MESH = preload("res://assets/models/vanguard_body.obj")
 const ARM_MESH = preload("res://assets/models/vanguard_arm.obj")
 const LEG_MESH = preload("res://assets/models/vanguard_leg.obj")
 const RIFLE_MESH = preload("res://assets/models/vanguard_rifle.obj")
+const RIFLE_CC0 = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
 
 var max_health := 100
 var health := 100
@@ -69,7 +70,11 @@ func _build_mech_visual() -> void:
     right_arm.position = Vector3(0.55, 0.40, 0)
     visual_root.add_child(right_arm)
     _piece(right_arm, ARM_MESH, "Malla brazo derecho", Vector3.ZERO)
-    _piece(right_arm, RIFLE_MESH, "Rifle de asalto", Vector3(-0.12, -0.43, -0.30))
+    var detailed_rifle: Node3D = RIFLE_CC0.instantiate()
+    detailed_rifle.name = "Rifle de asalto Quaternius CC0"
+    detailed_rifle.position = Vector3(-0.12, -0.43, -0.30)
+    detailed_rifle.scale = Vector3.ONE * 0.83
+    right_arm.add_child(detailed_rifle)
     _add_back_lighting()
 
 func _add_back_lighting() -> void:
