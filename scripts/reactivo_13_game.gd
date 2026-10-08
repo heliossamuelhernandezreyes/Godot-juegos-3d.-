@@ -439,6 +439,8 @@ func _touch_action(parent: Control, title: String, x0: int, x1: int, y0: int, y1
     collision.size = Vector2(float(x1 - x0), float(y1 - y0))
     touch.shape = collision
     touch.shape_centered = false
+    # Also dispatch in Linux CI; mobile gameplay instantiates this branch only on touch devices.
+    touch.visibility_mode = TouchScreenButton.VISIBILITY_ALWAYS
     touch.position = get_viewport().get_visible_rect().size + Vector2(x0, y0)
     parent.add_child(touch)
     touch_buttons.append(touch)
