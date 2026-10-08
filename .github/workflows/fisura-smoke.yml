@@ -53,8 +53,11 @@ jobs:
       - name: Godot headless import and parse validation
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit > godot-import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/reactivo_bulwark.gd > bulwark-parse.log 2>&1 || true
+          cat bulwark-parse.log
           cat godot-import.log
           ! grep -E "SCRIPT ERROR|Parse Error|Failed to load script|ERROR:" godot-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" bulwark-parse.log
       - name: Godot headless runtime smoke (120 frames)
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 120 > godot-smoke.log 2>&1
@@ -213,6 +216,7 @@ jobs:
             reactivo-render.log
             reactivo-bulwark.log
             reactivo-art-audit.log
+            bulwark-parse.log
             reactivo-pbr-import.log
             reactivo-visual-suite.log
             asset-integrity.log
