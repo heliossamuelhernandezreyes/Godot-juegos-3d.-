@@ -81,7 +81,7 @@ func _floor_tiles(map_data: Dictionary) -> void:
     var batch := MultiMeshInstance3D.new()
     batch.name = "Suelo modular instanciado"
     batch.multimesh = multimesh
-    batch.material_override = _pbr_material("concrete_floor_worn_02", Color("#cddce2"), 0.7)
+    batch.material_override = _pbr_material("concrete_floor_worn_02", Color("#899da7"), 0.7)
     add_child(batch)
     mesh_count += 1
     mesh_instances += index
