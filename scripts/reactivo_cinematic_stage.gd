@@ -8,6 +8,7 @@ const PHOTO_CART: PackedScene = preload("res://assets/vendor/polyhaven_cinematic
 const PHOTO_CONTAINER: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_pastic_container/industrial_pastic_container_1k.gltf")
 const NODE_A_VISUAL: Script = preload("res://scripts/reactivo_node_a_visual_pilot.gd")
 const NODE_A_ENVIRONMENT: Script = preload("res://scripts/reactivo_node_a_environment_pass.gd")
+const NODE_A_FACTORY_KIT: Script = preload("res://scripts/reactivo_node_a_real_factory_kit.gd")
 var metal: Material
 var worn: Material
 var copper: Material
@@ -23,6 +24,7 @@ var alarm_active := false
 var draw_nodes := 0
 var node_a_pilot: Node3D
 var node_a_environment: Node3D
+var node_a_factory_kit: Node3D
 var material_cache: Dictionary = {}
 var box_cache: Dictionary = {}
 
@@ -41,6 +43,7 @@ func _ready() -> void:
     _node_rooms()
     _node_a_hero_pilot()
     _node_a_environment_pass()
+    _node_a_factory_kit()
     _detailed_factory_props()
     _reactor()
     _exit_platform()
@@ -207,6 +210,17 @@ func _node_a_environment_pass() -> void:
 func set_node_a_environment_enabled(enabled: bool) -> void:
     if node_a_environment != null:
         node_a_environment.visible = enabled
+
+func _node_a_factory_kit() -> void:
+    # Source-pinned real GLB modular machines from ARCONT's Kenney Factory Kit
+    # metadata record. The replaced towers are cinematic-only, never colliders.
+    node_a_factory_kit = Node3D.new()
+    node_a_factory_kit.set_script(NODE_A_FACTORY_KIT)
+    add_child(node_a_factory_kit)
+
+func set_node_a_factory_kit_enabled(enabled: bool) -> void:
+    if node_a_factory_kit != null:
+        node_a_factory_kit.set_factory_kit_enabled(enabled)
 
 func _detailed_factory_props() -> void:
     # ARCONT-vetted original Poly Haven photogrammetry, with complete glTF dependencies.
