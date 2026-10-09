@@ -108,7 +108,9 @@ func _upgrade_procedural_architecture(cinema: Node3D) -> void:
     for child in cinema.get_children():
         if not child is MeshInstance3D:
             continue
-        var label: String = str(child.name)
+        var label: String = str(child.get_meta("semantic_art_tag", child.name))
+        # Godot auto-renames repeated children: metadata keeps the authored
+        # family for every tower, not just the first sibling.
         # Exactly the existing scene-generated BoxMeshs; no mesh replacement.
         if label.begins_with("Node side coolant tower"):
             _target(child, painted_steel, "architecture")
