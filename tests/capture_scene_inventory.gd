@@ -76,7 +76,10 @@ func _walk(node: Node, rows: Array[Dictionary]) -> void:
         "type": str(node.get_class()),
     }
     if node is Node3D:
-        item["visible"] = (node as Node3D).visible
+        var spatial := node as Node3D
+        item["visible"] = spatial.visible
+        var point: Vector3 = spatial.global_position
+        item["world_position"] = [point.x, point.y, point.z]
     if node is Light3D:
         var lamp := node as Light3D
         item["shadow_enabled"] = lamp.shadow_enabled
@@ -90,12 +93,14 @@ func _walk(node: Node, rows: Array[Dictionary]) -> void:
         var mesh_node := node as MeshInstance3D
         item["instance_count"] = 1
         item["surfaces"] = mesh_node.mesh.get_surface_count() if mesh_node.mesh != null else 0
+        item["geometry_type"] = str(mesh_node.mesh.get_class()) if mesh_node.mesh != null else "missing"
         _mesh_materials(mesh_node, mesh_node.mesh, item)
     elif node is MultiMeshInstance3D:
         var multi_node := node as MultiMeshInstance3D
         item["instance_count"] = multi_node.multimesh.instance_count if multi_node.multimesh != null else 0
         var model: Mesh = multi_node.multimesh.mesh if multi_node.multimesh != null else null
         item["surfaces"] = model.get_surface_count() if model != null else 0
+        item["geometry_type"] = str(model.get_class()) if model != null else "missing"
         _mesh_materials(multi_node, model, item)
     if node is WorldEnvironment:
         var environment := (node as WorldEnvironment).environment
