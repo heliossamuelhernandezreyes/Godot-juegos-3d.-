@@ -1,0 +1,101 @@
+{
+  "license": "CC0-1.0",
+  "producer": "Kenney",
+  "vendor_intermediary_repository": "manuel-palacio/brickstorm",
+  "vendor_intermediary_revision": "90673e14473430ef16a3b163431dc03d6adc6fd0",
+  "license_provenance": "https://kenney.nl/support",
+  "note": "Original Kenney CC0 pack sounds, redistributed in a third-party game with file-level credits. OGG binaries copied unchanged, verified with the Git blob SHA and an independent Ogg/Vorbis header and duration parser. Not a FISURA subjective sound quality approval.",
+  "assets": [
+    {
+      "file": "fire_laser.ogg",
+      "sha256": "ab87913aba9790a0c5fa173d086267ba521ad522fcad2252271db49988313cf5",
+      "bytes": 7448,
+      "duration_seconds": 0.2473,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/laser.ogg",
+      "source_git_blob_sha1": "ffc89b9e7e2d816fd532e1a06f379a32ef1d4cef",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Sci-fi Sounds",
+      "original_pack_filename": "laserSmall_001.ogg",
+      "official_pack_page": "https://kenney.nl/assets/sci-fi-sounds"
+    },
+    {
+      "file": "fire_mechanical.ogg",
+      "sha256": "b670d30452983369771081319c268475edaaafe782bf4e8d70bd7eef09d8823c",
+      "bytes": 10921,
+      "duration_seconds": 0.6093,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/paddle-hit.ogg",
+      "source_git_blob_sha1": "e1ab0b5a969be92022eded6b2d06437e71f0a082",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Impact Sounds",
+      "original_pack_filename": "impactPlate_medium_000.ogg",
+      "official_pack_page": "https://kenney.nl/assets/impact-sounds"
+    },
+    {
+      "file": "impact_metal.ogg",
+      "sha256": "36b4ea107222d073c67ca64dde26944975609202d5090b2f2021213c1a7e35cd",
+      "bytes": 12035,
+      "duration_seconds": 0.9374,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/brick-hit.ogg",
+      "source_git_blob_sha1": "3346d1a9c624d31cdb6d4a67f2b0b405110880eb",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Impact Sounds",
+      "original_pack_filename": "impactMining_000.ogg",
+      "official_pack_page": "https://kenney.nl/assets/impact-sounds"
+    },
+    {
+      "file": "impact_light.ogg",
+      "sha256": "8ac5869ea434cf0d364872774efe70b2d666a4f02ba35ddfc1e051d336721be8",
+      "bytes": 9932,
+      "duration_seconds": 0.4888,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/wall-hit.ogg",
+      "source_git_blob_sha1": "db4e79ab6649090d66f96b30f5b5ffa0a593040e",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Impact Sounds",
+      "original_pack_filename": "impactPlate_light_002.ogg",
+      "official_pack_page": "https://kenney.nl/assets/impact-sounds"
+    },
+    {
+      "file": "explosion.ogg",
+      "sha256": "4b597d658d0ae101f0a030fbeea5fc3a4292ab85f017470a8254a8e7959cbd69",
+      "bytes": 28274,
+      "duration_seconds": 0.7775,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/brick-break.ogg",
+      "source_git_blob_sha1": "019e53664abf859fc5529f95d0db23fa3ac1e42d",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Sci-fi Sounds",
+      "original_pack_filename": "explosionCrunch_000.ogg",
+      "official_pack_page": "https://kenney.nl/assets/sci-fi-sounds"
+    },
+    {
+      "file": "pickup.ogg",
+      "sha256": "063564703b6094d70718a3e787a55cc9141611e4ecd6b6637f8828f79b4a8c3a",
+      "bytes": 8968,
+      "duration_seconds": 0.2898,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/powerup-get.ogg",
+      "source_git_blob_sha1": "78f119c626bd8e9c18a19c0c9175d3e37d3a7a22",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Interface Sounds",
+      "original_pack_filename": "confirmation_001.ogg",
+      "official_pack_page": "https://kenney.nl/assets/interface-sounds"
+    },
+    {
+      "file": "cover_enter.ogg",
+      "sha256": "ccfb7fa0cccdd9faec0eb16033c732b1e308d139d80f799161495d58f7adcdb9",
+      "bytes": 4876,
+      "duration_seconds": 0.1,
+      "source_url": "https://raw.githubusercontent.com/manuel-palacio/brickstorm/90673e14473430ef16a3b163431dc03d6adc6fd0/public/audio/ui-click.ogg",
+      "source_git_blob_sha1": "7ca77c7186126ce177640aad0c7ccc4c59bf4446",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source_pack": "Interface Sounds",
+      "original_pack_filename": "click_001.ogg",
+      "official_pack_page": "https://kenney.nl/assets/interface-sounds"
+    }
+  ]
+}

@@ -3,6 +3,9 @@ extends CharacterBody3D
 ## ARCONT principle: Skeleton3D/AnimationPlayer are visual, CharacterBody3D remains authoritative.
 signal health_changed(current: int, maximum: int)
 signal dash_started
+signal cover_entered
+signal vault_started
+signal vault_landed
 
 const WALK_SPEED := 9.0
 const DASH_SPEED := 24.0
@@ -13,6 +16,9 @@ const MOVE_ACCELERATION := 64.0
 const MOVE_BRAKING := 78.0
 const COVER_ENTER_GAP := 1.95
 const COVER_EXIT_GAP := 2.25
+const VAULT_TIME := 0.72
+const VAULT_CAPSULE_CLEARANCE := 1.15
+const VAULT_LANDING_GAP := 0.70
 const VANGUARD_SCENE = preload("res://assets/vendor/quaternius/vanguard_spacesuit/Spacesuit.gltf")
 const RIFLE_SCENE = preload("res://assets/vendor/quaternius/scifi_essentials/Gun_Rifle.gltf")
 const AIM_MODIFIER = preload("res://scripts/vanguard_aim_modifier.gd")
@@ -34,6 +40,14 @@ var in_cover := false
 var cover_id := ""
 var cover_normal := Vector3.ZERO
 var cover_guide: Dictionary = {}
+var cover_blend := 0.0
+var vault_active := false
+var vault_elapsed := 0.0
+var vault_from := Vector3.ZERO
+var vault_to := Vector3.ZERO
+var vault_top_y := 0.0
+var vault_start_height := 0.0
+var vault_completed := 0
 var cover_requests := 0
 var invulnerability := 0.0
 var visual_root: Node3D
@@ -161,10 +175,24 @@ func _update_visual_state(delta: float) -> void:
         var local_velocity := global_basis.inverse() * Vector3(velocity.x, 0.0, velocity.z)
         var lateral := clampf(local_velocity.x / WALK_SPEED, -1.0, 1.0)
         aim_modifier.set_aim_motion(wants_to_fire() or weapon_active > 0.0, aim_pitch, -lateral * 0.11)
+        aim_modifier.set_tactical_pose(0.0 if vault_active else cover_blend,
+            vault_elapsed / VAULT_TIME if vault_active else -1.0)
     animation_lock = maxf(0.0, animation_lock - delta)
     weapon_active = maxf(0.0, weapon_active - delta)
     if health <= 0:
         _play_clip("Death", 0.15)
+        return
+    if vault_active:
+        # Use a native jump action if the source rig contains one.
+        if rig_animation.has_animation("Jump_Gun"):
+            _play_clip("Jump_Gun", 0.08)
+        elif rig_animation.has_animation("Jump"):
+            _play_clip("Jump", 0.08)
+        else:
+            # The audited 24-clip Spacesuit rig has no Jump/Crouch clip.
+            # Interact is the source-authored reach/grab action; use this
+            # during the vault rather than inventing a nonexistent animation.
+            _play_clip("Interact", 0.12)
         return
     if dash_remaining > 0.0:
         if selected_clip != "Roll":
@@ -198,6 +226,11 @@ func _physics_process(delta: float) -> void:
     dash_cooldown = maxf(0.0, dash_cooldown - delta)
     invulnerability = maxf(0.0, invulnerability - delta)
     _validate_cover()
+    cover_blend = move_toward(cover_blend, 1.0 if in_cover and not wants_to_fire() else 0.0, delta * 6.0)
+    if vault_active:
+        _advance_vault(delta)
+        _update_visual_state(delta)
+        return
     var motion := _movement_axis()
     var direction := (Basis(Vector3.UP, camera_yaw) * Vector3(motion.x, 0.0, motion.y)).normalized()
     if in_cover and direction.length_squared() > 0.001:
@@ -243,11 +276,14 @@ func _physics_process(delta: float) -> void:
     if aim_direction.length_squared() > 0.001:
         look_at(global_position + aim_direction, Vector3.UP)
     if visual_root != null:
-        # Animation-safe visual brace, without changing the authoritative capsule.
-        # Preserve feet height when lowering the silhouette. Imported Crouch (if any) owns the detailed pose.
-        visual_root.scale.y = lerpf(visual_root.scale.y, 0.85 if in_cover else 1.0, minf(1.0, delta * 9.0))
-        visual_root.position.y = lerpf(visual_root.position.y, -0.13 if in_cover else 0.0, minf(1.0, delta * 9.0))
-        visual_root.rotation.z = lerpf(visual_root.rotation.z, -0.09 * cover_normal.x if in_cover else 0.0, minf(1.0, delta * 8.0))
+        # Let skeletal torso pose drive cover compression instead of scaling
+        # the entire animated character (which distorts the hands and rifle).
+        # A tiny vertical presentation offset remains; physics stays unchanged.
+        visual_root.rotation.x = lerpf(visual_root.rotation.x, 0.0, minf(1.0, delta * 9.0))
+        visual_root.scale.y = lerpf(visual_root.scale.y, 1.0, minf(1.0, delta * 12.0))
+        visual_root.position.y = lerpf(visual_root.position.y, -0.04 * cover_blend, minf(1.0, delta * 12.0))
+        var lean := -0.17 * cover_normal.x if in_cover and wants_to_fire() else -0.09 * cover_normal.x * cover_blend
+        visual_root.rotation.z = lerpf(visual_root.rotation.z, lean, minf(1.0, delta * 10.0))
     _update_visual_state(delta)
 
 func configure_cover_zones(guides: Array, props: Array = []) -> void:
@@ -290,7 +326,7 @@ func _nearest_cover() -> Dictionary:
     return best
 
 func can_take_cover() -> bool:
-    if health <= 0 or dash_remaining > 0.0:
+    if health <= 0 or dash_remaining > 0.0 or vault_active:
         return false
     var nearby := _nearest_cover()
     return not nearby.is_empty() and float(nearby["gap"]) <= COVER_ENTER_GAP
@@ -307,6 +343,7 @@ func request_cover_toggle() -> bool:
     cover_id = str(nearby["id"])
     cover_normal = nearby["normal"]
     cover_guide = nearby["guide"]
+    cover_entered.emit()
     return true
 
 func _leave_cover() -> void:
@@ -331,6 +368,94 @@ func _cover_snap_point() -> Vector3:
             float(raw_pos[0]) + float(raw_size[0]) * 0.5 - 0.30)
     return p
 
+func can_vault() -> bool:
+    # Only short, physical cover (the source-authored 1.4m crates) can be vaulted.
+    if not in_cover or vault_active or dash_remaining > 0.0 or cover_guide.is_empty():
+        return false
+    var shape_size: Array = cover_guide["size"]
+    if float(shape_size[1]) > 1.60:
+        return false
+    var place: Array = cover_guide["position"]
+    var center := Vector3(float(place[0]), float(place[1]), float(place[2]))
+    var half_width := float(shape_size[0]) * 0.5 if absf(cover_normal.x) > 0.5 else float(shape_size[2]) * 0.5
+    var landing := center - cover_normal * (half_width + VAULT_LANDING_GAP + 0.45)
+    landing.y = global_position.y
+    var roof_y := center.y + float(shape_size[1]) + VAULT_CAPSULE_CLEARANCE
+    var rise := Vector3.UP * maxf(0.0, roof_y - global_position.y)
+    var across := Vector3(landing.x - global_position.x, 0.0, landing.z - global_position.z)
+    if rise.y < 0.35 or across.length() > 5.0:
+        return false
+    # Three physical clearance sweeps; do not vault into walls or under a roof.
+    if test_move(global_transform, rise):
+        return false
+    var raised := global_transform.translated(rise)
+    if test_move(raised, across):
+        return false
+    var far_raised := raised.translated(across)
+    if test_move(far_raised, -rise * 0.90):
+        return false
+    return true
+
+func request_vault() -> bool:
+    if not can_vault():
+        return false
+    var center: Array = cover_guide["position"]
+    var dims: Array = cover_guide["size"]
+    var half_width := float(dims[0]) * 0.5 if absf(cover_normal.x) > 0.5 else float(dims[2]) * 0.5
+    vault_from = global_position
+    vault_to = Vector3(float(center[0]), global_position.y, float(center[2])) - cover_normal * (half_width + VAULT_LANDING_GAP + 0.45)
+    vault_top_y = float(center[1]) + float(dims[1]) + VAULT_CAPSULE_CLEARANCE
+    vault_start_height = global_position.y
+    vault_elapsed = 0.0
+    vault_active = true
+    vault_started.emit()
+    velocity = Vector3.ZERO
+    animation_lock = 0.0
+    selected_clip = ""
+    _leave_cover()
+    return true
+
+func _advance_vault(delta: float) -> void:
+    vault_elapsed = minf(VAULT_TIME, vault_elapsed + delta)
+    var t := vault_elapsed / VAULT_TIME
+    # Rise without horizontal translation; cross only above the obstacle; land
+    # on the far side after all horizontal traversal has completed.
+    var wanted := vault_from
+    if t <= 0.27:
+        wanted.y = lerpf(vault_start_height, vault_top_y, smoothstep(0.0, 0.27, t))
+    elif t <= 0.73:
+        var progress := smoothstep(0.27, 0.73, t)
+        wanted = vault_from.lerp(vault_to, progress)
+        wanted.y = vault_top_y
+    else:
+        wanted = vault_to
+        wanted.y = lerpf(vault_top_y, vault_start_height, smoothstep(0.73, 1.0, t))
+    # Visual action curve (not yet full-body IK). Does not alter the physical capsule.
+    if visual_root != null:
+        visual_root.scale.y = lerpf(visual_root.scale.y, 1.0, minf(1.0, delta * 16.0))
+        visual_root.position.y = lerpf(visual_root.position.y, 0.0, minf(1.0, delta * 16.0))
+        visual_root.rotation.z = lerpf(visual_root.rotation.z, 0.0, minf(1.0, delta * 16.0))
+        visual_root.rotation.x = -0.17 * sin(t * PI)
+    # Native collision sweep, no transform teleportation through cover geometry.
+    var collision := move_and_collide(wanted - global_position)
+    # Any obstruction, including on the final landing frame, cancels the
+    # action. Never report vault_landed for a clipped or incomplete descent.
+    if collision != null:
+        vault_active = false
+        velocity = Vector3.ZERO
+        return
+    if vault_elapsed >= VAULT_TIME:
+        # A body can be stopped short by intervening world changes. Success
+        # requires reaching the authored opposite-side destination.
+        if global_position.distance_to(vault_to) > 0.08:
+            vault_active = false
+            velocity = Vector3.ZERO
+            return
+        vault_active = false
+        vault_completed += 1
+        vault_landed.emit()
+        velocity = Vector3.ZERO
+
 func _validate_cover() -> void:
     if not in_cover:
         return
@@ -339,8 +464,11 @@ func _validate_cover() -> void:
         _leave_cover()
 
 func _unhandled_input(event: InputEvent) -> void:
-    if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_Q:
-        request_cover_toggle()
+    if event is InputEventKey and event.pressed and not event.echo:
+        if event.keycode == KEY_Q:
+            request_cover_toggle()
+        elif event.keycode == KEY_F:
+            request_vault()
 
 func _movement_axis() -> Vector2:
     if touch_axis.length_squared() > 0.02:
@@ -357,6 +485,8 @@ func _movement_axis() -> Vector2:
     return axis.normalized()
 
 func wants_to_fire() -> bool:
+    if vault_active:
+        return false
     # Android emulates a mouse click for a touch on some builds. A screen touch
     # is never a shot. Only the explicit FIRE button controls mobile_firing.
     if mobile_input_mode:

@@ -159,6 +159,18 @@ jobs:
           cat reactivo-cover.log
           grep -q "REACTIVO COVER MOTION PASS" reactivo-cover.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-cover.log
+      - name: ARCONT physically swept vault over low cover only
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_cover_vault.gd > reactivo-vault.log 2>&1 || { cat reactivo-vault.log; exit 1; }
+          cat reactivo-vault.log
+          grep -q "REACTIVO LOW COVER VAULT PASS" reactivo-vault.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-vault.log
+      - name: ARCONT tactical skeletal pose and camera response in live Godot
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_tactical_animation_camera.gd > tactical-camera-animation.log 2>&1 || { cat tactical-camera-animation.log; exit 1; }
+          cat tactical-camera-animation.log
+          grep -q "REACTIVO TACTICAL ANIMATION CAMERA PASS" tactical-camera-animation.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" tactical-camera-animation.log
       - name: ARCONT touch regression - no accidental fire and shoulder camera
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_input_camera_regression.gd > input-camera.log 2>&1 || { cat input-camera.log; exit 1; }
@@ -171,12 +183,17 @@ jobs:
           cat touch-buttons.log
           grep -q "REACTIVO TOUCH BUTTONS PASS" touch-buttons.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" touch-buttons.log
-      - name: ARCONT inspect procedural sound PCM and voice budget
+      - name: ARCONT verify licensed OGG originals and voice contract (offline)
         run: |
-          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_audio_budget.gd > audio-budget.log 2>&1 || { cat audio-budget.log; exit 1; }
+          python3 tools/audio/validate_kenney_sources.py > audio-budget.log 2>&1 || { cat audio-budget.log; exit 1; }
           cat audio-budget.log
           grep -q "REACTIVO AUDIO BUDGET PASS" audio-budget.log
-          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" audio-budget.log
+      - name: ARCONT physical hit confirmation and cosmetic impact truthfulness
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_combat_feedback.gd > combat-feedback.log 2>&1 || { cat combat-feedback.log; exit 1; }
+          cat combat-feedback.log
+          grep -q "REACTIVO COMBAT FEEDBACK PASS" combat-feedback.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" combat-feedback.log
       - name: Test Bulwark frontal armor and counterplay
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_bulwark.gd > reactivo-bulwark.log 2>&1 || { cat reactivo-bulwark.log; exit 1; }
@@ -231,9 +248,10 @@ jobs:
           test -s reactivo-13-reactor.png
           test -s reactivo-13-bulwark.png
           test -s reactivo-13-cover.png
-      - name: ARCONT verify five unique viewport artifacts at 1280x720
+          test -s reactivo-13-vault.png
+      - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
-          python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png | tee reactivo-visual-evidence.log
+          python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
           grep -q "VIEWPORT EVIDENCE PASS" reactivo-visual-evidence.log
       - name: Upload Reactivo-13 actual render proof
         uses: actions/upload-artifact@v4
@@ -245,6 +263,7 @@ jobs:
             reactivo-13-reactor.png
             reactivo-13-bulwark.png
             reactivo-13-cover.png
+            reactivo-13-vault.png
           if-no-files-found: error
       - name: Upload gameplay render proof
         uses: actions/upload-artifact@v4
@@ -267,7 +286,10 @@ jobs:
             reactivo-render.log
             reactivo-bulwark.log
             reactivo-cover.log
+            reactivo-vault.log
+            combat-feedback.log
             input-camera.log
+            tactical-camera-animation.log
             audio-budget.log
             touch-buttons.log
             reactivo-warning.log

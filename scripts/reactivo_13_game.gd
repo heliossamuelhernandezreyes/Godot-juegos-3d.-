@@ -16,6 +16,8 @@ const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
 const CAMERA_SHOULDER := 1.05
 const CAMERA_HEIGHT := 1.30
 const CAMERA_DISTANCE := 4.25
+const CAMERA_AIM_DISTANCE := 3.62
+const CAMERA_AIM_HEIGHT := 1.14
 const TOUCH_LOOK_SENSITIVITY := 0.0034
 
 var contract: Dictionary = {}
@@ -48,6 +50,8 @@ var gate_shape: CollisionShape3D
 var gate_visual: MeshInstance3D
 var interact_held := false
 var shoulder_side := 1.0
+var camera_aim_blend := 0.0
+var camera_recoil := 0.0
 var camera_yaw := 0.0
 var camera_pitch := 0.0
 var touch_move_id := -1
@@ -61,6 +65,8 @@ var phase_time := 0.0
 var encounter_spawned: Dictionary = {}
 var elapsed := 0.0
 var fire_timer := 0.0
+var hit_confirm_remaining := 0.0
+var hit_reticle_active := false
 var kills := 0
 var failed := false
 var won := false
@@ -94,6 +100,9 @@ func _ready() -> void:
     combat_fx.set_script(EFFECT_SCRIPT)
     add_child(combat_fx)
     player.dash_started.connect(func() -> void: audio_fx.trigger("dash"))
+    player.cover_entered.connect(func() -> void: audio_fx.trigger("cover"))
+    player.vault_started.connect(func() -> void: audio_fx.trigger("vault"))
+    player.vault_landed.connect(func() -> void: audio_fx.trigger("land"))
     director.initialize(contract)
     _refresh_hud()
 
@@ -183,7 +192,14 @@ func _make_camera() -> void:
     camera.look_at(_camera_target(), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Basis(Vector3.UP, camera_yaw) * Vector3(CAMERA_SHOULDER * shoulder_side, CAMERA_HEIGHT, CAMERA_DISTANCE)
+    # Open movement keeps a full-body third-person silhouette. Holding the
+    # trigger eases to a closer shoulder framing; short cover lowers the rig
+    # modestly without rotating into the previous near-top-down perspective.
+    var distance := lerpf(CAMERA_DISTANCE, CAMERA_AIM_DISTANCE, camera_aim_blend)
+    var height := lerpf(CAMERA_HEIGHT, CAMERA_AIM_HEIGHT, camera_aim_blend)
+    height -= 0.07 * player.cover_blend
+    var lateral := CAMERA_SHOULDER + camera_aim_blend * 0.06
+    var desired: Vector3 = player.global_position + Basis(Vector3.UP, camera_yaw) * Vector3(lateral * shoulder_side, height, distance)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -200,7 +216,9 @@ func _camera_position() -> Vector3:
 func _camera_target() -> Vector3:
     # Aim ahead of the actor at shoulder height instead of down toward the floor.
     var direction := Basis(Vector3.UP, camera_yaw)
-    return player.global_position + direction * Vector3(0.0, 1.15 + camera_pitch * 5.0, -3.3)
+    # Recoil displaces the viewed aim ray, not the physics-owned player capsule.
+    var headroom := 1.15 + camera_pitch * 5.0 + camera_recoil * 0.095
+    return player.global_position + direction * Vector3(0.0, headroom, -3.3)
 
 func _make_interactables() -> void:
     for object_id in ["node_a_console", "node_b_console", "reactor_altar", "stabilizer", "extraction_pad"]:
@@ -372,6 +390,8 @@ func _make_hud() -> void:
         cover_button = _touch_action(root, "COBERTURA", -445, -270, -170, -110)
         cover_face = root.get_node_or_null("TOUCH_UI_COBERTURA") as ColorRect
         cover_button.pressed.connect(func() -> void: player.request_cover_toggle())
+        var vault := _touch_action(root, "SALTAR", -610, -460, -170, -110)
+        vault.pressed.connect(func() -> void: player.request_vault())
         var shoulder := _touch_action(root, "HOMBRO", -600, -450, -80, -20)
         shoulder.pressed.connect(_swap_shoulder)
         var dash := _touch_action(root, "IMPULSO", -420, -270, -80, -20)
@@ -438,13 +458,18 @@ func _touch_action(parent: Control, title: String, x0: int, x1: int, y0: int, y1
     var collision := RectangleShape2D.new()
     collision.size = Vector2(float(x1 - x0), float(y1 - y0))
     touch.shape = collision
-    touch.shape_centered = false
+    # Use a centered collision rectangle anchored to the visible button's
+    # center. Without a texture, Godot may ignore shape_centered=false, so
+    # corner-based positioning can put the actual finger hitbox off-target.
+    touch.shape_centered = true
+    var hitbox_center := Vector2((float(x0) + float(x1)) * 0.5,
+        (float(y0) + float(y1)) * 0.5)
     # Also dispatch in Linux CI; mobile gameplay instantiates this branch only on touch devices.
     touch.visibility_mode = TouchScreenButton.VISIBILITY_ALWAYS
-    touch.position = get_viewport().get_visible_rect().size + Vector2(x0, y0)
+    touch.position = get_viewport().get_visible_rect().size + hitbox_center
     parent.add_child(touch)
     touch_buttons.append(touch)
-    touch_offsets.append(Vector2(x0, y0))
+    touch_offsets.append(hitbox_center)
     return touch
 
 func _swap_shoulder() -> void:
@@ -485,17 +510,28 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null or director == null:
         return
+    hit_confirm_remaining = maxf(0.0, hit_confirm_remaining - delta)
     if tactical_reticle != null:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
+        var active := hit_confirm_remaining > 0.0
+        if active != hit_reticle_active:
+            hit_reticle_active = active
+            tactical_reticle.text = "×" if active else "+"
+            tactical_reticle.add_theme_color_override("font_color",
+                Color("#ffcf80") if active else Color("#83edec"))
     player.camera_yaw = camera_yaw
+    camera_aim_blend = move_toward(camera_aim_blend,
+        1.0 if player.wants_to_fire() else 0.0, delta * 5.5)
+    camera_recoil = move_toward(camera_recoil, 0.0, delta * 6.5)
     if not touch_buttons.is_empty():
         var screen_size := get_viewport().get_visible_rect().size
         for i in range(touch_buttons.size()):
             touch_buttons[i].position = screen_size + touch_offsets[i]
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 10.0))
     camera.look_at(_camera_target(), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 54.0 if player.wants_to_fire() else 60.0, minf(1.0, delta * 6.0))
+    camera.fov = lerpf(camera.fov, lerpf(60.0, 54.0, camera_aim_blend),
+        minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta
@@ -542,19 +578,27 @@ func _physics_process(delta: float) -> void:
         fire_timer = 0.2
         _fire()
 
-func _fire() -> void:
+func _fire(pointer_override: Vector2 = Vector2(-1.0, -1.0)) -> void:
     player.on_weapon_fired()
+    camera_recoil = minf(1.0, camera_recoil + 0.32)
     audio_fx.trigger("fire")
     # Reconcile crosshair/camera ray with the actual muzzle ray: no invisible
     # enemy auto-targeting, and no shots through close cover obstacles.
     var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
+    # Headless physics tests have no real cursor; provide an explicit viewport
+    # ray without changing desktop pointer controls or Android aiming.
+    if pointer_override.x >= 0.0 and pointer_override.y >= 0.0:
+        pointer = pointer_override
     var view_origin: Vector3 = camera.project_ray_origin(pointer)
     var view_end: Vector3 = view_origin + camera.project_ray_normal(pointer) * 80.0
     var view_query := PhysicsRayQueryParameters3D.create(view_origin, view_end)
     view_query.exclude = [player.get_rid()]
     var sight: Dictionary = get_world_3d().direct_space_state.intersect_ray(view_query)
     var aim_point: Vector3 = sight["position"] if not sight.is_empty() else view_end
-    var origin: Vector3 = player.global_position + Vector3(0, 0.32, 0)
+    # The raised rifle must clear short cover only while a held trigger peeks.
+    # Tall walls still block the muzzle ray. Do not bypass collision for hit tests.
+    var muzzle_height := 0.98 if player.in_cover else 0.32
+    var origin: Vector3 = player.global_position + Vector3(0, muzzle_height, 0)
     var forward: Vector3 = (aim_point - origin).normalized()
     var destination := origin + forward * 80.0
     var query := PhysicsRayQueryParameters3D.create(origin, destination)
@@ -563,15 +607,24 @@ func _fire() -> void:
     if not result.is_empty():
         destination = result["position"]
         var collider: Object = result["collider"]
+        # A physical wall should spark but never show an enemy damage marker.
+        # A miss should trace but must not create an impact effect in empty air.
+        register_hit_feedback(destination)
         if collider != null:
             if collider.has_method("take_hit_from"):
                 collider.call("take_hit_from", 23, origin)
+                _confirm_combat_hit()
             elif collider.has_method("take_hit"):
                 collider.call("take_hit", 23)
+                _confirm_combat_hit()
     if combat_fx != null:
         combat_fx.muzzle(origin, forward)
         combat_fx.tracer(origin, destination)
-    register_hit_feedback(destination)
+
+func _confirm_combat_hit() -> void:
+    hit_confirm_remaining = 0.13
+    if audio_fx != null:
+        audio_fx.trigger("hit")
 
 func _available_target() -> String:
     var objective_ids: Array = director.phase_objectives()
@@ -688,7 +741,9 @@ func _refresh_hud() -> void:
     var target := _available_target()
     prompt_label.text = "Mantén E / INTERACTUAR" if not target.is_empty() else "Sigue el objetivo marcado"
     if cover_label != null:
-        cover_label.text = "EN COBERTURA" if player.in_cover else ("CUBRIRSE" if player.can_take_cover() else "")
+        cover_label.text = ("SALTAR [F] · ASOMAR [DISPARAR]" if player.can_vault() else
+            ("EN COBERTURA · ASOMAR [DISPARAR]" if player.in_cover else
+            ("CUBRIRSE" if player.can_take_cover() else "")))
     if cover_face != null:
         cover_face.color = Color(0.025, 0.24, 0.25, 0.82) if (player.in_cover or player.can_take_cover()) else Color(0.025, 0.07, 0.10, 0.38)
     

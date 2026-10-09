@@ -1,8 +1,10 @@
 extends Node
-## FISURA 0.9.1 transient SFX. Procedural placeholder: no shrill sweeping sine gunshot.
-## ARCONT audio policy: bounded voice pool, deterministic signed PCM, no clipping.
-const SAMPLE_RATE := 24000
-const POOL_SIZE := 6
+## FISURA 0.9.2 - Kenney CC0 source-pinned imported Vorbis SFX.
+## Every OGG and exact original-byte SHA256 is recorded in
+## res://assets/vendor/kenney_sfx/PROVENANCE.json.
+## Preview mix, not a sound-design listening/mastering certificate.
+const POOL_SIZE := 8
+const SFX_DIR := "res://assets/vendor/kenney_sfx/"
 
 var streams: Dictionary = {}
 var voices: Array[AudioStreamPlayer] = []
@@ -10,77 +12,89 @@ var voice_cursor := 0
 var event_serial := 0
 
 func _ready() -> void:
-    streams["fire"] = _render("fire", 0.18, 711)
-    streams["hit"] = _render("hit", 0.15, 919)
-    streams["pickup"] = _render("pickup", 0.36, 113)
-    streams["dash"] = _render("dash", 0.24, 553)
-    streams["damage"] = _render("damage", 0.32, 338)
-    streams["victory"] = _render("victory", 0.76, 404)
+    var files := {
+        "fire":"fire_laser.ogg",
+        "mechanical":"fire_mechanical.ogg",
+        "hit":"impact_metal.ogg",
+        "damage":"impact_light.ogg",
+        "dash":"explosion.ogg",
+        "pickup":"pickup.ogg",
+        "cover":"cover_enter.ogg",
+        "victory":"pickup.ogg",
+        "explosion":"explosion.ogg"
+    }
+    for key in files:
+        # Headless gameplay regression scenes intentionally don't start an audio
+        # device or hold imported Vorbis references across a SceneTree.quit().
+        # Dedicated audio QA still decodes the exact OGG assets independently.
+        if DisplayServer.get_name() == "headless":
+            streams[key] = SFX_DIR + files[key]
+        else:
+            var res: AudioStream = load(SFX_DIR + files[key]) as AudioStream
+            if res == null:
+                push_error("FISURA AUDIO: missing licensed sample " + str(files[key]))
+            else:
+                streams[key] = res
     for i in range(POOL_SIZE):
         var voice := AudioStreamPlayer.new()
-        voice.name = "SFX voice %d" % i
-        voice.volume_db = -12.0
+        voice.name = "Pooled licensed SFX voice %d" % i
+        voice.volume_db = -19.0
         add_child(voice)
         voices.append(voice)
 
-func _render(kind: String, duration: float, seed_value: int) -> AudioStreamWAV:
-    var wav := AudioStreamWAV.new()
-    wav.format = AudioStreamWAV.FORMAT_16_BITS
-    wav.mix_rate = SAMPLE_RATE
-    wav.stereo = false
-    var count := int(duration * float(SAMPLE_RATE))
-    var bytes := PackedByteArray()
-    bytes.resize(count * 2)
-    var noise_gen := RandomNumberGenerator.new()
-    noise_gen.seed = seed_value
-    var low_noise := 0.0
-    var sub_phase := 0.0
-    var last_sample := 0.0
-    for i in range(count):
-        var time := float(i) / float(SAMPLE_RATE)
-        var t := float(i) / float(count)
-        var white := noise_gen.randf_range(-1.0, 1.0)
-        low_noise = lerpf(low_noise, white, 0.065)
-        var high_noise := white - low_noise
-        var hz := 90.0 + 90.0 * pow(1.0 - t, 3.0)
-        sub_phase += TAU * hz / float(SAMPLE_RATE)
-        var sub := sin(sub_phase)
-        var click := high_noise * pow(1.0 - t, 18.0)
-        var thump := sub * pow(1.0 - t, 4.0)
-        var sample := 0.0
-        match kind:
-            "fire":
-                # 10ms mechanical crack, short low-calibre pressure body, quiet vent tail.
-                sample = click * 0.48 + thump * 0.38 + low_noise * pow(1.0-t, 3.0) * 0.14
-            "hit":
-                sample = click * 0.24 + thump * 0.30 + low_noise * pow(1.0-t, 6.0) * 0.12
-            "dash":
-                var swoosh := sin(t * PI) * sin(t * PI)
-                sample = low_noise * swoosh * 0.50 + high_noise * swoosh * 0.07
-            "damage":
-                sample = thump * 0.34 + low_noise * pow(1.0-t, 2.0) * 0.16
-            "pickup":
-                var soft := sin(TAU * (392.0 + 220.0 * t) * time) * 0.60
-                soft += sin(TAU * 587.33 * time) * 0.25
-                sample = soft * sin(t * PI) * 0.24
-            "victory":
-                var chord := sin(TAU * 261.63 * time) + sin(TAU * 329.63 * time) + sin(TAU * 392.0 * time)
-                sample = chord * sin(t * PI) * 0.115
-        # 2ms onset smoothing, sample-to-sample low-pass and conservative peak.
-        sample *= minf(1.0, time * 500.0)
-        sample = lerpf(last_sample, sample, 0.78)
-        last_sample = sample
-        bytes.encode_s16(i * 2, roundi(clampf(sample, -0.82, 0.82) * 32767.0))
-    wav.data = bytes
-    return wav
+func _exit_tree() -> void:
+    # Stop the audio thread and release imported Vorbis references before SceneTree
+    # teardown; headless regression scenes destroy the world during quit().
+    for voice in voices:
+        voice.stop()
+        voice.stream = null
+    streams.clear()
 
-func trigger(kind: String) -> void:
-    if not streams.has(kind) or voices.is_empty():
+func _play_voice(key: String, pitch: float, volume: float) -> void:
+    if not streams.has(key) or voices.is_empty():
         return
     var voice: AudioStreamPlayer = voices[voice_cursor]
     voice_cursor = (voice_cursor + 1) % voices.size()
     voice.stop()
-    voice.stream = streams[kind]
-    event_serial += 1
-    voice.pitch_scale = 0.96 + float(event_serial % 5) * 0.02 if kind == "fire" else 1.0
+    var asset: Variant = streams[key]
+    if asset is String:
+        # In headless gameplay CI, validate event routing without opening a
+        # physical audio device or retaining imported Vorbis playback streams.
+        # A separate test imports and hashes all OGG files independently.
+        if DisplayServer.get_name() == "headless":
+            return
+        asset = load(asset) as AudioStream
+        if asset == null:
+            return
+        streams[key] = asset
+    voice.stream = asset
+    voice.pitch_scale = pitch
+    voice.volume_db = volume
     voice.play()
+
+func trigger(kind: String) -> void:
+    event_serial += 1
+    match kind:
+        "fire":
+            # Two distinct CC0 source layers: short sci-fi discharge +
+            # restrained hard-material mechanical transient.
+            _play_voice("fire", 0.87 + float(event_serial % 4) * 0.025, -14.0)
+            _play_voice("mechanical", 1.1, -25.0)
+        "hit":
+            _play_voice("hit", 0.92 + float(event_serial % 3) * 0.06, -18.0)
+        "damage":
+            _play_voice("damage", 0.85, -17.0)
+        "dash":
+            _play_voice("dash", 1.3, -27.0)
+        "pickup":
+            _play_voice("pickup", 1.0, -17.0)
+        "cover":
+            _play_voice("cover", 0.85, -23.0)
+        "vault":
+            _play_voice("cover", 0.65, -21.0)
+        "land":
+            _play_voice("mechanical", 0.75, -22.0)
+        "victory":
+            _play_voice("victory", 0.82, -16.0)
+        "explosion":
+            _play_voice("explosion", 0.95, -14.0)

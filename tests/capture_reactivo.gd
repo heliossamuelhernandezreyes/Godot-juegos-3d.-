@@ -41,6 +41,24 @@ func _shoot() -> void:
         return
     print("REACTIVO VIEW CAPTURE cover reactivo-13-cover.png")
     world.player.request_cover_toggle()
+    # Capture actual physics-owned vault mid-crossing rather than static mock art.
+    world.player.global_position = Vector3(-18.28, 1.0, 14.0)
+    world.player.velocity = Vector3.ZERO
+    if not world.player.request_cover_toggle() or not world.player.request_vault():
+        printerr("REACTIVO RENDER FAIL low obstacle vault not authorized")
+        quit(1)
+        return
+    for i in range(28):
+        await physics_frame
+    await process_frame
+    if not _save_frame("reactivo-13-vault.png"):
+        quit(1)
+        return
+    print("REACTIVO VIEW CAPTURE vault reactivo-13-vault.png")
+    for i in range(30):
+        await physics_frame
+    world.player.global_position = Vector3(-20.82, 1.0, 0.0)
+    world.player.velocity = Vector3.ZERO
     var guard := CharacterBody3D.new()
     guard.set_script(BULWARK)
     guard.target = world.player
@@ -54,7 +72,7 @@ func _shoot() -> void:
     if not _save_frame("reactivo-13-bulwark.png"):
         quit(1)
         return
-    print("REACTIVO RENDER PASS viewport series=5")
+    print("REACTIVO RENDER PASS viewport series=6")
     quit(0)
 
 func _save_frame(filename: String) -> bool:
