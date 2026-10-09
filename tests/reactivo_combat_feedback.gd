@@ -3,7 +3,8 @@ extends SceneTree
 ## damageable body generates both a feedback marker and real damage.
 const SCENE = preload("res://scenes/reactivo_13.tscn")
 
-class TestTarget extends StaticBody3D:
+class TestTarget:
+    extends StaticBody3D
     var received_damage := 0
     func take_hit(amount: int) -> void:
         received_damage += amount
