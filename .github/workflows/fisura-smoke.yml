@@ -25,7 +25,7 @@ jobs:
           repository: heliossamuelhernandezreyes/Arcont
           # Experimental P0/P1 visual tools from Arcont draft PR #49.
           # Runtime capture stays in FISURA; no write privileges granted.
-          ref: 9b12f92cb78339ea09b75a05409044c03632401e
+          ref: 448f8759b6e96eee1277e9ab664e5450838eb0f6
           path: _arcont_visual_reference
       - name: Validate ARCONT 1.1 project intent against canonical schema
         run: |
@@ -251,6 +251,11 @@ jobs:
           python3 _arcont_visual_reference/tools/visual_scene_inventory.py --project-root . --scene scenes/reactivo_13.tscn --intent visual.intent.json --snapshot reactivo-13-native-scene-snapshot.json > reactivo-arcont-scene-audit.json
           python3 tools/ci/verify_native_visual_inventory.py reactivo-13-native-scene-snapshot.json reactivo-arcont-scene-audit.json --project-root .
           sha256sum reactivo-13-native-scene-snapshot.json reactivo-arcont-scene-audit.json reactivo-13-native-visual-receipt.json | tee reactivo-native-inventory-sha256.txt
+      - name: ARCONT P1 diagnose actual lighting reach and material repetition
+        run: |
+          python3 _arcont_visual_reference/tools/visual_scene_diagnostics.py --project-root . --scene scenes/reactivo_13.tscn --intent visual.intent.json --snapshot reactivo-13-native-scene-snapshot.json > reactivo-13-visual-diagnostics.json
+          python3 tools/ci/verify_visual_diagnostics.py reactivo-13-visual-diagnostics.json reactivo-13-native-scene-snapshot.json
+          sha256sum reactivo-13-visual-diagnostics.json reactivo-13-visual-diagnostics-receipt.json >> reactivo-native-inventory-sha256.txt
       - name: Upload ARCONT native visual scene evidence
         uses: actions/upload-artifact@v4
         with:
@@ -260,6 +265,9 @@ jobs:
             reactivo-13-native-visual-receipt.json
             reactivo-arcont-scene-audit.json
             reactivo-visual-intent-validation.json
+            reactivo-13-visual-diagnostics.json
+            reactivo-13-visual-diagnostics-receipt.json
+            reactivo-13-visual-diagnostics.md
             reactivo-native-inventory-sha256.txt
           if-no-files-found: error
       - name: Run deterministic extraction playthrough
