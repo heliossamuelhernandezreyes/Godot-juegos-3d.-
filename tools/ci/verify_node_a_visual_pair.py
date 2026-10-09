@@ -22,6 +22,7 @@ ROIS = {
     "environment_visible": (0.06, 0.07, 0.95, 0.98),
     "cover_upgrade_visible": (0.11, 0.08, 0.91, 0.96),
     "surface_materials_visible": (0.07, 0.06, 0.94, 0.97),
+    "factory_kit_visible": (0.07, 0.06, 0.94, 0.97),
 }
 
 
@@ -91,7 +92,10 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
     sheet_image.paste(a, (0,header_h))
     sheet_image.paste(b, (w,header_h))
     drawing = ImageDraw.Draw(sheet_image)
-    if flag == "surface_materials_visible":
+    if flag == "factory_kit_visible":
+        before_label = "BASELINE | Godot blockout cuboid coolant machines | same camera"
+        after_label = "KENNEY 3D GLB | real factory machinery | source CC0"
+    elif flag == "surface_materials_visible":
         before_label = "BASELINE  |  procedural mesh, flat/simple surfaces  |  same camera"
         after_label = "PBR  |  triplanar steel/concrete textures + true-alpha glass"
     elif flag == "cover_upgrade_visible":

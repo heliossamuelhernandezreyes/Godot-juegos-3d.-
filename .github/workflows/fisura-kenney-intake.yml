@@ -1,0 +1,71 @@
+name: FISURA source-verified Kenney asset intake
+
+on:
+  push:
+    branches:
+      - feat/fisura-098-arcont-real-modular-assets
+    paths:
+      - '.github/workflows/fisura-kenney-intake.yml'
+      - 'tools/assets/import_kenney_factory.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect-cc0-factory-kit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/fisura-098-arcont-real-modular-assets
+          persist-credentials: true
+      - name: Acquire official creator-uploaded CC0 Kenney Factory Kit
+        run: |
+          curl --fail --location --retry 3 --retry-delay 2 --max-time 180 \
+            --user-agent 'FISURA-Arcont-Source-Intake/0.9.8 (CC0 research)' \
+            -o factory-kit-source.zip \
+            'https://opengameart.org/sites/default/files/kenney_factory-kit_3.0.zip'
+          test "$(stat -c%s factory-kit-source.zip)" -gt 100000
+          test "$(stat -c%s factory-kit-source.zip)" -lt 25000000
+          python3 - <<'PY'
+          import hashlib,zipfile,json
+          from pathlib import Path
+          f=Path('factory-kit-source.zip')
+          with zipfile.ZipFile(f) as z:
+              files=[{'path':i.filename,'bytes':i.file_size} for i in z.infolist() if not i.is_dir()]
+              assert len(files)>=140
+              assert all(not i['path'].startswith('/') and '..' not in Path(i['path']).parts for i in files)
+          record={'title':'Kenney Factory Kit 3.0','provider':'Kenney (creator upload to OpenGameArt)',
+            'url':'https://opengameart.org/content/factory-kit',
+            'source':'https://opengameart.org/sites/default/files/kenney_factory-kit_3.0.zip',
+            'license':'CC0-1.0','archive_sha256':hashlib.sha256(f.read_bytes()).hexdigest(),
+            'archive_bytes':f.stat().st_size,'files':files}
+          Path('factory-archive-manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+          print('KENNEY SOURCE ARCHIVE ACCEPTED',len(files),'files',record['archive_sha256'])
+          for item in files[:45]: print(item['path'])
+          PY
+      - name: Materialize approved GLB models, verify archive digest, licenses and 5000-triangle budget
+        run: |
+          python3 tools/assets/import_kenney_factory.py factory-kit-source.zip
+          test -s assets/vendor/kenney_factory_kit/PROVENANCE.json
+          test -s assets/vendor/kenney_factory_kit/machine-window.glb
+      - name: Commit source-pinned approved meshes into actual FISURA branch
+        run: |
+          git config user.name 'fisura-arcont-bot'
+          git config user.email 'fisura-arcont-bot@users.noreply.github.com'
+          git add assets/vendor/kenney_factory_kit/
+          if git diff --cached --quiet; then
+            echo 'Asset models already imported; no duplicated source commit'
+          else
+            git commit -m 'assets(fisura): vendor verified Kenney Factory Kit 3.0 selected source GLBs'
+            git push origin HEAD:feat/fisura-098-arcont-real-modular-assets
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fisura-098-kenney-creator-source-inspection
+          path: |
+            factory-archive-manifest.json
+            factory-kit-source.zip
+          if-no-files-found: error

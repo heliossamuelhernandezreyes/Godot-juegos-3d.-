@@ -294,6 +294,12 @@ jobs:
           cat reactivo-surface-pbr.log
           grep -q "FISURA PROCEDURAL PBR PASS" reactivo-surface-pbr.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-surface-pbr.log
+      - name: Verify real ARCONT-selected Kenney GLB factory modules and unchanged game physics
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_real_factory_assets.gd > arcont-real-factory-import.log 2>&1 || { cat arcont-real-factory-import.log; exit 1; }
+          cat arcont-real-factory-import.log
+          grep -q "FISURA ARCONT REAL GLB PASS" arcont-real-factory-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" arcont-real-factory-import.log
       - name: Validate Android debug frame pacing math and desktop telemetry isolation
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_device_perf_probe.gd > debug-frame-math.log 2>&1 || { cat debug-frame-math.log; exit 1; }
@@ -463,6 +469,37 @@ jobs:
             materials-node-sha256.txt
             materials-corridor-sha256.txt
           if-no-files-found: error
+      - name: Capture real Kenney GLB machinery vs box blockout from frozen over-shoulder Godot camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_factory_pair.gd > arcont-factory-capture.log 2>&1 || { cat arcont-factory-capture.log; exit 1; }
+          cat arcont-factory-capture.log
+          grep -q "REACTIVO FACTORY GLB CAMERA PAIR PASS" arcont-factory-capture.log
+          test -s reactivo-13-factory-primitives.png
+          test -s reactivo-13-factory-kenney-glb.png
+          test -s reactivo-13-factory-camera-pair.json
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" arcont-factory-capture.log
+      - name: Verify ARCONT model-kit impact through exact-camera native Godot source frames
+        run: |
+          python3 tools/ci/verify_node_a_visual_pair.py \
+            --metadata reactivo-13-factory-camera-pair.json \
+            --before reactivo-13-factory-primitives.png \
+            --after reactivo-13-factory-kenney-glb.png \
+            --report reactivo-13-factory-comparison.json \
+            --sheet reactivo-13-factory-before-after.png | tee arcont-factory-comparison.log
+          grep -q "REACTIVO NODE A PAIRED VISUAL PASS" arcont-factory-comparison.log
+          sha256sum reactivo-13-factory-primitives.png reactivo-13-factory-kenney-glb.png reactivo-13-factory-camera-pair.json reactivo-13-factory-comparison.json > arcont-factory-capture-sha256.txt
+      - name: Upload real Godot ARCONT CC0 factory mesh visual acceptance
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-098-real-kenney-factory-kit-node-a
+          path: |
+            reactivo-13-factory-primitives.png
+            reactivo-13-factory-kenney-glb.png
+            reactivo-13-factory-camera-pair.json
+            reactivo-13-factory-comparison.json
+            reactivo-13-factory-before-after.png
+            arcont-factory-capture-sha256.txt
+          if-no-files-found: error
       - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
           python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
@@ -515,6 +552,9 @@ jobs:
             cover-cassette-pair.log
             cover-cassette-comparison.log
             reactivo-surface-pbr.log
+            arcont-real-factory-import.log
+            arcont-factory-capture.log
+            arcont-factory-comparison.log
             materials-node-capture.log
             materials-corridor-capture.log
             materials-node-comparison.log
