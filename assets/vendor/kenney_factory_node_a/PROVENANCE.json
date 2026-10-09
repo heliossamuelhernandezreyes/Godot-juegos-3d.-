@@ -81,7 +81,7 @@
       "png"
     ],
     "imported_from_original_binaries": true,
-    "pbr_overrides": false,
+    "pbr_overrides": true,
     "additional_gameplay_colliders": 0,
     "additional_gameplay_lights": 0,
     "mobile_device_benchmark": "not_measured",
