@@ -2,18 +2,17 @@ extends Node3D
 ## FISURA 0.9.8 — authentic ARCONT-catalogued Kenney Factory Kit GLBs.
 ## These are real licensed polygon meshes, NOT BoxMesh lookalikes.
 ## Game physics, navigation, objectives, combat and realtime lights are unchanged.
-const BASE := "res://assets/vendor/kenney_factory_node_a/"
 const PREFABS := {
-    "structure-high": preload(BASE + "structure-high.glb"),
-    "machine-fortified": preload(BASE + "machine-fortified.glb"),
-    "machine-window": preload(BASE + "machine-window.glb"),
-    "piston-round": preload(BASE + "piston-round.glb"),
-    "screen-panel-small": preload(BASE + "screen-panel-small.glb"),
-    "pipe-large-valve": preload(BASE + "pipe-large-valve.glb"),
-    "pipe-large-bend": preload(BASE + "pipe-large-bend.glb"),
-    "pipe-large-long": preload(BASE + "pipe-large-long.glb"),
-    "pipe-glass-large-valve": preload(BASE + "pipe-glass-large-valve.glb"),
-    "catwalk-straight": preload(BASE + "catwalk-straight.glb")
+    "structure-high": preload("res://assets/vendor/kenney_factory_node_a/structure-high.glb"),
+    "machine-fortified": preload("res://assets/vendor/kenney_factory_node_a/machine-fortified.glb"),
+    "machine-window": preload("res://assets/vendor/kenney_factory_node_a/machine-window.glb"),
+    "piston-round": preload("res://assets/vendor/kenney_factory_node_a/piston-round.glb"),
+    "screen-panel-small": preload("res://assets/vendor/kenney_factory_node_a/screen-panel-small.glb"),
+    "pipe-large-valve": preload("res://assets/vendor/kenney_factory_node_a/pipe-large-valve.glb"),
+    "pipe-large-bend": preload("res://assets/vendor/kenney_factory_node_a/pipe-large-bend.glb"),
+    "pipe-large-long": preload("res://assets/vendor/kenney_factory_node_a/pipe-large-long.glb"),
+    "pipe-glass-large-valve": preload("res://assets/vendor/kenney_factory_node_a/pipe-glass-large-valve.glb"),
+    "catwalk-straight": preload("res://assets/vendor/kenney_factory_node_a/catwalk-straight.glb")
 }
 const MODEL_LIMIT := 30
 var authored_models: Array[Node3D] = []
@@ -89,7 +88,11 @@ func _prepare_imported_geometry(tree: Node) -> void:
         for surface in range(visible_mesh.mesh.get_surface_count()):
             var arrays: Array = visible_mesh.mesh.surface_get_arrays(surface)
             var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-            geometry_triangles += indices.size()/3 if not indices.is_empty() else (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()/3
+            if not indices.is_empty():
+                geometry_triangles += int(indices.size()/3)
+            else:
+                var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+                geometry_triangles += int(verts.size()/3)
     for sub in tree.get_children():
         _prepare_imported_geometry(sub)
 
