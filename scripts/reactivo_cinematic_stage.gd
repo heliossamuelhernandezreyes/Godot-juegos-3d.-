@@ -189,7 +189,7 @@ func _node_a_environment_pass() -> void:
     # Cover dimensions and center remain game-owned and are read directly from
     # Map Forge; the new visual facade cannot modify or author colliders.
     var world: Node3D = get_parent() as Node3D
-    var map_data: Dictionary = world.map_data
+    var map_data: Dictionary = world.get("map_data")
     var guide: Dictionary = {}
     for candidate in map_data.get("authoring", {}).get("structure_guides", []):
         if str(candidate.get("id", "")) == "node_a_cover" and candidate.get("kind", "") == "cover":
