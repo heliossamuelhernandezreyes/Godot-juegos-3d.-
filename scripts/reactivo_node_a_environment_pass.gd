@@ -65,7 +65,9 @@ func _box(label: String, at: Vector3, dimensions: Vector3, finish: Material) -> 
         mesh.size = dimensions
         box_cache[key] = mesh
     var item := MeshInstance3D.new()
-    item.name = "ENV A | " + label
+    # Godot auto-renames duplicate sibling names to @MeshInstance3D@xx and
+    # loses semantic labels; use a stable unique ordinal for every visual item.
+    item.name = "ENV A | %03d | %s" % [environment_meshes, label]
     item.mesh = box_cache[key]
     item.position = at
     item.material_override = finish
