@@ -1,0 +1,60 @@
+{
+  "provider": "Kenney",
+  "title": "Factory Kit",
+  "version": "3.0",
+  "license": "CC0-1.0",
+  "source_page": "https://opengameart.org/content/factory-kit",
+  "official_page": "https://kenney.nl/assets/factory-kit",
+  "archive_url": "https://opengameart.org/sites/default/files/kenney_factory-kit_3.0.zip",
+  "archive_sha256": "7e31fb2308e90304672bd15cd18fa9d9f02c03731a8cbc57a8e3e1c181dfb0a7",
+  "catalog_source": "ARCONT assets/catalog/kenney/factory-kit.asset.json",
+  "selection_policy": "Only selected GLB production candidates, source archive kept upstream",
+  "model_files": {
+    "machine-fortified.glb": {
+      "sha256": "0907f6616f49bbdaa20241ac4b568b780f30352f204851c53568b8e7df59b528",
+      "bytes": 29828,
+      "triangles_source": 320
+    },
+    "machine-window.glb": {
+      "sha256": "1387bd337354fca7c7cb4163e6bd4bef8711373bbe23dae01ba9d42cd35681b7",
+      "bytes": 38812,
+      "triangles_source": 428
+    },
+    "machine.glb": {
+      "sha256": "a39e3042bcb7789274428357383317d70e1c31906e5301c99e7d9e90ac584863",
+      "bytes": 25620,
+      "triangles_source": 268
+    },
+    "pipe-large-valve.glb": {
+      "sha256": "57126374dce5b172e06d5d6f8cbaab97c9cffe3e5e726060eb14c50a5bd519b6",
+      "bytes": 42604,
+      "triangles_source": 456
+    },
+    "pipe-large-long.glb": {
+      "sha256": "8e6650cc662695c28fffb1ffa10f190255f7d9c6c1d4a2a48d375e9bbb89b04f",
+      "bytes": 27288,
+      "triangles_source": 292
+    },
+    "pipe-glass-large-valve.glb": {
+      "sha256": "13d2c9d0b3b0253c2019556c1cb16eb85d045ac0f09b268df75dc7761f768da3",
+      "bytes": 39712,
+      "triangles_source": 416
+    },
+    "robot-arm-a.glb": {
+      "sha256": "ad3f766791adadd1cfb5ccc27d2b2ac8787848282f2a15b3c407f350dc281b68",
+      "bytes": 50592,
+      "triangles_source": 472
+    },
+    "conveyor-long.glb": {
+      "sha256": "9087ec11d9dcc85ada9d14a66910244bfbb5df57c64b2647956a32525935dee3",
+      "bytes": 18688,
+      "triangles_source": 196
+    },
+    "catwalk-straight.glb": {
+      "sha256": "85797c6ce53e3f4373bc59ecd3ce951a3f6b707651def5e0bae46756051cd18d",
+      "bytes": 33492,
+      "triangles_source": 328
+    }
+  },
+  "source_triangles_sum": 3176
+}
