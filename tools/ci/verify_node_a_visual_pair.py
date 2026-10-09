@@ -65,8 +65,8 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
     diff = ImageChops.difference(a, b)
     mask = diff.convert("L").point(lambda gray: 255 if gray > 12 else 0)
     changed_all = mask.histogram()[255]
-    roi = mask.crop((x0,y0,x1,y1))
-    changed_roi = roi.histogram()[255]
+    roi_mask = mask.crop((x0,y0,x1,y1))
+    changed_roi = roi_mask.histogram()[255]
     ratio_roi = changed_roi / ((x1-x0)*(y1-y0))
     changed_outside = changed_all - changed_roi
     ratio_outside = changed_outside / (w*h - (x1-x0)*(y1-y0))
