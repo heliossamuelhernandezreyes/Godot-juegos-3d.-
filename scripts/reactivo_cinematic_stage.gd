@@ -8,6 +8,7 @@ const PHOTO_CART: PackedScene = preload("res://assets/vendor/polyhaven_cinematic
 const PHOTO_CONTAINER: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_pastic_container/industrial_pastic_container_1k.gltf")
 const NODE_A_VISUAL: Script = preload("res://scripts/reactivo_node_a_visual_pilot.gd")
 const NODE_A_ENVIRONMENT: Script = preload("res://scripts/reactivo_node_a_environment_pass.gd")
+const NODE_A_FACTORY: Script = preload("res://scripts/reactivo_node_a_kenney_factory.gd")
 var metal: Material
 var worn: Material
 var copper: Material
@@ -23,6 +24,7 @@ var alarm_active := false
 var draw_nodes := 0
 var node_a_pilot: Node3D
 var node_a_environment: Node3D
+var node_a_factory: Node3D
 var material_cache: Dictionary = {}
 var box_cache: Dictionary = {}
 
@@ -41,6 +43,7 @@ func _ready() -> void:
     _node_rooms()
     _node_a_hero_pilot()
     _node_a_environment_pass()
+    _node_a_factory_pass()
     _detailed_factory_props()
     _reactor()
     _exit_platform()
@@ -203,6 +206,19 @@ func _node_a_environment_pass() -> void:
     node_a_environment.set("cover_guide", guide)
     node_a_environment.position = Vector3(-28.0, 0.0, 4.0)
     add_child(node_a_environment)
+
+func _node_a_factory_pass() -> void:
+    # Licensed source-pinned Kenney GLB models, each with actual mesh polygons
+    # and the required original colormap image. This is independent from the
+    # old procedural pipe/structural dressing and can be A/B switched.
+    node_a_factory = Node3D.new()
+    node_a_factory.set_script(NODE_A_FACTORY)
+    node_a_factory.position = Vector3(-28.0,0.0,4.0)
+    add_child(node_a_factory)
+
+func set_node_a_factory_enabled(enabled: bool) -> void:
+    if node_a_factory != null:
+        node_a_factory.set_factory_upgrade_enabled(enabled)
 
 func set_node_a_environment_enabled(enabled: bool) -> void:
     if node_a_environment != null:
