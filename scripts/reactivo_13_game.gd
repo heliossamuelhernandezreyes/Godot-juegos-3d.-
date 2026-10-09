@@ -183,6 +183,9 @@ func _build_world() -> void:
     material_pass = Node3D.new()
     material_pass.set_script(MATERIAL_PASS_SCRIPT)
     add_child(material_pass)
+    # The Kenney factory module must bind existing source art only after
+    # procedural PBR layers have created their glass overlays.
+    cinematic_stage.node_a_factory.bind_existing_legacy_visuals(self)
     # Distinct colored lanes anchor each combat/mission region.
     _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#438ca7"), false)
     _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#b58b50"), false)
