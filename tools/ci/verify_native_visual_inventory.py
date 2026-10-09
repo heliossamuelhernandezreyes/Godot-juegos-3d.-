@@ -62,8 +62,10 @@ def verify(snapshot_file: Path, audit_file: Path, project_root: Path,
         raise ValueError("missing instanced floor geometry")
     if audited.get("runtime_complete", False):
         raise ValueError("ARCONT unexpectedly claims independent verification of external snapshot")
-    if not any("unverified" in s.lower() for s in audited["limitations"]):
-        raise ValueError("external snapshot limitations are not clearly reported")
+    if runtime.get("evidence_status") != "externally_supplied_runtime_snapshot_unverified":
+        raise ValueError("ARCONT did not preserve unverified external-evidence status")
+    if not any("not authenticated" in s.lower() for s in audited["limitations"]):
+        raise ValueError("ARCONT omitted the external CI receipt/provenance caveat")
 
     report = {
         "protocol": "fisura-native-visual-ci-receipt",
