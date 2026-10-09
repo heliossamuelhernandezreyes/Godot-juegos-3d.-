@@ -65,6 +65,17 @@ def main() -> None:
                 "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data),
                 "triangles_source": tris
             }
+        # Kenney's GLB source references a shared palette by relative URI
+        # "Textures/colormap.png". Preserve this exact dependency so Godot
+        # imports authored colors instead of showing missing-texture errors.
+        palette = z.read("Models/GLB format/Textures/colormap.png")
+        assert 1000 < len(palette) < 500000 and palette.startswith(b"\\x89PNG\\r\\n\\x1a\\n")
+        (DEST / "Textures").mkdir(exist_ok=True)
+        (DEST / "Textures" / "colormap.png").write_bytes(palette)
+        provenance["texture_files"] = {"Textures/colormap.png": {
+            "sha256": hashlib.sha256(palette).hexdigest(),
+            "bytes": len(palette)
+        }}
         (DEST / "License.txt").write_bytes(z.read("License.txt"))
     assert total_triangles <= 5000, "Selected Kenney source batch exceeds triangle budget"
     provenance["source_triangles_sum"] = total_triangles
