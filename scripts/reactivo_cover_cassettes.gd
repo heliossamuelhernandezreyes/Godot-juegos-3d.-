@@ -25,7 +25,7 @@ func _ready() -> void:
     stripe = _mat(Color("#ca9e62"), 0.53, 0.48)
     diode = _mat(Color("#75bbbf"), 0.16, 0.41, 0.42)
     for data in cover_guides:
-        if not isinstance(data, Dictionary) or str(data.get("kind", "")) != "cover":
+        if typeof(data) != TYPE_DICTIONARY or str(data.get("kind", "")) != "cover":
             continue
         _cassette(data)
     assert(built_cover_ids.size() == 7, "Expected exactly seven authoritative Reactivo-13 cover guides")
