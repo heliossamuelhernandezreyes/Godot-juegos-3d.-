@@ -294,6 +294,16 @@ jobs:
           cat reactivo-surface-pbr.log
           grep -q "FISURA PROCEDURAL PBR PASS" reactivo-surface-pbr.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-surface-pbr.log
+      - name: Verify source-pinned Kenney Factory Kit license, GLBs, shared texture and authentic polygon data
+        run: |
+          python3 tools/ci/verify_kenney_factory_kit.py | tee kenney-factory-source.log
+          grep -q "FISURA KENNEY FACTORY SOURCE PASS" kenney-factory-source.log
+      - name: Test imported Kenney Factory Kit runtime polygon meshes and unchanged Node A cover physics
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_kenney_factory_native.gd > kenney-factory-native.log 2>&1 || { cat kenney-factory-native.log; exit 1; }
+          cat kenney-factory-native.log
+          grep -q "FISURA KENNEY FACTORY NATIVE PASS" kenney-factory-native.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" kenney-factory-native.log
       - name: Validate Android debug frame pacing math and desktop telemetry isolation
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_device_perf_probe.gd > debug-frame-math.log 2>&1 || { cat debug-frame-math.log; exit 1; }
@@ -463,6 +473,37 @@ jobs:
             materials-node-sha256.txt
             materials-corridor-sha256.txt
           if-no-files-found: error
+      - name: Capture real Kenney factory GLBs vs original industrial blocks from one identical Godot camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_kenney_factory_pair.gd > kenney-factory-pair.log 2>&1 || { cat kenney-factory-pair.log; exit 1; }
+          cat kenney-factory-pair.log
+          grep -q "REACTIVO KENNEY FACTORY CAMERA PAIR PASS" kenney-factory-pair.log
+          test -s reactivo-13-kenney-factory-before.png
+          test -s reactivo-13-kenney-factory-after.png
+          test -s reactivo-13-kenney-factory-camera-pair.json
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" kenney-factory-pair.log
+      - name: Compare real factory source meshes before-after and validate identical Godot camera
+        run: |
+          python3 tools/ci/verify_node_a_visual_pair.py \
+            --metadata reactivo-13-kenney-factory-camera-pair.json \
+            --before reactivo-13-kenney-factory-before.png \
+            --after reactivo-13-kenney-factory-after.png \
+            --report reactivo-13-kenney-factory-comparison.json \
+            --sheet reactivo-13-kenney-factory-before-after.png | tee kenney-factory-visual-compare.log
+          grep -q "REACTIVO NODE A PAIRED VISUAL PASS" kenney-factory-visual-compare.log
+          sha256sum reactivo-13-kenney-factory-before.png reactivo-13-kenney-factory-after.png reactivo-13-kenney-factory-camera-pair.json reactivo-13-kenney-factory-comparison.json > kenney-factory-visual-sha256.txt
+      - name: Upload real GLB source-licensed factory kit paired captures and camera evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-098-real-kenney-factory-kit
+          path: |
+            reactivo-13-kenney-factory-before.png
+            reactivo-13-kenney-factory-after.png
+            reactivo-13-kenney-factory-camera-pair.json
+            reactivo-13-kenney-factory-comparison.json
+            reactivo-13-kenney-factory-before-after.png
+            kenney-factory-visual-sha256.txt
+          if-no-files-found: error
       - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
           python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
@@ -519,6 +560,10 @@ jobs:
             materials-corridor-capture.log
             materials-node-comparison.log
             materials-corridor-comparison.log
+            kenney-factory-source.log
+            kenney-factory-native.log
+            kenney-factory-pair.log
+            kenney-factory-visual-compare.log
             node-a-environment-pair.log
             node-a-environment-comparison-gate.log
             node-a-camera-pair.log
