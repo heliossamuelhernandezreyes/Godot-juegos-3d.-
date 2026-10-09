@@ -5,7 +5,9 @@
 - **Travesía contextual**: desde cajas físicas de 1.4 metros, tecla `F` o botón Android **SALTAR**; validación de trayectoria antes de subir y movimientos con el controlador físico. Las barreras de 2 m no se pueden saltar.
 - **Asomarse**: al disparar desde cobertura baja, la postura se eleva y el rayo sale más alto; sigue bloqueado si encuentra pared. Las transiciones y el gesto de salto son provisionales; **no hay todavía retargeting completo ni IK de pies**.
 - **Siete efectos de audio [Kenney CC0](assets/vendor/kenney_sfx/PROVENANCE.json)**, fuente y hashes registrados; disparo de dos capas, golpes, interfaz de cobertura y aterrizaje. El audio sigue necesitando prueba auditiva y mezcla.
-- **Arcont 1.1**: pruebas físicas para salto, comprobación de OGG/hash y resto de la misión. [Informe y límites](docs/production/FISURA_V092_MOBILITY_AUDIO.md).
+- **Animación y cámara táctica**: corrección aditiva real sobre huesos de torso y piernas durante cobertura/salto, sin escalar todo el modelo; cámara al hombro que se acerca al disparar con retroceso limitado. Aún no hay IK de contacto ni animaciones de vault de calidad final.
+- **Impactos de combate**: la cruceta y el sonido confirman daño únicamente contra cuerpos con API de daño; los rayos sin colisión no generan falsas chispas.
+- **Arcont 1.1**: pruebas físicas para salto, pose esquelética en Godot, respuesta de cámara, impactos y comprobación de OGG/hash y resto de la misión. [Informe y límites](docs/production/FISURA_V092_MOBILITY_AUDIO.md).
 - La rama produce `FISURA-v0.9.2-Android-ARM64-debug` con `fisura-v092-debug.apk` **solo si CI está verde**. El PR es experimental y no sustituye a la revisión física de Fisura 0.9.1.
 
 ---
