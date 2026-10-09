@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   inspect-cc0-factory-kit:
@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/fisura-098-arcont-real-modular-assets
+          persist-credentials: true
       - name: Acquire official creator-uploaded CC0 Kenney Factory Kit
         run: |
           curl --fail --location --retry 3 --retry-delay 2 --max-time 180 \
@@ -42,6 +45,22 @@ jobs:
           print('KENNEY SOURCE ARCHIVE ACCEPTED',len(files),'files',record['archive_sha256'])
           for item in files[:45]: print(item['path'])
           PY
+      - name: Materialize approved GLB models, verify archive digest, licenses and 5000-triangle budget
+        run: |
+          python3 tools/assets/import_kenney_factory.py factory-kit-source.zip
+          test -s assets/vendor/kenney_factory_kit/PROVENANCE.json
+          test -s assets/vendor/kenney_factory_kit/machine-window.glb
+      - name: Commit source-pinned approved meshes into actual FISURA branch
+        run: |
+          git config user.name 'fisura-arcont-bot'
+          git config user.email 'fisura-arcont-bot@users.noreply.github.com'
+          git add assets/vendor/kenney_factory_kit/
+          if git diff --cached --quiet; then
+            echo 'Asset models already imported; no duplicated source commit'
+          else
+            git commit -m 'assets(fisura): vendor verified Kenney Factory Kit 3.0 selected source GLBs'
+            git push origin HEAD:feat/fisura-098-arcont-real-modular-assets
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: fisura-098-kenney-creator-source-inspection
