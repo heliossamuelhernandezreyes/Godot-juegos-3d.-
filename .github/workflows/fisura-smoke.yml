@@ -20,6 +20,13 @@ jobs:
           repository: heliossamuelhernandezreyes/Arcont
           ref: f9f9b3cfeef5f768257f21c4796b2a7653434b64
           path: _arcont_reference
+      - uses: actions/checkout@v4
+        with:
+          repository: heliossamuelhernandezreyes/Arcont
+          # Experimental P0/P1 visual tools from Arcont draft PR #49.
+          # Runtime capture stays in FISURA; no write privileges granted.
+          ref: 9b12f92cb78339ea09b75a05409044c03632401e
+          path: _arcont_visual_reference
       - name: Validate ARCONT 1.1 project intent against canonical schema
         run: |
           python3 -m pip install --disable-pip-version-check --quiet jsonschema==4.25.1
@@ -223,6 +230,38 @@ jobs:
           cat reactivo-art-budget.log
           grep -q "REACTIVO ART BUDGET PASS" reactivo-art-budget.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-art-budget.log
+      - name: ARCONT P0 validate real Reactivo-13 visual intent
+        run: |
+          python3 _arcont_visual_reference/tools/visual_production_contract.py visual.intent.json --project-root . --json > reactivo-visual-intent-validation.json
+          python3 - <<'PY'
+          import json
+          report=json.load(open("reactivo-visual-intent-validation.json"))
+          assert report["ok"] and not report["writes_performed"] and not report["runtime_measured"], report
+          print("REACTIVO VISUAL INTENT PASS warnings=", report["warnings"])
+          PY
+      - name: Capture real Godot runtime scene tree (not TSCN approximation)
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/capture_scene_inventory.gd > reactivo-native-inventory.log 2>&1 || { cat reactivo-native-inventory.log; exit 1; }
+          cat reactivo-native-inventory.log
+          grep -q "REACTIVO NATIVE VISUAL INVENTORY PASS" reactivo-native-inventory.log
+          test -s reactivo-13-native-scene-snapshot.json
+          ! grep -E "SCRIPT ERROR|Parse Error|Invalid call|ERROR:" reactivo-native-inventory.log
+      - name: ARCONT P1 audit native snapshot with scene/commit/provenance checks
+        run: |
+          python3 _arcont_visual_reference/tools/visual_scene_inventory.py --project-root . --scene scenes/reactivo_13.tscn --intent visual.intent.json --snapshot reactivo-13-native-scene-snapshot.json > reactivo-arcont-scene-audit.json
+          python3 tools/ci/verify_native_visual_inventory.py reactivo-13-native-scene-snapshot.json reactivo-arcont-scene-audit.json --project-root .
+          sha256sum reactivo-13-native-scene-snapshot.json reactivo-arcont-scene-audit.json reactivo-13-native-visual-receipt.json | tee reactivo-native-inventory-sha256.txt
+      - name: Upload ARCONT native visual scene evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: reactivo-13-arcont-native-visual-inventory
+          path: |
+            reactivo-13-native-scene-snapshot.json
+            reactivo-13-native-visual-receipt.json
+            reactivo-arcont-scene-audit.json
+            reactivo-visual-intent-validation.json
+            reactivo-native-inventory-sha256.txt
+          if-no-files-found: error
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
@@ -294,6 +333,7 @@ jobs:
             touch-buttons.log
             reactivo-warning.log
             reactivo-art-budget.log
+            reactivo-native-inventory.log
             visual-composition.log
             cinematic-import.log
             reactivo-visual-evidence.log
