@@ -1,0 +1,313 @@
+{
+  "protocol": "arcont-visual-production-intent",
+  "version": 1,
+  "project_id": "fisura",
+  "scene_id": "reactivo_13",
+  "semantic_map": {
+    "path": "maps/reactivo_13.json",
+    "sha256": null
+  },
+  "render_profile": {
+    "engine": "Godot",
+    "engine_version": "4.7.2-stable",
+    "renderer": "gl_compatibility",
+    "target_platform": "Android",
+    "quality_tier": "balanced"
+  },
+  "visual_kit": {
+    "style_tags": [
+      "industrial",
+      "science_fiction",
+      "over_shoulder_shooter",
+      "containment"
+    ],
+    "material_families": [
+      "painted_steel",
+      "worn_concrete",
+      "oxidized_copper"
+    ],
+    "palette": [
+      {
+        "id": "steel_base",
+        "color": "#344754",
+        "use": "base"
+      },
+      {
+        "id": "guidance_blue",
+        "color": "#58C8DE",
+        "use": "objective"
+      },
+      {
+        "id": "containment_orange",
+        "color": "#EB9659",
+        "use": "warning"
+      },
+      {
+        "id": "shadow_mass",
+        "color": "#152431",
+        "use": "shadow"
+      }
+    ],
+    "visual_story": "Reactivo-13 is a grounded industrial containment installation: node A uses cold turquoise guidance, node B amber power cues, the reactor a hazardous orange/red concentration, extraction a coherent cyan-green wayfinding endpoint."
+  },
+  "zones": [
+    {
+      "id": "insertion",
+      "region_id": null,
+      "role": "insertion",
+      "focus": "Readable Vanguard silhouette, distant danger, industrial route",
+      "lighting_profile_id": "insertion_cold"
+    },
+    {
+      "id": "node_a",
+      "region_id": null,
+      "role": "objective",
+      "focus": "Cold-energy machine bank with visible interaction console",
+      "lighting_profile_id": "node_a_cyan"
+    },
+    {
+      "id": "node_b",
+      "region_id": null,
+      "role": "objective",
+      "focus": "Warm-energy machine bank distinct from Node A",
+      "lighting_profile_id": "node_b_amber"
+    },
+    {
+      "id": "reactor",
+      "region_id": null,
+      "role": "objective",
+      "focus": "Central animated containment reactor with red phase alarm",
+      "lighting_profile_id": "reactor_alarm"
+    },
+    {
+      "id": "extraction",
+      "region_id": null,
+      "role": "extraction",
+      "focus": "Clear exit portal landmark and evacuation direction",
+      "lighting_profile_id": "exit_guidance"
+    }
+  ],
+  "lighting_profiles": [
+    {
+      "id": "insertion_cold",
+      "purpose": "Disciplined cool entry light and readable combat silhouettes",
+      "key_color": "#B5D8F0",
+      "accent_color": "#69CAFF",
+      "local_light_budget": 2,
+      "shadow_budget": 1,
+      "compatibility_fallback": "Retain directional key and emissive strips; avoid screen-space GI or volumetric effects."
+    },
+    {
+      "id": "node_a_cyan",
+      "purpose": "Highlight primary left-side coolant equipment and console",
+      "key_color": "#80C9D9",
+      "accent_color": "#54D7F3",
+      "local_light_budget": 2,
+      "shadow_budget": 0,
+      "compatibility_fallback": "Use local shadowless accent and textured emissive fixture."
+    },
+    {
+      "id": "node_b_amber",
+      "purpose": "Separate right-side energy objective with amber practical lighting",
+      "key_color": "#E2B187",
+      "accent_color": "#FFB873",
+      "local_light_budget": 2,
+      "shadow_budget": 0,
+      "compatibility_fallback": "Use shadowless orange accent and emissive fixture."
+    },
+    {
+      "id": "reactor_alarm",
+      "purpose": "Containment reactor centerpiece with evolving hazard amber/red palette",
+      "key_color": "#EFB085",
+      "accent_color": "#FF7D4A",
+      "local_light_budget": 4,
+      "shadow_budget": 0,
+      "compatibility_fallback": "Use static emissive bands and current no-shadow omnidirectional lights."
+    },
+    {
+      "id": "exit_guidance",
+      "purpose": "Make extraction direction visually recognizable without distracting from gunfire",
+      "key_color": "#B4E5DB",
+      "accent_color": "#75F6DD",
+      "local_light_budget": 2,
+      "shadow_budget": 0,
+      "compatibility_fallback": "Use bright static signage and shadowless practical light."
+    }
+  ],
+  "asset_roles": [
+    {
+      "id": "containment_core",
+      "role": "hero",
+      "status": "planned",
+      "category": "reactor",
+      "source_record": null,
+      "sha256": null,
+      "placement_rule": "Replace/revise current runtime reactor shell without changing objective collision or world position.",
+      "desired_count": 1
+    },
+    {
+      "id": "industrial_cart",
+      "role": "functional",
+      "status": "planned",
+      "category": "industrial_cart",
+      "source_record": null,
+      "sha256": null,
+      "placement_rule": "Document existing Poly Haven CC0 placement and prevent camera/mission occlusion.",
+      "desired_count": 2
+    },
+    {
+      "id": "industrial_container",
+      "role": "clutter",
+      "status": "planned",
+      "category": "plastic_container",
+      "source_record": null,
+      "sha256": null,
+      "placement_rule": "Document existing Poly Haven CC0 placement around side walls only.",
+      "desired_count": 4
+    },
+    {
+      "id": "wall_panel_family",
+      "role": "structure",
+      "status": "planned",
+      "category": "wall_cladding",
+      "source_record": null,
+      "sha256": null,
+      "placement_rule": "Replace repeated blockout visual surfaces with coherent modular material variants; colliders remain gameplay-owned.",
+      "desired_count": 35
+    },
+    {
+      "id": "power_cable_set",
+      "role": "functional",
+      "status": "planned",
+      "category": "power_cables",
+      "source_record": null,
+      "sha256": null,
+      "placement_rule": "Keep cables decorative and outside firing, movement and cover routes.",
+      "desired_count": 18
+    }
+  ],
+  "layers": [
+    {
+      "kind": "gameplay-semantic",
+      "collider_authority": "game-owned-semantic"
+    },
+    {
+      "kind": "structure",
+      "collider_authority": "render-only"
+    },
+    {
+      "kind": "functional-props",
+      "collider_authority": "render-only"
+    },
+    {
+      "kind": "dressing",
+      "collider_authority": "render-only"
+    },
+    {
+      "kind": "signage",
+      "collider_authority": "render-only"
+    },
+    {
+      "kind": "atmosphere",
+      "collider_authority": "render-only"
+    }
+  ],
+  "budgets": {
+    "target_fps": 60,
+    "fallback_fps": 30,
+    "max_local_lights": 14,
+    "max_shadowed_lights": 2,
+    "max_visible_instances": 1800,
+    "max_texture_memory_mib": 256,
+    "measurement_status": "unmeasured"
+  },
+  "capture_plan": [
+    {
+      "id": "insertion_shoulder",
+      "zone_id": "insertion",
+      "camera_position": [
+        1.05,
+        2.3,
+        23.25
+      ],
+      "camera_target": [
+        0,
+        1.1,
+        19
+      ],
+      "fov_degrees": 60,
+      "width": 1280,
+      "height": 720,
+      "renderer": "gl_compatibility",
+      "scenario_state": "initial_insert_stable",
+      "roi": {
+        "x": 0.2,
+        "y": 0.1,
+        "width": 0.65,
+        "height": 0.8
+      },
+      "baseline_sha256": null,
+      "candidate_sha256": null
+    },
+    {
+      "id": "node_a_side",
+      "zone_id": "node_a",
+      "camera_position": [
+        -26.95,
+        2.3,
+        14.25
+      ],
+      "camera_target": [
+        -28,
+        1.1,
+        10
+      ],
+      "fov_degrees": 60,
+      "width": 1280,
+      "height": 720,
+      "renderer": "gl_compatibility",
+      "scenario_state": "node_a_stable",
+      "roi": {
+        "x": 0.12,
+        "y": 0.1,
+        "width": 0.72,
+        "height": 0.8
+      },
+      "baseline_sha256": null,
+      "candidate_sha256": null
+    },
+    {
+      "id": "reactor_view",
+      "zone_id": "reactor",
+      "camera_position": [
+        1.05,
+        2.3,
+        2.25
+      ],
+      "camera_target": [
+        0,
+        2,
+        -11
+      ],
+      "fov_degrees": 60,
+      "width": 1280,
+      "height": 720,
+      "renderer": "gl_compatibility",
+      "scenario_state": "reactor_stable",
+      "roi": {
+        "x": 0.16,
+        "y": 0.08,
+        "width": 0.72,
+        "height": 0.82
+      },
+      "baseline_sha256": null,
+      "candidate_sha256": null
+    }
+  ],
+  "approval": {
+    "art_review_required": true,
+    "device_measurement_required": true,
+    "project_write_authorized": false,
+    "review_notes": "Actual FISURA visual intent, not engine-verified composition. Budgets are planning ceilings only. Poly Haven sources must be validated against existing vendor receipts before staging/approved claims."
+  }
+}
