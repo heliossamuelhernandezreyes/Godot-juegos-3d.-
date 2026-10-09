@@ -1,0 +1,90 @@
+{
+  "protocol": "fisura-vendor-source-asset-manifest",
+  "version": 1,
+  "asset": "Kenney Factory Kit",
+  "arcont_catalog_id": "ARC-ASSET-KENNEY-696C714A33FF63A1",
+  "arcont_catalog_record": "https://github.com/heliossamuelhernandezreyes/Arcont/blob/main/assets/catalog/kenney/factory-kit.asset.json",
+  "official_page": "https://kenney.nl/assets/factory-kit",
+  "license": {
+    "spdx": "CC0-1.0",
+    "commercial_use": true,
+    "source_reference": "https://kenney.nl/assets/factory-kit"
+  },
+  "source_mirror": {
+    "repository": "shorepine/kenney",
+    "commit": "3694c6879e487c108f55677be7dd2ca75b07cc3b",
+    "reference": "https://github.com/shorepine/kenney/tree/3694c6879e487c108f55677be7dd2ca75b07cc3b/3d/factory",
+    "note": "Read-only archive of the original Kenney meshes; exact Git blob identity preserved on copy."
+  },
+  "path_prefix": "assets/vendor/kenney_factory_node_a/",
+  "files": [
+    {
+      "path": "pipe-large-valve.glb",
+      "git_blob_sha1": "74bf5668f5bce834f502f066433b1935bc51b781",
+      "source_path": "3d/factory/pipe-large-valve.glb"
+    },
+    {
+      "path": "pipe-large-bend.glb",
+      "git_blob_sha1": "3f6053f488dea71e9ed7aa74c4691f4afd9629f6",
+      "source_path": "3d/factory/pipe-large-bend.glb"
+    },
+    {
+      "path": "pipe-large-long.glb",
+      "git_blob_sha1": "4a2b9699525d26d6999bfdd6def2e0d203a23071",
+      "source_path": "3d/factory/pipe-large-long.glb"
+    },
+    {
+      "path": "pipe-glass-large-valve.glb",
+      "git_blob_sha1": "6e7993f7d7c63c2b4a97e9afb6eb7aec9140cd09",
+      "source_path": "3d/factory/pipe-glass-large-valve.glb"
+    },
+    {
+      "path": "machine-fortified.glb",
+      "git_blob_sha1": "998883b81a1a541bc6c92d5d90ac685152f7c898",
+      "source_path": "3d/factory/machine-fortified.glb"
+    },
+    {
+      "path": "machine-window.glb",
+      "git_blob_sha1": "d4ca2322bd128c5f4eabb31b20e1adbc7a518b87",
+      "source_path": "3d/factory/machine-window.glb"
+    },
+    {
+      "path": "structure-high.glb",
+      "git_blob_sha1": "81423687b1f8ac301a36c68c1c6aa1ac26820905",
+      "source_path": "3d/factory/structure-high.glb"
+    },
+    {
+      "path": "catwalk-straight.glb",
+      "git_blob_sha1": "76c69a235b8798f510b5fb0a6f0f4ed334cbf6f1",
+      "source_path": "3d/factory/catwalk-straight.glb"
+    },
+    {
+      "path": "piston-round.glb",
+      "git_blob_sha1": "9483b520dfe5ee0b802145da192683eaeb1eac90",
+      "source_path": "3d/factory/piston-round.glb"
+    },
+    {
+      "path": "screen-panel-small.glb",
+      "git_blob_sha1": "d5fcd5b510cfadf505e45856814ae6011e08c626",
+      "source_path": "3d/factory/screen-panel-small.glb"
+    },
+    {
+      "path": "Textures/colormap.png",
+      "git_blob_sha1": "fddb472ccae14b57157b6d504977eda18b490291",
+      "source_path": "3d/factory/Textures/colormap.png"
+    }
+  ],
+  "delivery": {
+    "runtime_backend": "Godot 4.7.2 gl_compatibility",
+    "source_formats": [
+      "glb",
+      "png"
+    ],
+    "imported_from_original_binaries": true,
+    "pbr_overrides": true,
+    "additional_gameplay_colliders": 0,
+    "additional_gameplay_lights": 0,
+    "mobile_device_benchmark": "not_measured",
+    "artistic_quality": "human_review_required"
+  }
+}
