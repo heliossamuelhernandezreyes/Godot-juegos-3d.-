@@ -6,7 +6,7 @@ This change is a real **3D asset import**, not a texture-only mockup. ARCONT's v
 
 The exact original game-ready GLB meshes were fetched from the independently hosted, public Kenney asset archive at **shorepine/kenney**, pinned source commit `3694c6879e487c108f55677be7dd2ca75b07cc3b`; FISURA now vendors 10 specific GLB files and their required relative texture `Textures/colormap.png`. All 11 Git blob IDs matched before and after copying. Complete source URL, license, per-file source path, byte identity and mobile limitations are preserved in `assets/vendor/kenney_factory_node_a/PROVENANCE.json`.
 
-This is a deliberately modest, 10-model curated pilot rather than blindly importing the 140-model pack or a huge high-poly Poly Haven kit. GLB imports preserve actual polygon source with an original 512px color-map instead of generating fake cube meshes.
+This is a deliberately modest, 10-model curated pilot rather than blindly importing the 140-model pack or a huge high-poly Poly Haven kit. GLB imports preserve actual polygon source with the original 512px color-map kept intact for provenance and reproducibility, while the scene now overrides the rendered surfaces with vendored Poly Haven metallic PBR albedo/ARM/normal textures to match the gritty visual palette.
 
 ## Genuine model-to-runtime placement
 
