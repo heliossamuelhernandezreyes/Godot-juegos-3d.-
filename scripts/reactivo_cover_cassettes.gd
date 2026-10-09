@@ -138,6 +138,6 @@ func _cassette(guide: Dictionary) -> void:
         Vector3(size.x*0.95,0.085,size.z*0.96),plate)
     _box(group, "top service spine", Vector3(0, hy-0.008, 0),
         Vector3(size.x*0.65,0.012,size.z*0.78),gasket)
-    _box(group, "status capsule", Vector3(0, hy-0.003, 0),
+    _box(group, "status capsule", Vector3(0, hy-0.012, 0),
         Vector3(size.x*0.38,0.008,minf(1.2,size.z*0.31)),diode)
     _vent_louvers(group,size.x,size.y,size.z)
