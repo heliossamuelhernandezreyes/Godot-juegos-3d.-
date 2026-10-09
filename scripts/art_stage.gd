@@ -50,9 +50,13 @@ func build(map_data: Dictionary, anchors: Dictionary) -> void:
     for index in range(initial_children, get_child_count()):
         if get_child(index) is MeshInstance3D:
             original_cover_finishes.append(get_child(index))
-    _build_modular_covers()
-    set_cover_upgrade_enabled(true)
-    print("ART STAGE READY models=%d instances=%d lights=%d modular_covers=7" % [mesh_count, mesh_instances, point_lights])
+    # ArtStage is shared with Crisol: only Reactivo-13 owns exactly seven
+    # semantic cover guides. Keep every other game/fixture's legacy visuals.
+    if str(map_data.get("id", "")) == "fisura_reactivo_13_arena":
+        _build_modular_covers()
+        set_cover_upgrade_enabled(true)
+    print("ART STAGE READY models=%d instances=%d lights=%d modular_covers=%s" %
+        [mesh_count, mesh_instances, point_lights, str(modular_cover_layer != null)])
 
 func _build_modular_covers() -> void:
     # The game-owned collision bodies are siblings in the root game scene.
