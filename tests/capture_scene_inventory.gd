@@ -102,6 +102,11 @@ func _walk(node: Node, rows: Array[Dictionary]) -> void:
         item["surfaces"] = model.get_surface_count() if model != null else 0
         item["geometry_type"] = str(model.get_class()) if model != null else "missing"
         _mesh_materials(multi_node, model, item)
+    if node is CollisionShape3D:
+        var collider := node as CollisionShape3D
+        if collider.shape is BoxShape3D:
+            var dimensions: Vector3 = (collider.shape as BoxShape3D).size
+            item["box_shape_size"] = [dimensions.x, dimensions.y, dimensions.z]
     if node is WorldEnvironment:
         var environment := (node as WorldEnvironment).environment
         if environment != null:
