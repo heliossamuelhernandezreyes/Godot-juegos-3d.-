@@ -20,3 +20,14 @@
 Existing full mission playthrough, six 1280x720 Godot render images including mid-vault evidence and ARM64 APK export remain CI gates.
 
 **Release blocker:** Android three-finger movement/aim/fire, cover/vault responsiveness, character boot contact/weapon alignment, and recorded sound balance must be checked on an actual handset. Arcont's finish profile additionally calls for native skeletal contact samples and 15+ minutes of performance/thermal measurements; those are *not* provided by these tests.
+
+## Tactical camera and additive animation hardening (2026-10-08)
+- The actual Quaternius Vanguard import has **62 bones / 24 native clips**; its source-audited `Abdomen`, `Torso`, `Chest`, `UpperLeg.L/R`, and `LowerLeg.L/R` bones now drive an additive pose layer during cover and mid-vault. The existing `SkeletonModifier3D` runs after the native `AnimationPlayer` and preserves the physical `CharacterBody3D`.
+- The old full-mesh Y-scale squash was removed. Cover applies a restrained three-bone forward brace; crossing low cover adds phase-driven leg flexion. Neither relies on fictitious crouch/jump clips, and neither is hand-contact IK, root-motion matching, or a cinematic authored vault animation.
+- The Reactivo-13 shoulder camera now smoothly tightens/lowers its offset and narrows FOV during explicit fire, eases out afterward, and applies a bounded transient camera recoil. At rest the existing 4.25m / 1.30m full-body camera stays intact and maintains the real physics ray clipping.
+- Native `tests/reactivo_tactical_animation_camera.gd` checks the source bone map, runtime additive cover and vault states, no whole-mesh squash, camera shoulder offset transition, bounded recoil, and unchanged collider. This confirms runtime wiring, **not** whether the motions look high quality on a handset.
+
+### Remaining release-quality gates
+1. Actual physical Android review: three fingers (move/aim/fire), camera interpolation at 30/60fps, cover peeking, safe clip transitions, rifle-hand alignment and sound playback.
+2. Authored crouch, brace, vault and landing clips with motion-matched contact timing and validated foot/hand IK. Today's procedural bone tweaks are only an intermediate visual pass.
+3. Human evaluation of six authentic 1280x720 render captures; sustained frame-time and thermal measurements for 15+ minutes.
