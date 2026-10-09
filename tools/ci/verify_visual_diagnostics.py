@@ -30,6 +30,15 @@ def build_report(diagnostics_file: Path, native_file: Path, commit: str) -> tupl
         raise ValueError("mesh primitives were not captured")
     if f["materials"]["observed_descriptors"] < 200:
         raise ValueError("missing PBR material metrics")
+    # Real art-stage StaticBody3D and CollisionShape3D descendants are
+    # game-owned props generated from maps/reactivo_13.json, not invalid decor.
+    # Insist that ARCONT traces them to authoritative Map Forge world_props.
+    if f.get("gameplay_semantic_collision_nodes_in_art_stage") != 18:
+        raise ValueError("expected nine game-owned world props and their collision shapes")
+    if f.get("total_suspicious_colliders") != 0 or f.get("semantic_collider_mismatches"):
+        raise ValueError("unmapped or mispositioned collision nodes in the visual stage")
+    if f.get("unmeasured_semantic_box_sizes") != 0:
+        raise ValueError("native exporter must capture the Map Forge collision box dimensions")
     zones = diag["zones"]
     if len(zones) != 5 or any(z["sampling_status"] != "anchor_center_only_not_camera_visibility" for z in zones):
         raise ValueError("all five zones require actual map anchors")
@@ -45,6 +54,8 @@ def build_report(diagnostics_file: Path, native_file: Path, commit: str) -> tupl
         "scene_node_count": f["node_count"], "light_count": f["all_light_count"],
         "distinct_material_signatures": f["materials"]["unique_parameter_signatures"],
         "unique_albedo_paths": f["materials"]["unique_albedo_texture_paths"],
+        "semantic_map_collision_nodes_reconciled": f["gameplay_semantic_collision_nodes_in_art_stage"],
+        "unmapped_collider_nodes": f["total_suspicious_colliders"],
         "approval": "engineering-evidence-only",
         "limitations": [
             "CI ties supplied native snapshot to source commit and exact scene SHA",
@@ -70,6 +81,8 @@ def build_report(diagnostics_file: Path, native_file: Path, commit: str) -> tupl
         f"| Materiales registrados / firmas distintas | {m['observed_descriptors']} / {m['unique_parameter_signatures']} |",
         f"| Normales / emisión activadas | {m['normal_enabled_descriptors']} / {m['emission_enabled_descriptors']} |",
         f"| Texturas albedo distintas referenciadas | {m['unique_albedo_texture_paths']} |",
+        f"| Nodos de colisión reconciliados con Map Forge | {f['gameplay_semantic_collision_nodes_in_art_stage']} |",
+        f"| Colisiones de arte sin correspondencia semántica | {f['total_suspicious_colliders']} |",
         "", "## Muestreo por ancla de misión", "",
         "Mallas: centros dentro del radio. Luces: rango geométrico que alcanza el ancla (sin oclusiones ni sombras).",
         "",
