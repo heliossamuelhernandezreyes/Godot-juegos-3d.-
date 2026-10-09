@@ -14,7 +14,13 @@ from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw
 
-ROI = (0.23, 0.13, 0.83, 0.87)
+# Fixed shot regions per independently toggled visual variable. The original
+# turbine is central; the bay/floor treatment intentionally reaches the edges
+# of the shoulder view. Neither gate relaxes the out-of-ROI drift threshold.
+ROIS = {
+    "pilot_visible": (0.23, 0.13, 0.83, 0.87),
+    "environment_visible": (0.06, 0.07, 0.95, 0.98),
+}
 
 
 def sha256(path: Path) -> str:
@@ -35,8 +41,9 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
     if meta.get("quality_review") != "human_review_required" or meta.get("device_performance") != "not_measured":
         raise ValueError("capture metadata falsely declares aesthetic or Android certification")
     flag = meta.get("toggle_flag", "pilot_visible")
-    if flag not in ("pilot_visible", "environment_visible"):
+    if flag not in ROIS:
         raise ValueError("unrecognized visual-only variable in matched comparison")
+    roi = ROIS[flag]
     if meta.get("baseline",{}).get(flag) is not False or meta.get("candidate",{}).get(flag) is not True:
         raise ValueError("baseline/candidate visual-only toggle was not off/on")
     if meta["baseline"]["sha256"] != sha256(original) or meta["candidate"]["sha256"] != sha256(candidate):
@@ -54,7 +61,7 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
     w, h = a.size
     if w < 1280 or h < 720:
         raise ValueError("paired viewport smaller than minimum 1280x720")
-    x0,y0,x1,y1 = int(ROI[0]*w),int(ROI[1]*h),int(ROI[2]*w),int(ROI[3]*h)
+    x0,y0,x1,y1 = int(roi[0]*w),int(roi[1]*h),int(roi[2]*w),int(roi[3]*h)
     diff = ImageChops.difference(a, b)
     mask = diff.convert("L").point(lambda gray: 255 if gray > 12 else 0)
     changed_all = mask.histogram()[255]
@@ -86,7 +93,8 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
         "pass":True,"source_commit":source_commit,"scene_sha256":sha256(scene),
         "before_sha256":sha256(original),"after_sha256":sha256(candidate),
         "camera":pose,"renderer":meta["renderer"],"resolution":[w,h],
-        "comparison_roi_normalized":list(ROI),
+        "comparison_roi_normalized":list(roi),
+        "comparison_toggle": flag,
         "changed_pixel_ratio_in_roi":round(ratio_roi,6),
         "changed_pixel_ratio_outside_roi":round(ratio_outside,6),
         "changed_pixels_in_roi":changed_roi,
