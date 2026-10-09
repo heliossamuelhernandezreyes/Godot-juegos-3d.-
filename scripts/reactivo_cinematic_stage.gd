@@ -73,6 +73,9 @@ func _pbr(id: String, tint: Color, uv_scale: float) -> ORMMaterial3D:
 func _box(tag: String, pos: Vector3, dimensions: Vector3, finish: Material) -> MeshInstance3D:
     var display := MeshInstance3D.new()
     display.name = tag
+    # Godot auto-renames repeated sibling names; retain the actual semantic art
+    # family for independent material and composition inspection.
+    display.set_meta("semantic_art_tag", tag)
     var key := str(dimensions.snapped(Vector3.ONE * 0.001))
     if not box_cache.has(key):
         var primitive := BoxMesh.new()
