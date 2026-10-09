@@ -109,11 +109,12 @@ func _prepare_imported_geometry(tree: Node, source_family: String) -> void:
         visible_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
         # Godot retains the source GLB mesh, surfaces and UVs. Only the surface
         # appearance is overridden for gritty industrial continuity.
-        visible_mesh.material_override = (
-            pressurised_pipe if source_family.begins_with("pipe-") else
-            instrument_metal if source_family.begins_with("screen-") else
-            armoured_steel
-        )
+        var assigned: ORMMaterial3D = armoured_steel
+        if source_family.begins_with("pipe-"):
+            assigned = pressurised_pipe
+        elif source_family.begins_with("screen-"):
+            assigned = instrument_metal
+        visible_mesh.material_override = assigned
         draw_mesh_nodes += 1
         for surface in range(visible_mesh.mesh.get_surface_count()):
             var arrays: Array = visible_mesh.mesh.surface_get_arrays(surface)
