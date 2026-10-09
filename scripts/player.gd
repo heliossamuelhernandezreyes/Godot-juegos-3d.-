@@ -435,11 +435,19 @@ func _advance_vault(delta: float) -> void:
         visual_root.rotation.x = -0.17 * sin(t * PI)
     # Native collision sweep, no transform teleportation through cover geometry.
     var collision := move_and_collide(wanted - global_position)
-    if collision != null and t < 0.95:
+    # Any obstruction, including on the final landing frame, cancels the
+    # action. Never report vault_landed for a clipped or incomplete descent.
+    if collision != null:
         vault_active = false
         velocity = Vector3.ZERO
         return
     if vault_elapsed >= VAULT_TIME:
+        # A body can be stopped short by intervening world changes. Success
+        # requires reaching the authored opposite-side destination.
+        if global_position.distance_to(vault_to) > 0.08:
+            vault_active = false
+            velocity = Vector3.ZERO
+            return
         vault_active = false
         vault_completed += 1
         vault_landed.emit()
