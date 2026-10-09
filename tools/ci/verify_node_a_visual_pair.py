@@ -89,8 +89,14 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
     sheet_image.paste(a, (0,header_h))
     sheet_image.paste(b, (w,header_h))
     drawing = ImageDraw.Draw(sheet_image)
-    drawing.text((24,20),"BASELINE  |  Node A pilot OFF  |  same camera", fill=(232,240,245))
-    drawing.text((w+24,20),"CANDIDATE  |  Node A pilot ON  |  same camera", fill=(232,240,245))
+    if flag == "environment_visible":
+        before_label = "BASELINE  |  Bay/floor OFF, turbine ON  |  same camera"
+        after_label = "CANDIDATE  |  Bay/floor ON, turbine ON  |  same camera"
+    else:
+        before_label = "BASELINE  |  Node A turbine OFF  |  same camera"
+        after_label = "CANDIDATE  |  Node A turbine ON  |  same camera"
+    drawing.text((24,20), before_label, fill=(232,240,245))
+    drawing.text((w+24,20), after_label, fill=(232,240,245))
     sheet_image.save(sheet)
     report = {
         "protocol": "fisura-node-a-visual-comparison-gate", "version":1,
