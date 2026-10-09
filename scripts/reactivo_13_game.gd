@@ -578,13 +578,17 @@ func _physics_process(delta: float) -> void:
         fire_timer = 0.2
         _fire()
 
-func _fire() -> void:
+func _fire(pointer_override: Vector2 = Vector2(-1.0, -1.0)) -> void:
     player.on_weapon_fired()
     camera_recoil = minf(1.0, camera_recoil + 0.32)
     audio_fx.trigger("fire")
     # Reconcile crosshair/camera ray with the actual muzzle ray: no invisible
     # enemy auto-targeting, and no shots through close cover obstacles.
     var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
+    # Headless physics tests have no real cursor; provide an explicit viewport
+    # ray without changing desktop pointer controls or Android aiming.
+    if pointer_override.x >= 0.0 and pointer_override.y >= 0.0:
+        pointer = pointer_override
     var view_origin: Vector3 = camera.project_ray_origin(pointer)
     var view_end: Vector3 = view_origin + camera.project_ray_normal(pointer) * 80.0
     var view_query := PhysicsRayQueryParameters3D.create(view_origin, view_end)
