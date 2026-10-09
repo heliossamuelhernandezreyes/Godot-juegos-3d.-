@@ -12,6 +12,7 @@ const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
 const ART_SCRIPT = preload("res://scripts/art_stage.gd")
 const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
+const DEVICE_QA_SCRIPT = preload("res://scripts/reactivo_device_perf_probe.gd")
 const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
 const CAMERA_SHOULDER := 1.05
 const CAMERA_HEIGHT := 1.30
@@ -93,6 +94,13 @@ func _ready() -> void:
     _make_camera()
     _make_interactables()
     _make_hud()
+    # Android DEBUG builds alone collect bounded offline frame pacing reports.
+    # No telemetry/network access in release builds or desktop/headless CI.
+    if OS.get_name() == "Android" and OS.has_feature("debug"):
+        var device_qa := Node.new()
+        device_qa.name = "FISURA | offline Android debug frame pacing"
+        device_qa.set_script(DEVICE_QA_SCRIPT)
+        add_child(device_qa)
     audio_fx = Node.new()
     audio_fx.set_script(AUDIO_SCRIPT)
     add_child(audio_fx)
