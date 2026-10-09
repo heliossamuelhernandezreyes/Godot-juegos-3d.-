@@ -8,10 +8,14 @@ const GATE = preload("res://assets/models/extraction_gate.obj")
 const REACTOR = preload("res://assets/models/reactor_altar.obj")
 const POLY_BARREL = preload("res://assets/vendor/polyhaven/barrel_03/barrel_03_1k.gltf")
 const POLY_LAMP = preload("res://assets/vendor/polyhaven/industrial_wall_lamp/industrial_wall_lamp_1k.gltf")
+const MODULAR_COVERS: Script = preload("res://scripts/reactivo_cover_cassettes.gd")
 
 var mesh_count := 0
 var mesh_instances := 0
 var point_lights := 0
+var modular_cover_layer: Node3D
+var cover_guides: Array = []
+var original_cover_finishes: Array[MeshInstance3D] = []
 
 func build(map_data: Dictionary, anchors: Dictionary) -> void:
     name = "Direccion artistica - Crisol"
@@ -40,8 +44,42 @@ func build(map_data: Dictionary, anchors: Dictionary) -> void:
     _lighting()
     _set_wall_detail()
     _industrial_architecture(map_data)
+    cover_guides = map_data.get("authoring", {}).get("structure_guides", [])
+    var initial_children: int = get_child_count()
     _dress_covers(map_data)
-    print("ART STAGE READY models=%d instances=%d lights=%d" % [mesh_count, mesh_instances, point_lights])
+    for index in range(initial_children, get_child_count()):
+        if get_child(index) is MeshInstance3D:
+            original_cover_finishes.append(get_child(index))
+    _build_modular_covers()
+    set_cover_upgrade_enabled(true)
+    print("ART STAGE READY models=%d instances=%d lights=%d modular_covers=7" % [mesh_count, mesh_instances, point_lights])
+
+func _build_modular_covers() -> void:
+    # The game-owned collision bodies are siblings in the root game scene.
+    # Only a visual-only grouped child is added to ArtStage.
+    modular_cover_layer = Node3D.new()
+    modular_cover_layer.set_script(MODULAR_COVERS)
+    modular_cover_layer.set("cover_guides", cover_guides)
+    add_child(modular_cover_layer)
+
+func set_cover_upgrade_enabled(enabled: bool) -> void:
+    # A/B comparison: restore the original primitive+old art on baseline,
+    # show the modular cassette and hide the old faces on candidate.
+    if modular_cover_layer != null:
+        modular_cover_layer.visible = enabled
+    for piece in original_cover_finishes:
+        piece.visible = not enabled
+    var game_root: Node3D = get_parent() as Node3D
+    for guide in cover_guides:
+        if str(guide.get("kind", "")) != "cover":
+            continue
+        var physical_root: Node = game_root.get_node_or_null(str(guide["id"]))
+        if physical_root == null:
+            push_error("Map Forge cover body missing: " + str(guide["id"]))
+            continue
+        for child in physical_root.get_children():
+            if child is MeshInstance3D:
+                child.visible = not enabled
 
 func _display_asset(label: String, mesh: Mesh, pos: Vector3, yaw: float = 0.0) -> MeshInstance3D:
     var visual := MeshInstance3D.new()
