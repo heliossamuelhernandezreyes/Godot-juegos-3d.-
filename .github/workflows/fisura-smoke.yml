@@ -304,7 +304,7 @@ jobs:
           test -s reactivo-13-vault.png
       - name: Capture before/after Node A from identical frozen over-shoulder camera
         run: |
-          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/capture_reactivo_node_a_pair.gd > node-a-camera-pair.log 2>&1 || { cat node-a-camera-pair.log; exit 1; }
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_node_a_pair.gd > node-a-camera-pair.log 2>&1 || { cat node-a-camera-pair.log; exit 1; }
           cat node-a-camera-pair.log
           grep -q "REACTIVO NODE A CAMERA PAIR PASS" node-a-camera-pair.log
           test -s reactivo-13-node-a-before.png
