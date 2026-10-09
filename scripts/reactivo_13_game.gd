@@ -443,13 +443,18 @@ func _touch_action(parent: Control, title: String, x0: int, x1: int, y0: int, y1
     var collision := RectangleShape2D.new()
     collision.size = Vector2(float(x1 - x0), float(y1 - y0))
     touch.shape = collision
-    touch.shape_centered = false
+    # Use a centered collision rectangle anchored to the visible button's
+    # center. Without a texture, Godot may ignore shape_centered=false, so
+    # corner-based positioning can put the actual finger hitbox off-target.
+    touch.shape_centered = true
+    var hitbox_center := Vector2((float(x0) + float(x1)) * 0.5,
+        (float(y0) + float(y1)) * 0.5)
     # Also dispatch in Linux CI; mobile gameplay instantiates this branch only on touch devices.
     touch.visibility_mode = TouchScreenButton.VISIBILITY_ALWAYS
-    touch.position = get_viewport().get_visible_rect().size + Vector2(x0, y0)
+    touch.position = get_viewport().get_visible_rect().size + hitbox_center
     parent.add_child(touch)
     touch_buttons.append(touch)
-    touch_offsets.append(Vector2(x0, y0))
+    touch_offsets.append(hitbox_center)
     return touch
 
 func _swap_shoulder() -> void:
