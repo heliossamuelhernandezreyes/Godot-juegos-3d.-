@@ -16,6 +16,8 @@ const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
 const CAMERA_SHOULDER := 1.05
 const CAMERA_HEIGHT := 1.30
 const CAMERA_DISTANCE := 4.25
+const CAMERA_AIM_DISTANCE := 3.62
+const CAMERA_AIM_HEIGHT := 1.14
 const TOUCH_LOOK_SENSITIVITY := 0.0034
 
 var contract: Dictionary = {}
@@ -48,6 +50,8 @@ var gate_shape: CollisionShape3D
 var gate_visual: MeshInstance3D
 var interact_held := false
 var shoulder_side := 1.0
+var camera_aim_blend := 0.0
+var camera_recoil := 0.0
 var camera_yaw := 0.0
 var camera_pitch := 0.0
 var touch_move_id := -1
@@ -186,7 +190,14 @@ func _make_camera() -> void:
     camera.look_at(_camera_target(), Vector3.UP)
 
 func _camera_position() -> Vector3:
-    var desired: Vector3 = player.global_position + Basis(Vector3.UP, camera_yaw) * Vector3(CAMERA_SHOULDER * shoulder_side, CAMERA_HEIGHT, CAMERA_DISTANCE)
+    # Open movement keeps a full-body third-person silhouette. Holding the
+    # trigger eases to a closer shoulder framing; short cover lowers the rig
+    # modestly without rotating into the previous near-top-down perspective.
+    var distance := lerpf(CAMERA_DISTANCE, CAMERA_AIM_DISTANCE, camera_aim_blend)
+    var height := lerpf(CAMERA_HEIGHT, CAMERA_AIM_HEIGHT, camera_aim_blend)
+    height -= 0.07 * player.cover_blend
+    var lateral := CAMERA_SHOULDER + camera_aim_blend * 0.06
+    var desired: Vector3 = player.global_position + Basis(Vector3.UP, camera_yaw) * Vector3(lateral * shoulder_side, height, distance)
     var half_w := float(map_data["bounds"]["width"]) / 2.0
     var half_d := float(map_data["bounds"]["depth"]) / 2.0
     desired.x = clampf(desired.x, -half_w + 2.0, half_w - 2.0)
@@ -203,7 +214,9 @@ func _camera_position() -> Vector3:
 func _camera_target() -> Vector3:
     # Aim ahead of the actor at shoulder height instead of down toward the floor.
     var direction := Basis(Vector3.UP, camera_yaw)
-    return player.global_position + direction * Vector3(0.0, 1.15 + camera_pitch * 5.0, -3.3)
+    # Recoil displaces the viewed aim ray, not the physics-owned player capsule.
+    var headroom := 1.15 + camera_pitch * 5.0 + camera_recoil * 0.095
+    return player.global_position + direction * Vector3(0.0, headroom, -3.3)
 
 func _make_interactables() -> void:
     for object_id in ["node_a_console", "node_b_console", "reactor_altar", "stabilizer", "extraction_pad"]:
@@ -499,13 +512,17 @@ func _process(delta: float) -> void:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
     player.camera_yaw = camera_yaw
+    camera_aim_blend = move_toward(camera_aim_blend,
+        1.0 if player.wants_to_fire() else 0.0, delta * 5.5)
+    camera_recoil = move_toward(camera_recoil, 0.0, delta * 6.5)
     if not touch_buttons.is_empty():
         var screen_size := get_viewport().get_visible_rect().size
         for i in range(touch_buttons.size()):
             touch_buttons[i].position = screen_size + touch_offsets[i]
     camera.position = camera.position.lerp(_camera_position(), minf(1.0, delta * 10.0))
     camera.look_at(_camera_target(), Vector3.UP)
-    camera.fov = lerpf(camera.fov, 54.0 if player.wants_to_fire() else 60.0, minf(1.0, delta * 6.0))
+    camera.fov = lerpf(camera.fov, lerpf(60.0, 54.0, camera_aim_blend),
+        minf(1.0, delta * 6.0))
     if director.terminated:
         return
     elapsed += delta
@@ -554,6 +571,7 @@ func _physics_process(delta: float) -> void:
 
 func _fire() -> void:
     player.on_weapon_fired()
+    camera_recoil = minf(1.0, camera_recoil + 0.32)
     audio_fx.trigger("fire")
     # Reconcile crosshair/camera ray with the actual muzzle ray: no invisible
     # enemy auto-targeting, and no shots through close cover obstacles.
