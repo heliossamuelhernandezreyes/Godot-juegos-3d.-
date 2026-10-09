@@ -56,5 +56,11 @@
       "triangles_source": 328
     }
   },
+  "texture_files": {
+    "Textures/colormap.png": {
+      "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+      "bytes": 11813
+    }
+  },
   "source_triangles_sum": 3176
 }
