@@ -136,7 +136,9 @@ func _detail(label: String, at: Vector3, size: Vector3, finish: Material) -> voi
     var mesh := BoxMesh.new()
     mesh.size = size
     var part := MeshInstance3D.new()
-    part.name = "PBR material pass | "+label
+    # Stable unique names preserve BOTH left/right machined glass edges when
+    # Godot would otherwise auto-rename duplicate sibling labels.
+    part.name = "PBR material pass | %03d | %s" % [trim_nodes.size(), label]
     part.mesh = mesh
     part.material_override = finish
     part.position = at
