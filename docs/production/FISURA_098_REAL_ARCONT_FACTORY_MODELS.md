@@ -9,7 +9,7 @@ The user requested replacing cube-based scenery with third-party authored 3D ass
 - Creator Kenney uploaded the **Factory Kit 3.0** source under CC0 at https://opengameart.org/content/factory-kit
 - Source ZIP: https://opengameart.org/sites/default/files/kenney_factory-kit_3.0.zip
 - Locked ZIP SHA-256: `7e31fb2308e90304672bd15cd18fa9d9f02c03731a8cbc57a8e3e1c181dfb0a7`.
-- Only nine chosen original embedded-palette GLBs were added to FISURA; the source archive and unused 134 models are not bundled.
+- Only nine chosen original GLB models and their single required external `Textures/colormap.png` palette were added to FISURA; the source archive and unused 134 models are not bundled.
 - `tools/assets/import_kenney_factory.py` securely enforces the original digest, creator license, GLB 2.0 headers/JSON, polygon bound and per-model hashes in `assets/vendor/kenney_factory_kit/PROVENANCE.json`.
 - The FISURA-specific licensed GLB files belong in this game repository, **not ARCONT's metadata vault**.
 
