@@ -288,6 +288,12 @@ jobs:
           cat cover-cassette-native.log
           grep -q "FISURA MODULAR COVERS PASS" cover-cassette-native.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" cover-cassette-native.log
+      - name: Verify authentic PBR triplanar texturing on game primitive meshes and true alpha technical glass
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_surface_materials.gd > reactivo-surface-pbr.log 2>&1 || { cat reactivo-surface-pbr.log; exit 1; }
+          cat reactivo-surface-pbr.log
+          grep -q "FISURA PROCEDURAL PBR PASS" reactivo-surface-pbr.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" reactivo-surface-pbr.log
       - name: Validate Android debug frame pacing math and desktop telemetry isolation
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_device_perf_probe.gd > debug-frame-math.log 2>&1 || { cat debug-frame-math.log; exit 1; }
@@ -409,6 +415,54 @@ jobs:
             reactivo-13-cover-comparison.json
             cover-cassette-artifact-sha256.txt
           if-no-files-found: error
+      - name: Capture live Godot node scene flat-vs-PBR material pair from same camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_materials_node_pair.gd > materials-node-capture.log 2>&1 || { cat materials-node-capture.log; exit 1; }
+          cat materials-node-capture.log
+          grep -q "REACTIVO SURFACE MATERIAL CAMERA PAIR PASS" materials-node-capture.log
+          test -s reactivo-13-materials-node-baseline.png
+          test -s reactivo-13-materials-node-textured.png
+          test -s reactivo-13-materials-node-camera-pair.json
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" materials-node-capture.log
+      - name: Compare authentic PBR before-after and reject mismatched node camera/source
+        run: |
+          python3 tools/ci/verify_node_a_visual_pair.py \
+            --metadata reactivo-13-materials-node-camera-pair.json \
+            --before reactivo-13-materials-node-baseline.png \
+            --after reactivo-13-materials-node-textured.png \
+            --report reactivo-13-materials-node-comparison.json \
+            --sheet reactivo-13-materials-node-before-after.png | tee materials-node-comparison.log
+          grep -q "REACTIVO NODE A PAIRED VISUAL PASS" materials-node-comparison.log
+          sha256sum reactivo-13-materials-node-baseline.png reactivo-13-materials-node-textured.png reactivo-13-materials-node-camera-pair.json reactivo-13-materials-node-comparison.json > materials-node-sha256.txt
+      - name: Capture live Godot corridor scene flat-vs-PBR material pair from same camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_materials_corridor_pair.gd > materials-corridor-capture.log 2>&1 || { cat materials-corridor-capture.log; exit 1; }
+          cat materials-corridor-capture.log
+          grep -q "REACTIVO SURFACE MATERIAL CAMERA PAIR PASS" materials-corridor-capture.log
+          test -s reactivo-13-materials-corridor-baseline.png
+          test -s reactivo-13-materials-corridor-textured.png
+          test -s reactivo-13-materials-corridor-camera-pair.json
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" materials-corridor-capture.log
+      - name: Compare authentic PBR before-after and reject mismatched corridor camera/source
+        run: |
+          python3 tools/ci/verify_node_a_visual_pair.py \
+            --metadata reactivo-13-materials-corridor-camera-pair.json \
+            --before reactivo-13-materials-corridor-baseline.png \
+            --after reactivo-13-materials-corridor-textured.png \
+            --report reactivo-13-materials-corridor-comparison.json \
+            --sheet reactivo-13-materials-corridor-before-after.png | tee materials-corridor-comparison.log
+          grep -q "REACTIVO NODE A PAIRED VISUAL PASS" materials-corridor-comparison.log
+          sha256sum reactivo-13-materials-corridor-baseline.png reactivo-13-materials-corridor-textured.png reactivo-13-materials-corridor-camera-pair.json reactivo-13-materials-corridor-comparison.json > materials-corridor-sha256.txt
+      - name: Upload native PBR material/glazing comparison pair for Node A and corridor
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-097-native-pbr-metal-concrete-glass
+          path: |
+            reactivo-13-materials-node-*
+            reactivo-13-materials-corridor-*
+            materials-node-sha256.txt
+            materials-corridor-sha256.txt
+          if-no-files-found: error
       - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
           python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
@@ -460,6 +514,11 @@ jobs:
             debug-frame-math.log
             cover-cassette-pair.log
             cover-cassette-comparison.log
+            reactivo-surface-pbr.log
+            materials-node-capture.log
+            materials-corridor-capture.log
+            materials-node-comparison.log
+            materials-corridor-comparison.log
             node-a-environment-pair.log
             node-a-environment-comparison-gate.log
             node-a-camera-pair.log
