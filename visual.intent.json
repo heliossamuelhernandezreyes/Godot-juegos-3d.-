@@ -56,35 +56,45 @@
       "region_id": null,
       "role": "insertion",
       "focus": "Readable Vanguard silhouette, distant danger, industrial route",
-      "lighting_profile_id": "insertion_cold"
+      "lighting_profile_id": "insertion_cold",
+      "anchor_id": "vanguard_start",
+      "sample_radius_m": 9
     },
     {
       "id": "node_a",
       "region_id": null,
       "role": "objective",
       "focus": "Cold-energy machine bank with visible interaction console",
-      "lighting_profile_id": "node_a_cyan"
+      "lighting_profile_id": "node_a_cyan",
+      "anchor_id": "node_a_console",
+      "sample_radius_m": 9
     },
     {
       "id": "node_b",
       "region_id": null,
       "role": "objective",
       "focus": "Warm-energy machine bank distinct from Node A",
-      "lighting_profile_id": "node_b_amber"
+      "lighting_profile_id": "node_b_amber",
+      "anchor_id": "node_b_console",
+      "sample_radius_m": 9
     },
     {
       "id": "reactor",
       "region_id": null,
       "role": "objective",
       "focus": "Central animated containment reactor with red phase alarm",
-      "lighting_profile_id": "reactor_alarm"
+      "lighting_profile_id": "reactor_alarm",
+      "anchor_id": "reactor_altar",
+      "sample_radius_m": 11
     },
     {
       "id": "extraction",
       "region_id": null,
       "role": "extraction",
       "focus": "Clear exit portal landmark and evacuation direction",
-      "lighting_profile_id": "exit_guidance"
+      "lighting_profile_id": "exit_guidance",
+      "anchor_id": "extraction_pad",
+      "sample_radius_m": 9
     }
   ],
   "lighting_profiles": [
@@ -308,6 +318,6 @@
     "art_review_required": true,
     "device_measurement_required": true,
     "project_write_authorized": false,
-    "review_notes": "Actual FISURA visual intent, not engine-verified composition. Budgets are planning ceilings only. Poly Haven sources must be validated against existing vendor receipts before staging/approved claims."
+    "review_notes": "Native CI inventory has no camera visibility or Android physical device measurements. Anchor-radius sampling captures potential light reach and mesh centers only. ARCONT reports warnings for human review, not automatic art scores."
   }
 }
