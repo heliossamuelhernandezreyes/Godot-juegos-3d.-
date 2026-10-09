@@ -282,6 +282,18 @@ jobs:
           cat node-a-environment-regression.log
           grep -q "REACTIVO NODE A ENVIRONMENT PASS" node-a-environment-regression.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" node-a-environment-regression.log
+      - name: Verify seven modular cover cassettes stay within physical Map Forge bodies
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_modular_cover.gd > cover-cassette-native.log 2>&1 || { cat cover-cassette-native.log; exit 1; }
+          cat cover-cassette-native.log
+          grep -q "FISURA MODULAR COVERS PASS" cover-cassette-native.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" cover-cassette-native.log
+      - name: Validate Android debug frame pacing math and desktop telemetry isolation
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_device_perf_probe.gd > debug-frame-math.log 2>&1 || { cat debug-frame-math.log; exit 1; }
+          cat debug-frame-math.log
+          grep -q "FISURA DEBUG FRAME PACING MATH PASS" debug-frame-math.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" debug-frame-math.log
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
@@ -366,6 +378,37 @@ jobs:
             reactivo-13-node-a-environment-comparison.json
             node-a-environment-artifact-sha256.txt
           if-no-files-found: error
+      - name: Capture actual Godot cover original-vs-modular from identical camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_cover_pair.gd > cover-cassette-pair.log 2>&1 || { cat cover-cassette-pair.log; exit 1; }
+          cat cover-cassette-pair.log
+          grep -q "REACTIVO COVER CASSETTE CAMERA PAIR PASS" cover-cassette-pair.log
+          test -s reactivo-13-cover-legacy.png
+          test -s reactivo-13-cover-modular.png
+          test -s reactivo-13-cover-camera-pair.json
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" cover-cassette-pair.log
+      - name: Compare exact-camera cover art before-after and retain untouched source PNGs
+        run: |
+          python3 tools/ci/verify_node_a_visual_pair.py \
+            --metadata reactivo-13-cover-camera-pair.json \
+            --before reactivo-13-cover-legacy.png \
+            --after reactivo-13-cover-modular.png \
+            --report reactivo-13-cover-comparison.json \
+            --sheet reactivo-13-cover-before-after.png | tee cover-cassette-comparison.log
+          grep -q "REACTIVO NODE A PAIRED VISUAL PASS" cover-cassette-comparison.log
+          sha256sum reactivo-13-cover-legacy.png reactivo-13-cover-modular.png reactivo-13-cover-camera-pair.json reactivo-13-cover-comparison.json > cover-cassette-artifact-sha256.txt
+      - name: Upload modular cover real-image QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-096-modular-covers-camera-pair
+          path: |
+            reactivo-13-cover-legacy.png
+            reactivo-13-cover-modular.png
+            reactivo-13-cover-before-after.png
+            reactivo-13-cover-camera-pair.json
+            reactivo-13-cover-comparison.json
+            cover-cassette-artifact-sha256.txt
+          if-no-files-found: error
       - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
           python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
@@ -413,6 +456,10 @@ jobs:
             reactivo-art-budget.log
             node-a-visual-regression.log
             node-a-environment-regression.log
+            cover-cassette-native.log
+            debug-frame-math.log
+            cover-cassette-pair.log
+            cover-cassette-comparison.log
             node-a-environment-pair.log
             node-a-environment-comparison-gate.log
             node-a-camera-pair.log
