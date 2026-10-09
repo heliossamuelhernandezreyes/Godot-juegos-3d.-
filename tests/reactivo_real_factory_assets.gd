@@ -47,6 +47,9 @@ func _test() -> void:
         if _has_gameplay_node(asset):
             _fail("unexpected physics collision or realtime light inside source 3D asset")
             return
+        if not _inspect_pbr(asset):
+            _fail("Kenney GLB geometry is not coherently finished with original CC0 PBR steel")
+            return
     world.cinematic_stage.set_node_a_factory_kit_enabled(false)
     for original in layer.legacy_blockouts:
         if not original.visible:
@@ -63,6 +66,16 @@ func _test() -> void:
     print("FISURA ARCONT REAL GLB PASS imported_models=%d visible_meshes=%d source_triangles=%d collider=unchanged lights=unchanged" %
         [layer.authentic_instances.size(),layer.authentic_mesh_nodes,receipt.source_triangles_sum])
     quit(0)
+
+func _inspect_pbr(node: Node) -> bool:
+    if node is MeshInstance3D:
+        var m: ORMMaterial3D = (node as MeshInstance3D).material_override as ORMMaterial3D
+        if m == null or m.albedo_texture == null or m.orm_texture == null                 or not m.normal_enabled or m.normal_texture == null or not m.uv1_triplanar:
+            return false
+    for child in node.get_children():
+        if not _inspect_pbr(child):
+            return false
+    return true
 
 func _has_gameplay_node(node: Node) -> bool:
     if node is CollisionObject3D or node is CollisionShape3D or node is Light3D:
