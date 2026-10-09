@@ -1,0 +1,51 @@
+name: FISURA source-verified Kenney asset intake
+
+on:
+  push:
+    branches:
+      - feat/fisura-098-arcont-real-modular-assets
+    paths:
+      - '.github/workflows/fisura-kenney-intake.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-cc0-factory-kit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire official creator-uploaded CC0 Kenney Factory Kit
+        run: |
+          curl --fail --location --retry 3 --retry-delay 2 --max-time 180 \
+            --user-agent 'FISURA-Arcont-Source-Intake/0.9.8 (CC0 research)' \
+            -o factory-kit-source.zip \
+            'https://opengameart.org/sites/default/files/kenney_factory-kit_3.0.zip'
+          test "$(stat -c%s factory-kit-source.zip)" -gt 100000
+          test "$(stat -c%s factory-kit-source.zip)" -lt 25000000
+          python3 - <<'PY'
+          import hashlib,zipfile,json
+          from pathlib import Path
+          f=Path('factory-kit-source.zip')
+          with zipfile.ZipFile(f) as z:
+              files=[{'path':i.filename,'bytes':i.file_size} for i in z.infolist() if not i.is_dir()]
+              assert len(files)>=140
+              assert all(not i['path'].startswith('/') and '..' not in Path(i['path']).parts for i in files)
+          record={'title':'Kenney Factory Kit 3.0','provider':'Kenney (creator upload to OpenGameArt)',
+            'url':'https://opengameart.org/content/factory-kit',
+            'source':'https://opengameart.org/sites/default/files/kenney_factory-kit_3.0.zip',
+            'license':'CC0-1.0','archive_sha256':hashlib.sha256(f.read_bytes()).hexdigest(),
+            'archive_bytes':f.stat().st_size,'files':files}
+          Path('factory-archive-manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+          print('KENNEY SOURCE ARCHIVE ACCEPTED',len(files),'files',record['archive_sha256'])
+          for item in files[:45]: print(item['path'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fisura-098-kenney-creator-source-inspection
+          path: |
+            factory-archive-manifest.json
+            factory-kit-source.zip
+          if-no-files-found: error
