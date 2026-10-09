@@ -7,6 +7,7 @@ const WALL_LAMP: PackedScene = preload("res://assets/vendor/polyhaven/industrial
 const PHOTO_CART: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_storage_cart/industrial_storage_cart_1k.gltf")
 const PHOTO_CONTAINER: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_pastic_container/industrial_pastic_container_1k.gltf")
 const NODE_A_VISUAL: Script = preload("res://scripts/reactivo_node_a_visual_pilot.gd")
+const NODE_A_ENVIRONMENT: Script = preload("res://scripts/reactivo_node_a_environment_pass.gd")
 var metal: Material
 var worn: Material
 var copper: Material
@@ -21,6 +22,7 @@ var time_accum := 0.0
 var alarm_active := false
 var draw_nodes := 0
 var node_a_pilot: Node3D
+var node_a_environment: Node3D
 var material_cache: Dictionary = {}
 var box_cache: Dictionary = {}
 
@@ -38,6 +40,7 @@ func _ready() -> void:
     _main_corridor()
     _node_rooms()
     _node_a_hero_pilot()
+    _node_a_environment_pass()
     _detailed_factory_props()
     _reactor()
     _exit_platform()
@@ -181,6 +184,26 @@ func _node_a_hero_pilot() -> void:
 func set_node_a_pilot_enabled(enabled: bool) -> void:
     if node_a_pilot != null:
         node_a_pilot.visible = enabled
+
+func _node_a_environment_pass() -> void:
+    # Cover dimensions and center remain game-owned and are read directly from
+    # Map Forge; the new visual facade cannot modify or author colliders.
+    var world: Node3D = get_parent() as Node3D
+    var map_data: Dictionary = world.map_data
+    var guide: Dictionary = {}
+    for candidate in map_data.get("authoring", {}).get("structure_guides", []):
+        if str(candidate.get("id", "")) == "node_a_cover" and candidate.get("kind", "") == "cover":
+            guide = candidate
+            break
+    node_a_environment = Node3D.new()
+    node_a_environment.set_script(NODE_A_ENVIRONMENT)
+    node_a_environment.set("cover_guide", guide)
+    node_a_environment.position = Vector3(-28.0, 0.0, 4.0)
+    add_child(node_a_environment)
+
+func set_node_a_environment_enabled(enabled: bool) -> void:
+    if node_a_environment != null:
+        node_a_environment.visible = enabled
 
 func _detailed_factory_props() -> void:
     # ARCONT-vetted original Poly Haven photogrammetry, with complete glTF dependencies.
