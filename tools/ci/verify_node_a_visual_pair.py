@@ -34,8 +34,11 @@ def validate(meta_path: Path, original: Path, candidate: Path, scene: Path,
         raise ValueError("engine / renderer differs from expected Compatibility capture")
     if meta.get("quality_review") != "human_review_required" or meta.get("device_performance") != "not_measured":
         raise ValueError("capture metadata falsely declares aesthetic or Android certification")
-    if meta.get("baseline",{}).get("pilot_visible") is not False or meta.get("candidate",{}).get("pilot_visible") is not True:
-        raise ValueError("baseline/candidate switch was not off/on")
+    flag = meta.get("toggle_flag", "pilot_visible")
+    if flag not in ("pilot_visible", "environment_visible"):
+        raise ValueError("unrecognized visual-only variable in matched comparison")
+    if meta.get("baseline",{}).get(flag) is not False or meta.get("candidate",{}).get(flag) is not True:
+        raise ValueError("baseline/candidate visual-only toggle was not off/on")
     if meta["baseline"]["sha256"] != sha256(original) or meta["candidate"]["sha256"] != sha256(candidate):
         raise ValueError("a captured PNG was altered since the native Godot capture")
     pose = meta.get("camera", {})
