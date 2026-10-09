@@ -69,7 +69,7 @@ def main() -> None:
         # "Textures/colormap.png". Preserve this exact dependency so Godot
         # imports authored colors instead of showing missing-texture errors.
         palette = z.read("Models/GLB format/Textures/colormap.png")
-        assert 1000 < len(palette) < 500000 and palette.startswith(b"\\x89PNG\\r\\n\\x1a\\n")
+        assert 1000 < len(palette) < 500000 and palette.startswith(bytes([137, 80, 78, 71, 13, 10, 26, 10]))
         (DEST / "Textures").mkdir(exist_ok=True)
         (DEST / "Textures" / "colormap.png").write_bytes(palette)
         provenance["texture_files"] = {"Textures/colormap.png": {
