@@ -83,7 +83,7 @@ func _pipe(label: String, at: Vector3, radius: float, length: float,
     cylinder.height = length
     cylinder.radial_segments = 10
     var display := MeshInstance3D.new()
-    display.name = "ENV A | " + label
+    display.name = "ENV A | %03d | %s" % [environment_meshes, label]
     display.mesh = cylinder
     display.position = at
     display.rotation = Vector3(PI * 0.5, 0, 0) if axis_z else Vector3(0, 0, PI * 0.5)
