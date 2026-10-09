@@ -31,3 +31,9 @@ Existing full mission playthrough, six 1280x720 Godot render images including mi
 1. Actual physical Android review: three fingers (move/aim/fire), camera interpolation at 30/60fps, cover peeking, safe clip transitions, rifle-hand alignment and sound playback.
 2. Authored crouch, brace, vault and landing clips with motion-matched contact timing and validated foot/hand IK. Today's procedural bone tweaks are only an intermediate visual pass.
 3. Human evaluation of six authentic 1280x720 render captures; sustained frame-time and thermal measurements for 15+ minutes.
+
+## Combat readability correction
+- `reactivo_13_game.gd` only spawns an impact effect for a **real physics ray collision**, avoiding phantom sparks at the maximum ray distance.
+- A collider that implements `take_hit_from` or `take_hit` is treated as a confirmed damageable contact and triggers a short amber crosshair cue and the existing licensed impact sound. Ordinary static walls do not confirm enemy damage.
+- `tests/reactivo_combat_feedback.gd` exercises a real instrumented `StaticBody3D` target, the two-part camera-to-muzzle ray, the timer and reset of the reticle.
+- This is combat feedback wiring, not a final weapon mix or an authored material-specific soundscape.
