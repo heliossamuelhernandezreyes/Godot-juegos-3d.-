@@ -175,6 +175,8 @@ func _update_visual_state(delta: float) -> void:
         var local_velocity := global_basis.inverse() * Vector3(velocity.x, 0.0, velocity.z)
         var lateral := clampf(local_velocity.x / WALK_SPEED, -1.0, 1.0)
         aim_modifier.set_aim_motion(wants_to_fire() or weapon_active > 0.0, aim_pitch, -lateral * 0.11)
+        aim_modifier.set_tactical_pose(0.0 if vault_active else cover_blend,
+            vault_elapsed / VAULT_TIME if vault_active else -1.0)
     animation_lock = maxf(0.0, animation_lock - delta)
     weapon_active = maxf(0.0, weapon_active - delta)
     if health <= 0:
@@ -274,11 +276,12 @@ func _physics_process(delta: float) -> void:
     if aim_direction.length_squared() > 0.001:
         look_at(global_position + aim_direction, Vector3.UP)
     if visual_root != null:
-        # Animation-safe visual brace, without changing the authoritative capsule.
-        # Preserve feet height when lowering the silhouette. Imported Crouch (if any) owns the detailed pose.
+        # Let skeletal torso pose drive cover compression instead of scaling
+        # the entire animated character (which distorts the hands and rifle).
+        # A tiny vertical presentation offset remains; physics stays unchanged.
         visual_root.rotation.x = lerpf(visual_root.rotation.x, 0.0, minf(1.0, delta * 9.0))
-        visual_root.scale.y = lerpf(visual_root.scale.y, 1.0 - cover_blend * 0.15, minf(1.0, delta * 12.0))
-        visual_root.position.y = lerpf(visual_root.position.y, -0.13 * cover_blend, minf(1.0, delta * 12.0))
+        visual_root.scale.y = lerpf(visual_root.scale.y, 1.0, minf(1.0, delta * 12.0))
+        visual_root.position.y = lerpf(visual_root.position.y, -0.04 * cover_blend, minf(1.0, delta * 12.0))
         var lean := -0.17 * cover_normal.x if in_cover and wants_to_fire() else -0.09 * cover_normal.x * cover_blend
         visual_root.rotation.z = lerpf(visual_root.rotation.z, lean, minf(1.0, delta * 10.0))
     _update_visual_state(delta)
