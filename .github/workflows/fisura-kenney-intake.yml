@@ -6,6 +6,7 @@ on:
       - feat/fisura-098-arcont-real-modular-assets
     paths:
       - '.github/workflows/fisura-kenney-intake.yml'
+      - 'tools/assets/import_kenney_factory.py'
   workflow_dispatch:
 
 permissions:
