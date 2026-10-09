@@ -11,6 +11,7 @@ const TELEGRAPH_DRONE_SCRIPT = preload("res://scripts/reactivo_eyedrone.gd")
 const DIRECTOR_SCRIPT = preload("res://scripts/reactivo_mission_director.gd")
 const ART_SCRIPT = preload("res://scripts/art_stage.gd")
 const CINEMATIC_SCRIPT = preload("res://scripts/reactivo_cinematic_stage.gd")
+const MATERIAL_PASS_SCRIPT = preload("res://scripts/reactivo_surface_material_upgrade.gd")
 const AUDIO_SCRIPT = preload("res://scripts/audio_fx.gd")
 const DEVICE_QA_SCRIPT = preload("res://scripts/reactivo_device_perf_probe.gd")
 const EFFECT_SCRIPT = preload("res://scripts/reactivo_combat_fx.gd")
@@ -30,6 +31,7 @@ var player
 var camera: Camera3D
 var stage: Node3D
 var cinematic_stage: Node3D
+var material_pass: Node3D
 var audio_fx: Node
 var combat_fx: Node3D
 var mission_label: Label
@@ -176,6 +178,11 @@ func _build_world() -> void:
     cinematic_stage = Node3D.new()
     cinematic_stage.set_script(CINEMATIC_SCRIPT)
     add_child(cinematic_stage)
+    # Apply real triplanar PBR and technical glazing to existing meshes only.
+    # Reversible material overrides preserve all original StaticBody3D colliders.
+    material_pass = Node3D.new()
+    material_pass.set_script(MATERIAL_PASS_SCRIPT)
+    add_child(material_pass)
     # Distinct colored lanes anchor each combat/mission region.
     _box("Node A lit wayfinding", Vector3(-28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#438ca7"), false)
     _box("Node B lit wayfinding", Vector3(28, 0.07, 10), Vector3(10, 0.06, 0.14), Color("#b58b50"), false)
