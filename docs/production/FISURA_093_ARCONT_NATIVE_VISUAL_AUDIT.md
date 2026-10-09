@@ -19,10 +19,38 @@ Reactivo-13 is mostly created inside GDScript (base geometry, ArtStage, Cinemati
 ### Source integrity / versions
 
 - Gameplay code, collisions, map, encounter and Android export remain unchanged.
-- CI checks out ARCONT 1.1 integration toolchain at its established immutable SHA and *separately* pins ARCONT P0/P1 experimental tools to commit `9b12f92cb78339ea09b75a05409044c03632401e` (draft PR #49). This intentionally does not reassign the project's canonical Arcont 1.1 version.
+- CI checks out ARCONT 1.1 integration toolchain at its established immutable SHA and *separately* pins ARCONT P0/P1 experimental tools to commit `c92fe21a55fac765d201022240a44edda35a51f3` (draft PR #49). This intentionally does not reassign the project's canonical Arcont 1.1 version.
 - No network asset discovery or staging is activated; all materials and assets are existing resources already in FISURA.
 - Snapshot is output of real Godot invocation, *not* a source inference and *not* a fabricated image.
 - JSON `capture_source` and `source_commit` alone cannot cryptographically prove native execution; retained engine logs, Actions run and matching artifact hashes provide the CI-bound provenance.
+
+## Fase siguiente: diagnóstico espacial y reconciliación física (P1+)
+
+La captura ahora incluye `world_position` de nodos `Node3D`,
+`geometry_type` de mallas y `box_shape_size` real para `CollisionShape3D`
+de tipo BoxShape3D. Los cinco perfiles visuales se vinculan con anclas auténticas
+de `maps/reactivo_13.json` mediante `zone.anchor_id` y radios de muestreo.
+
+La herramienta genérica `visual_scene_diagnostics.py` de Arcont aporta:
+- Inventario por etapas, clases, luces con sombra y familias BoxMesh/ArrayMesh/etc.
+- Firmas de parámetros de materiales y rutas de textura referenciadas.
+- Conteo aproximado de centros de malla cercanos a cada ancla y alcance geométrico
+  de luces locales (sin oclusiones, sin sombras, sin render).
+- Señales no bloqueantes cuando una zona supera su presupuesto de luces.
+- Reconciliación precisa de los **nueve pares de cuerpos físicos y CollisionShape3D**
+  bajo `Direccion artistica - Crisol`, ya que derivan del mapa semántico
+  `authoring.world_props`, no de un error de decoración. Las posiciones,
+  centros y medidas de cada caja deben coincidir con la fuente del gameplay.
+
+`tools/ci/verify_visual_diagnostics.py` asocia el análisis al mismo SHA de
+snapshot y commit de GitHub Actions, exige que no existan objetos con colisión
+sin contrato o medidas discrepantes, y genera el informe
+`reactivo-13-visual-diagnostics.md` para revisión de arte. Los nuevos archivos
+se publican en el artefacto `reactivo-13-arcont-native-visual-inventory`.
+
+Las firmas repetidas de materiales **no** son una puntuación de calidad
+estética, y el conteo de luces que alcanzan un ancla **no** mide luminosidad
+en píxeles ni coste GPU.
 
 ## Next engineering milestones
 
