@@ -65,6 +65,8 @@ var phase_time := 0.0
 var encounter_spawned: Dictionary = {}
 var elapsed := 0.0
 var fire_timer := 0.0
+var hit_confirm_remaining := 0.0
+var hit_reticle_active := false
 var kills := 0
 var failed := false
 var won := false
@@ -508,9 +510,16 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
     if player == null or director == null:
         return
+    hit_confirm_remaining = maxf(0.0, hit_confirm_remaining - delta)
     if tactical_reticle != null:
         var pointer := get_viewport().get_visible_rect().size * 0.5 if OS.has_feature("mobile") else get_viewport().get_mouse_position()
         tactical_reticle.position = pointer - Vector2(7, 17)
+        var active := hit_confirm_remaining > 0.0
+        if active != hit_reticle_active:
+            hit_reticle_active = active
+            tactical_reticle.text = "×" if active else "+"
+            tactical_reticle.add_theme_color_override("font_color",
+                Color("#ffcf80") if active else Color("#83edec"))
     player.camera_yaw = camera_yaw
     camera_aim_blend = move_toward(camera_aim_blend,
         1.0 if player.wants_to_fire() else 0.0, delta * 5.5)
@@ -594,15 +603,24 @@ func _fire() -> void:
     if not result.is_empty():
         destination = result["position"]
         var collider: Object = result["collider"]
+        # A physical wall should spark but never show an enemy damage marker.
+        # A miss should trace but must not create an impact effect in empty air.
+        register_hit_feedback(destination)
         if collider != null:
             if collider.has_method("take_hit_from"):
                 collider.call("take_hit_from", 23, origin)
+                _confirm_combat_hit()
             elif collider.has_method("take_hit"):
                 collider.call("take_hit", 23)
+                _confirm_combat_hit()
     if combat_fx != null:
         combat_fx.muzzle(origin, forward)
         combat_fx.tracer(origin, destination)
-    register_hit_feedback(destination)
+
+func _confirm_combat_hit() -> void:
+    hit_confirm_remaining = 0.13
+    if audio_fx != null:
+        audio_fx.trigger("hit")
 
 func _available_target() -> String:
     var objective_ids: Array = director.phase_objectives()
