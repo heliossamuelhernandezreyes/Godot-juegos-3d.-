@@ -276,6 +276,12 @@ jobs:
           cat node-a-visual-regression.log
           grep -q "REACTIVO NODE A VISUAL PILOT PASS" node-a-visual-regression.log
           ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" node-a-visual-regression.log
+      - name: Verify Node A floor architecture and cover dressing against gameplay collision
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/reactivo_node_a_environment.gd > node-a-environment-regression.log 2>&1 || { cat node-a-environment-regression.log; exit 1; }
+          cat node-a-environment-regression.log
+          grep -q "REACTIVO NODE A ENVIRONMENT PASS" node-a-environment-regression.log
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" node-a-environment-regression.log
       - name: Run deterministic extraction playthrough
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/playthrough.gd > godot-playthrough.log 2>&1
@@ -329,6 +335,37 @@ jobs:
             reactivo-13-node-a-visual-comparison.json
             node-a-artifact-sha256.txt
           if-no-files-found: error
+      - name: Capture real Node A floor architecture before-after without changing the turbine
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path . --script res://tests/capture_reactivo_node_a_environment_pair.gd > node-a-environment-pair.log 2>&1 || { cat node-a-environment-pair.log; exit 1; }
+          cat node-a-environment-pair.log
+          grep -q "REACTIVO NODE A ENVIRONMENT CAMERA PAIR PASS" node-a-environment-pair.log
+          test -s reactivo-13-node-a-environment-before.png
+          test -s reactivo-13-node-a-environment-after.png
+          test -s reactivo-13-node-a-environment-camera-pair.json
+          ! grep -E "SCRIPT ERROR|Parse Error|ERROR:" node-a-environment-pair.log
+      - name: Verify Node A environmental comparison from same frozen camera
+        run: |
+          python3 tools/ci/verify_node_a_visual_pair.py \
+            --metadata reactivo-13-node-a-environment-camera-pair.json \
+            --before reactivo-13-node-a-environment-before.png \
+            --after reactivo-13-node-a-environment-after.png \
+            --report reactivo-13-node-a-environment-comparison.json \
+            --sheet reactivo-13-node-a-environment-before-after.png | tee node-a-environment-comparison-gate.log
+          grep -q "REACTIVO NODE A PAIRED VISUAL PASS" node-a-environment-comparison-gate.log
+          sha256sum reactivo-13-node-a-environment-before.png reactivo-13-node-a-environment-after.png reactivo-13-node-a-environment-camera-pair.json reactivo-13-node-a-environment-comparison.json > node-a-environment-artifact-sha256.txt
+      - name: Upload Node A architecture floor and cover real paired evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fisura-095-node-a-environment-before-after
+          path: |
+            reactivo-13-node-a-environment-before.png
+            reactivo-13-node-a-environment-after.png
+            reactivo-13-node-a-environment-before-after.png
+            reactivo-13-node-a-environment-camera-pair.json
+            reactivo-13-node-a-environment-comparison.json
+            node-a-environment-artifact-sha256.txt
+          if-no-files-found: error
       - name: ARCONT verify six unique viewport artifacts at 1280x720
         run: |
           python3 _arcont_reference/tools/viewport_evidence_gate.py --min-width 1280 --min-height 720 reactivo-13-render-proof.png reactivo-13-node.png reactivo-13-reactor.png reactivo-13-bulwark.png reactivo-13-cover.png reactivo-13-vault.png | tee reactivo-visual-evidence.log
@@ -375,6 +412,9 @@ jobs:
             reactivo-warning.log
             reactivo-art-budget.log
             node-a-visual-regression.log
+            node-a-environment-regression.log
+            node-a-environment-pair.log
+            node-a-environment-comparison-gate.log
             node-a-camera-pair.log
             node-a-comparison-gate.log
             reactivo-native-inventory.log
