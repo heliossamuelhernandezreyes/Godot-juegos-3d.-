@@ -17,7 +17,7 @@ func _run_capture() -> void:
     if world.cinematic_stage == null or world.stage.modular_cover_layer == null or world.camera == null:
         _fail("missing native scene pilot/camera")
         return
-    world.player.global_position = Vector3(-23.0, 1.0, 8.0)
+    world.player.global_position = Vector3(-23.0, 1.0, 4.8)
     world.player.velocity = Vector3.ZERO
     world.camera_yaw = 0.0
     world.camera_pitch = 0.0
@@ -66,7 +66,7 @@ func _run_capture() -> void:
         "renderer": str(ProjectSettings.get_setting("rendering/renderer/rendering_method","unknown")),
         "resolution": [img.get_width(),img.get_height()],
         "camera": matched_pose,
-        "player_world_position": [-23.0,1.0,8.0],
+        "player_world_position": [-23.0,1.0,4.8],
         "mission_state": "insertion mission idle, world processes frozen",
         "fixture": "Seven Map Forge cover visual skins; physics, lights and mission unchanged",
         "toggle_flag": "cover_upgrade_visible",
