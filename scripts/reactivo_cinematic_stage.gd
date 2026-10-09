@@ -6,6 +6,7 @@ const BARREL: PackedScene = preload("res://assets/vendor/polyhaven/barrel_03/bar
 const WALL_LAMP: PackedScene = preload("res://assets/vendor/polyhaven/industrial_wall_lamp/industrial_wall_lamp_1k.gltf")
 const PHOTO_CART: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_storage_cart/industrial_storage_cart_1k.gltf")
 const PHOTO_CONTAINER: PackedScene = preload("res://assets/vendor/polyhaven_cinematic/industrial_pastic_container/industrial_pastic_container_1k.gltf")
+const NODE_A_VISUAL: Script = preload("res://scripts/reactivo_node_a_visual_pilot.gd")
 var metal: Material
 var worn: Material
 var copper: Material
@@ -19,6 +20,7 @@ var halo: MeshInstance3D
 var time_accum := 0.0
 var alarm_active := false
 var draw_nodes := 0
+var node_a_pilot: Node3D
 var material_cache: Dictionary = {}
 var box_cache: Dictionary = {}
 
@@ -35,6 +37,7 @@ func _ready() -> void:
     _perimeter()
     _main_corridor()
     _node_rooms()
+    _node_a_hero_pilot()
     _detailed_factory_props()
     _reactor()
     _exit_platform()
@@ -166,6 +169,18 @@ func _node_rooms() -> void:
             prop.position = Vector3(x + dx, 0, 2)
             add_child(prop)
             draw_nodes += 1
+
+func _node_a_hero_pilot() -> void:
+    # Independent visual-only child: comparison can toggle it without touching
+    # any mission, player, navigation, camera or runtime illumination state.
+    node_a_pilot = Node3D.new()
+    node_a_pilot.set_script(NODE_A_VISUAL)
+    node_a_pilot.position = Vector3(-28.0, 0.0, 0.55)
+    add_child(node_a_pilot)
+
+func set_node_a_pilot_enabled(enabled: bool) -> void:
+    if node_a_pilot != null:
+        node_a_pilot.visible = enabled
 
 func _detailed_factory_props() -> void:
     # ARCONT-vetted original Poly Haven photogrammetry, with complete glTF dependencies.
