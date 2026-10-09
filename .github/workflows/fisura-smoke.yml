@@ -25,7 +25,7 @@ jobs:
           repository: heliossamuelhernandezreyes/Arcont
           # Experimental P0/P1 visual tools from Arcont draft PR #49.
           # Runtime capture stays in FISURA; no write privileges granted.
-          ref: 448f8759b6e96eee1277e9ab664e5450838eb0f6
+          ref: c92fe21a55fac765d201022240a44edda35a51f3
           path: _arcont_visual_reference
       - name: Validate ARCONT 1.1 project intent against canonical schema
         run: |
