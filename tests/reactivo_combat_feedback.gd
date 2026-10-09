@@ -16,13 +16,16 @@ func _run() -> void:
     var world = SCENE.instantiate()
     root.add_child(world)
     world.testing_disable_spawns = true
-    world.player.global_position = Vector3(0, 1.0, 19.0)
+    # Keep the instrumented sight line above industrial world cover.
+    world.player.global_position = Vector3(0, 10.0, 19.0)
     world.player.velocity = Vector3.ZERO
     world.camera.global_position = world._camera_position()
     world.camera.look_at(world._camera_target(), Vector3.UP)
 
+    # Use an explicit center ray: headless Linux has no physical mouse.
+    var pointer: Vector2 = root.get_visible_rect().size * 0.5
     # Even if a shot touches passive level geometry, it cannot confirm damage.
-    world._fire()
+    world._fire(pointer)
     if world.hit_confirm_remaining > 0.001:
         _fail("A shot without a damageable target confirmed an enemy hit")
         return
@@ -34,13 +37,13 @@ func _run() -> void:
     body.size = Vector3(4.0, 3.0, 0.8)
     collision.shape = body
     target.add_child(collision)
-    target.position = Vector3(0.0, 1.0, 16.0)
+    target.position = Vector3(0.0, 10.0, 16.0)
     world.add_child(target)
     await physics_frame
 
     world.camera.global_position = world._camera_position()
     world.camera.look_at(world._camera_target(), Vector3.UP)
-    world._fire()
+    world._fire(pointer)
     if target.received_damage != 23:
         _fail("Damageable collider not hit by real camera-to-muzzle physics ray: " + str(target.received_damage))
         return
