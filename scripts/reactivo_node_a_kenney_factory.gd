@@ -23,9 +23,18 @@ var model_counts: Dictionary = {}
 var geometry_triangles := 0
 var _original_visibility: Dictionary = {}
 var _panel_alpha_trim: Array[Node3D] = []
+var armoured_steel: ORMMaterial3D
+var pressurised_pipe: ORMMaterial3D
+var instrument_metal: ORMMaterial3D
 
 func _ready() -> void:
     name = "NODE A | KENNEY REAL FACTORY GLB KIT | CC0 | VISUAL ONLY"
+    # Preserve authentic imported polygon geometry, reskin its visible meshes
+    # with the same licensed PBR atlas family used elsewhere in Reactivo.
+    # Kenney's original color-map remains vendored for byte-complete import.
+    armoured_steel = _pbr("#8c9eab", 0.62)
+    pressurised_pipe = _pbr("#738894", 0.53)
+    instrument_metal = _pbr("#b1a493", 0.78)
     # Relative to Node A center(-28,0,4); all substantial new solid-looking
     # details sit in pre-existing machinery/architecture zones, off combat path.
     _model("structure-high", "original coolant tower south | load frame",
@@ -63,6 +72,20 @@ func _ready() -> void:
     print("KENNEY FACTORY KIT READY real_glb_instances=%d unique_source_models=%d mesh_nodes=%d triangles=%d physics=0 lights=0" %
         [authored_models.size(),model_counts.size(),draw_mesh_nodes,geometry_triangles])
 
+func _pbr(tint: String, uv_scale: float) -> ORMMaterial3D:
+    var prefix := "res://assets/vendor/polyhaven_materials/green_metal_rust/"
+    var m := ORMMaterial3D.new()
+    m.albedo_color = Color(tint)
+    m.albedo_texture = load(prefix+"diff.jpg") as Texture2D
+    m.orm_texture = load(prefix+"arm.jpg") as Texture2D
+    m.normal_texture = load(prefix+"nor_gl.jpg") as Texture2D
+    m.normal_enabled = true
+    m.uv1_triplanar = true
+    m.uv1_scale = Vector3.ONE * uv_scale
+    assert(m.albedo_texture != null and m.orm_texture != null and m.normal_texture != null,
+        "Kenney industrial kit must use real CC0 metal PBR textures")
+    return m
+
 func _model(id: String, label: String, local_at: Vector3, size: Vector3) -> void:
     var proto: PackedScene = PREFABS.get(id)
     assert(proto != null, "A pinned GLB prefab is missing "+id)
@@ -74,9 +97,9 @@ func _model(id: String, label: String, local_at: Vector3, size: Vector3) -> void
     add_child(obj)
     authored_models.append(obj)
     model_counts[id] = int(model_counts.get(id,0)) + 1
-    _prepare_imported_geometry(obj)
+    _prepare_imported_geometry(obj, id)
 
-func _prepare_imported_geometry(tree: Node) -> void:
+func _prepare_imported_geometry(tree: Node, source_family: String) -> void:
     assert(not tree is CollisionObject3D and not tree is CollisionShape3D and not tree is Light3D,
         "Imported game art unexpectedly contained collision or realtime light")
     if tree is MeshInstance3D:
@@ -84,6 +107,13 @@ func _prepare_imported_geometry(tree: Node) -> void:
         assert(visible_mesh.mesh != null and visible_mesh.mesh.get_surface_count() > 0,
             "Imported Kenney source is an empty geometry proxy")
         visible_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        # Godot retains the source GLB mesh, surfaces and UVs. Only the surface
+        # appearance is overridden for gritty industrial continuity.
+        visible_mesh.material_override = (
+            pressurised_pipe if source_family.begins_with("pipe-") else
+            instrument_metal if source_family.begins_with("screen-") else
+            armoured_steel
+        )
         draw_mesh_nodes += 1
         for surface in range(visible_mesh.mesh.get_surface_count()):
             var arrays: Array = visible_mesh.mesh.surface_get_arrays(surface)
@@ -94,7 +124,7 @@ func _prepare_imported_geometry(tree: Node) -> void:
                 var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
                 geometry_triangles += int(verts.size()/3)
     for sub in tree.get_children():
-        _prepare_imported_geometry(sub)
+        _prepare_imported_geometry(sub,source_family)
 
 func bind_existing_legacy_visuals(world: Node3D) -> void:
     # Called only after both ArtStage and 0.9.7 material layer have finished.
