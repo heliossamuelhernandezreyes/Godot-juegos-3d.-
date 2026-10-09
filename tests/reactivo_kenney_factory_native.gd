@@ -66,6 +66,10 @@ func _validate_meshes(node: Node) -> int:
         if node.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
             _fail("unexpected mobile shadow caster in decoration")
             return 0
+        var finish: ORMMaterial3D = node.material_override as ORMMaterial3D
+        if finish == null or finish.albedo_texture == null or finish.orm_texture == null or not finish.normal_enabled or finish.normal_texture == null or not finish.uv1_triplanar:
+            _fail("genuine GLB source has not received complete metallic PBR albedo/ARM/normal treatment")
+            return 0
         n += 1
     for sub in node.get_children():
         n += _validate_meshes(sub)
