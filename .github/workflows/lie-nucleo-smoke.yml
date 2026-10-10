@@ -1,0 +1,36 @@
+name: LIE Nucleo playable Vulkan game
+on:
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - 'games/lie_nucleo/**'
+      - '.github/workflows/lie-nucleo-smoke.yml'
+  pull_request:
+    paths:
+      - 'games/lie_nucleo/**'
+      - '.github/workflows/lie-nucleo-smoke.yml'
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot 4.7.2
+        run: |
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-tools xvfb
+      - name: Import Godot project and shaders
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path games/lie_nucleo --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+      - name: Real game scene + Vulkan compositor + mission smoke
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path games/lie_nucleo --rendering-driver vulkan --rendering-method forward_plus --script res://tests/smoke.gd
+      - name: Preserve actual Godot game screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-nucleo-game-screen
+          path: games/lie_nucleo/lie-nucleo-smoke.png
+          if-no-files-found: error
