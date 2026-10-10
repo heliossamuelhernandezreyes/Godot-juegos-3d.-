@@ -1,0 +1,20 @@
+config_version=5
+
+[application]
+config/name="LIE: Nucleo Omega"
+run/main_scene="res://scenes/main.tscn"
+config/description="Playable hybrid 3D prototype with genuine Lie Vulkan image-based GPU core."
+
+[display]
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/stretch/mode="canvas_items"
+window/handheld/orientation=1
+
+[rendering]
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+textures/default_filters/use_nearest_mipmap_filter=false
+
+[physics]
+3d/default_gravity=24.0
