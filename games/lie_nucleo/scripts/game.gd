@@ -9,6 +9,7 @@ const CORE_POS := Vector3(0,1.65,0)
 const SPAWNS := [Vector3(-7,0,-3),Vector3(7,0,-4),Vector3(3,0,8),Vector3(-7,0,6)]
 const BEACON_SPOTS := [Vector3(-7,0,-6),Vector3(7,0,-6),Vector3(0,0,9)]
 
+var world_environment: WorldEnvironment
 var player: CharacterBody3D
 var player_visual: MeshInstance3D
 var camera: Camera3D
@@ -94,6 +95,8 @@ func _create_world() -> void:
     env.ambient_light_color = Color(0.23,0.35,0.53)
     env.ambient_light_energy = 0.6
     world.environment = env
+    world.name = "WorldEnvironment"
+    world_environment = world
     add_child(world)
     var light := DirectionalLight3D.new()
     light.rotation_degrees = Vector3(-48,28,0)
@@ -167,8 +170,7 @@ func _create_camera_and_lie() -> void:
     lie_effect = LieCore.new()
     var comp := Compositor.new()
     comp.compositor_effects = [lie_effect]
-    var world: WorldEnvironment = get_node("WorldEnvironment") as WorldEnvironment
-    world.compositor = comp
+    world_environment.compositor = comp
     # Explicitly marked fallback when Forward+ Vulkan isn't available.
     core_fallback = MeshInstance3D.new()
     var fallback_mesh := SphereMesh.new()
